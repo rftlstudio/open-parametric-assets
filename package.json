@@ -12,7 +12,7 @@
     "validate": "node validator/validate.js"
   },
   "engines": { "node": ">=24" },
-  "peerDependencies": { "three": "^0.187.0" },
+  "peerDependencies": { "three": ">=0.170.0 <1.0.0" },
   "devDependencies": {
     "three": "0.187.0",
     "vitest": "5.1.0"
