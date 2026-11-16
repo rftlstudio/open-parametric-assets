@@ -38,6 +38,20 @@ await writeFile('cabinet.glb', await exportGLB(root));
 
 The asset node stores the full root metadata in glTF `extras`. For texture-free binary export, the Node adapter supplies the exporter's missing `FileReader.readAsArrayBuffer` callback using native `Blob.arrayBuffer()`.
 
+## Render a dataset
+
+After installing Node 24 and running `npm ci`, download the matching browser once with `npx playwright install --with-deps --only-shell chromium`. The render tests use the same browser. Then run:
+
+```sh
+npm run dataset -- --samples 3 --renders
+```
+
+Each record's `renders` object links to five 512 × 512 PNGs under `renders/<id>/`. Coordinates are right-handed, with +Y up and +Z at the front. The orthographic views look from the front (+Z), right (+X), top (+Y, with −Z up the image) and front-right (45° yaw, 25° elevation). The open view keeps the front-right orientation and rotates every revolute joint to its upper limit. Closed views fit the recorded rest bounding box; the open view fits the articulated geometry.
+
+Playwright serves a local three.js page and blocks network requests. Headless Chromium uses software WebGL, a fixed light-grey background, fixed hemisphere and directional lights, antialiasing and no shadows. Pixels can differ slightly across GPUs, drivers and browser builds. The regression test compares decoded RGB values using a normalized mean absolute difference below 1%.
+
+[View the open cabinet sample](examples/dataset-sample/renders/f569a731136113c491f44475eb530872ee80d750a6ddd37642a62bbc6228be07/open_three_quarter.png). In GitHub Actions, download the `rendered-dataset` artifact for all three records, their GLBs and all fifteen images.
+
 ## Licensing
 
 Source code, schemas, documentation and tests are licensed under [Apache-2.0](LICENSE). Project-generated renders and datasets are licensed under [CC BY 4.0](LICENSE-DATA). The asset's `userData.license` identifies this output license. When sharing covered outputs, credit the Open Parametric Assets contributors, link to the source and license, and indicate any changes.

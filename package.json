@@ -12,9 +12,15 @@
     "validate": "node validator/validate.js",
     "dataset": "node scripts/build-dataset.js"
   },
-  "engines": { "node": ">=24" },
-  "peerDependencies": { "three": ">=0.170.0 <1.0.0" },
+  "engines": {
+    "node": ">=24"
+  },
+  "peerDependencies": {
+    "three": ">=0.170.0 <1.0.0"
+  },
   "devDependencies": {
+    "playwright": "1.65.1",
+    "pngjs": "7.0.0",
     "three": "0.187.0",
     "vitest": "5.1.0"
   }

@@ -129,6 +129,7 @@ it('writes five replayable records per asset and reproduces their IDs and GLBs',
   expect((await readdir(join(first, 'glb'))).length).toBe(records.length);
 
   for (const r of rows) {
+    expect(r).not.toHaveProperty('renders');
     const { width, height, depth, doorCount, shelfCount, handleStyle } = r.params;
     expect(readGeometry(r.prompt)).toEqual({ width, height, depth, doorCount, shelfCount, handleStyle });
     expect(r.prompt).toContain(cabinet.schema.parameters.color.labels[r.params.color]);
