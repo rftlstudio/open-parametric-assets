@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "vitest run",
-    "validate": "node validator/validate.js"
+    "validate": "node validator/validate.js",
+    "dataset": "node scripts/build-dataset.js"
   },
   "engines": { "node": ">=24" },
   "peerDependencies": { "three": ">=0.170.0 <1.0.0" },
