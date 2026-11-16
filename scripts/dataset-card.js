@@ -46,7 +46,7 @@ Record IDs are SHA-256 digests of the asset ID, version, seed and sorted paramet
 
 ## Limitations
 
-The current collection varies one cabinet design. Test records share the generator and prompt templates used for training. Dimensions in prompts are rounded to centimeters and wear to percentage points. Geometry checks cover the rest pose. Physical properties are estimates.
+The current collection varies one cabinet design. Test records share the generator and prompt templates used for training. Prompts give exact case dimensions on a 0.01 m grid and exact part counts. Surface wear appears as a descriptive band in the prompt and an exact value in steps of 0.05 in params. Geometry checks cover the rest pose. Physical properties are estimates.
 
 ## Citation
 

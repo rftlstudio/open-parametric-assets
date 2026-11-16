@@ -7,6 +7,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { afterEach, expect, it, vi } from 'vitest';
 import * as cabinet from '../assets/furniture/cabinet/index.js';
 import { describe } from '../lib/prompt.js';
+import { resolveParams } from '../lib/parameters.js';
+import { checkSchema, sampleParams } from '../validator/schema.js';
+import { validateAsset } from '../validator/validate.js';
 import { buildDataset, splitFor } from '../scripts/build-dataset.js';
 import { exportGLB } from '../scripts/export-glb.js';
 import project from '../package.json' with { type: 'json' };
@@ -52,21 +55,66 @@ it('round-trips cabinet mesh names, bounds and root extras in Node', async () =>
 });
 
 it('describes all parameters consistently across multiple English templates', () => {
-  const params = { width: 0.789, height: 1.2, depth: 0.543, doorCount: 1, shelfCount: 3,
-    handleStyle: 'bar', color: '#526878', wear: 0.37 };
+  const params = { width: 0.79, height: 1.2, depth: 0.54, doorCount: 1, shelfCount: 3,
+    handleStyle: 'bar', color: '#526878', wear: 0.35 };
   const texts = new Set();
   for (const seed of [0, 1000, 2000]) {
     const prompt = describe(assetId, params, seed);
     expect(describe(assetId, params, seed)).toBe(prompt);
     for (const phrase of ['0.79 m wide', '1.20 m tall', '0.54 m deep', 'one door,', 'bar handle',
-      'three shelves', '#526878', '37% surface wear']) expect(prompt).toContain(phrase);
+      'three shelves', 'slate blue', 'looks worn.']) expect(prompt).toContain(phrase);
     texts.add(prompt);
   }
   expect(texts.size).toBeGreaterThan(1);
   const plural = describe(assetId, { doorCount: 2, handleStyle: 'knob', shelfCount: 1 }, 0);
   expect(plural).toContain('two doors, knob handles and one shelf.');
-  expect(describe(assetId, { shelfCount: 0 }, 0)).toContain('zero shelves');
+  expect(describe(assetId, { shelfCount: 0 }, 0)).toContain('no shelves');
 });
+
+it.each([
+  [0, 'brand new'], [0.05, 'lightly worn'], [0.30, 'lightly worn'],
+  [0.35, 'worn'], [0.70, 'worn'], [0.75, 'heavily worn'], [1, 'heavily worn']
+])('uses the correct wear band for %s', (wear, band) => {
+  expect(describe(assetId, { wear }, 42)).toContain('looks ' + band + '.');
+});
+
+it('reports a missing or non-deterministic asset-local template', () => {
+  const missing = { ...cabinet, describe: undefined };
+  expect(() => describe(assetId, {}, 0, missing)).toThrow(/furniture\/cabinet: missing describe/);
+  expect(() => validateAsset(missing, assetId)).toThrow(/missing describe/);
+  let calls = 0;
+  const unstable = { ...cabinet, describe: () => 'Cabinet ' + ++calls };
+  expect(() => validateAsset(unstable, assetId)).toThrow(/non-deterministic describe/);
+});
+
+it('samples a decimal grid from its minimum and rejects off-grid inputs', () => {
+  const schema = { parameters: {
+    length: { type: 'number', min: -0.025, max: 0.09, step: 0.05, default: 0.025, unit: 'm', description: 'Length' }
+  } };
+  checkSchema(schema);
+  for (const [u, length] of [[0, -0.025], [0.5, 0.025], [0.9999, 0.075]]) {
+    expect(sampleParams(schema, () => u)).toEqual({ length });
+    expect(resolveParams(schema, { length })).toEqual({ length });
+  }
+  expect(() => resolveParams(schema, { length: 0.09 })).toThrow(/length/);
+  for (const step of [0, -0.1, Infinity]) {
+    expect(() => checkSchema({ parameters: { length: { ...schema.parameters.length, step } } })).toThrow(/step/);
+  }
+  for (const params of [{ width: 1.2700000001 }, { depth: 0.401 }, { wear: 0.23 }]) {
+    expect(() => cabinet.createAsset(params)).toThrow(/Invalid parameter/);
+  }
+  expect(resolveParams(cabinet.schema, { width: 1.27 }).width).toBe(1.27);
+});
+
+function readGeometry(prompt) {
+  const counts = ['no', 'one', 'two', 'three', 'four', 'five'];
+  const [, width, height, depth] = prompt.match(/\b(\d+\.\d{2}) m wide, (\d+\.\d{2}) m tall and (\d+\.\d{2}) m deep\b/);
+  const [, doors] = prompt.match(/\b(one|two) doors?\b/);
+  const [, handleStyle] = prompt.match(/\b(bar|knob) handles?\b/);
+  const [, shelves] = prompt.match(/\b(no|one|two|three|four|five) shel(?:f|ves)\b/);
+  return { width: Number(width), height: Number(height), depth: Number(depth),
+    doorCount: counts.indexOf(doors), shelfCount: counts.indexOf(shelves), handleStyle };
+}
 
 it('writes five replayable records per asset and reproduces their IDs and GLBs', async () => {
   const first = await directory();
@@ -81,6 +129,9 @@ it('writes five replayable records per asset and reproduces their IDs and GLBs',
   expect((await readdir(join(first, 'glb'))).length).toBe(records.length);
 
   for (const r of rows) {
+    const { width, height, depth, doorCount, shelfCount, handleStyle } = r.params;
+    expect(readGeometry(r.prompt)).toEqual({ width, height, depth, doorCount, shelfCount, handleStyle });
+    expect(r.prompt).toContain(cabinet.schema.parameters.color.labels[r.params.color]);
     const original = cabinet.createAsset(r.params, { seed: r.seed });
     let triangles = 0;
     original.traverse(node => { if (node.isMesh) triangles += node.geometry.index.count / 3; });

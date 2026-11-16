@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { discoverAssets } from '../lib/assets.js';
 import { seededRandom } from '../lib/parameters.js';
+import { describe } from '../lib/prompt.js';
 import { inspect } from './geometry.js';
 import { checkRejection, checkSchema, sampleParams } from './schema.js';
 
@@ -12,7 +13,9 @@ function validateCase(asset, id, params, seed) {
   const limit = asset.schema.triangleLimit ?? 20000;
   const first = inspect(root, id, limit);
   assert.equal(first.hash, inspect(build(), id, limit).hash, 'non-deterministic geometry or metadata');
-  return { root, triangles: first.triangles };
+  const prompt = describe(id, params, seed, asset);
+  assert.equal(prompt, describe(id, params, seed, asset), 'non-deterministic describe output');
+  return { root, triangles: first.triangles, prompt };
 }
 
 export function validateAsset(asset, id, sample) {

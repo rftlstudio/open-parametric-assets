@@ -7,7 +7,6 @@ import { parseArgs } from 'node:util';
 import project from '../package.json' with { type: 'json' };
 import { discoverAssets } from '../lib/assets.js';
 import { seededRandom } from '../lib/parameters.js';
-import { describe } from '../lib/prompt.js';
 import { sampleParams } from '../validator/schema.js';
 import { validateAsset } from '../validator/validate.js';
 import { datasetCard } from './dataset-card.js';
@@ -46,12 +45,12 @@ async function generate(stage, samples, assets) {
           // Separate parameter draws from the LCG that enumerates unique record seeds.
           const paramSeed = digest(['parameters', assetId, seed]).readUInt32BE(0);
           const params = sampleParams(asset.schema, seededRandom(paramSeed));
-          const { root, triangles } = validateAsset(asset, assetId, { params, seed });
+          const { root, triangles, prompt } = validateAsset(asset, assetId, { params, seed });
           const meta = root.userData;
           const id = recordId(assetId, meta.version, seed, params);
           const record = {
             id, asset_id: assetId, asset_version: meta.version, seed, params,
-            prompt: describe(assetId, params, seed),
+            prompt,
             code: 'createAsset(' + JSON.stringify(params) + ', { seed: ' + seed + ' })',
             glb_path: 'glb/' + id + '.glb', triangles, bounding_box: meta.boundingBox,
             joints: meta.joints, affordances: meta.affordances, split: splitFor(assetId, seed),
