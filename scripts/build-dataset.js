@@ -26,7 +26,7 @@ function recordId(assetId, version, seed, params) {
   return digest([assetId, version, seed, entries]).toString('hex');
 }
 
-async function generate(stage, samples, assets) {
+async function generate(stage, samples, assets, renders) {
   const threePackage = JSON.parse(await readFile(findPackageJSON('three', import.meta.url), 'utf8'));
   const provenance = {
     generator_version: project.version, validator_version: project.version,
@@ -35,7 +35,12 @@ async function generate(stage, samples, assets) {
   let count = 0;
   let testCount = 0;
   const manifest = await open(join(stage, 'data.jsonl'), 'wx');
+  let renderer;
   try {
+    if (renders) {
+      const { startRenderer } = await import('./render.js');
+      renderer = await startRenderer();
+    }
     for (const { id: assetId, url } of assets) {
       const asset = await import(url);
       const next = seededRandom(digest([assetId]).readUInt32BE(0));
@@ -57,6 +62,7 @@ async function generate(stage, samples, assets) {
             provenance, license: meta.license
           };
           await writeFile(join(stage, record.glb_path), await exportGLB(root), { flag: 'wx' });
+          if (renderer) record.renders = await renderer.renderRecord(record, stage);
           await manifest.writeFile(JSON.stringify(record) + '\n');
           count++;
           if (record.split === 'test') testCount++;
@@ -66,13 +72,13 @@ async function generate(stage, samples, assets) {
       }
     }
   } finally {
-    await manifest.close();
+    await Promise.all([manifest.close(), renderer?.close()]);
   }
-  await writeFile(join(stage, 'README.md'), datasetCard(count, testCount, samples, project.version));
+  await writeFile(join(stage, 'README.md'), datasetCard(count, testCount, samples, project.version, renders));
   return count;
 }
 
-export async function buildDataset({ samples = 200, out = 'dist/dataset' } = {}) {
+export async function buildDataset({ samples = 200, out = 'dist/dataset', renders = false } = {}) {
   if (!Number.isSafeInteger(samples) || samples < 1 || samples > 0x100000000) {
     throw new RangeError('samples must be a positive integer within the uint32 seed space');
   }
@@ -81,12 +87,22 @@ export async function buildDataset({ samples = 200, out = 'dist/dataset' } = {})
   const stage = await mkdtemp(join(out, '.build-'));
   try {
     await mkdir(join(stage, 'glb'));
-    const count = await generate(stage, samples, assets);
+    const count = await generate(stage, samples, assets, renders);
     // Publish the manifest last, after every referenced model is in place.
     const models = join(out, 'glb');
     await mkdir(models, { recursive: true });
     for (const file of await readdir(join(stage, 'glb'))) {
       await rename(join(stage, 'glb', file), join(models, file));
+    }
+    if (renders) {
+      const stagedRenders = join(stage, 'renders');
+      for (const id of await readdir(stagedRenders)) {
+        const destination = join(out, 'renders', id);
+        await mkdir(destination, { recursive: true });
+        for (const png of await readdir(join(stagedRenders, id))) {
+          await rename(join(stagedRenders, id, png), join(destination, png));
+        }
+      }
     }
     await rename(join(stage, 'README.md'), join(out, 'README.md'));
     await rename(join(stage, 'data.jsonl'), join(out, 'data.jsonl'));
@@ -99,9 +115,10 @@ export async function buildDataset({ samples = 200, out = 'dist/dataset' } = {})
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
   try {
     const { values } = parseArgs({ options: {
-      samples: { type: 'string', default: '200' }, out: { type: 'string', default: 'dist/dataset' }
+      samples: { type: 'string', default: '200' }, out: { type: 'string', default: 'dist/dataset' },
+      renders: { type: 'boolean', default: false }
     } });
-    const count = await buildDataset({ samples: Number(values.samples), out: values.out });
+    const count = await buildDataset({ samples: Number(values.samples), out: values.out, renders: values.renders });
     console.log('Wrote ' + count + ' validated records to ' + resolve(values.out));
   } catch (error) {
     console.error(error.message);

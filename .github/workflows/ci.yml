@@ -8,7 +8,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,6 +18,16 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --ignore-scripts
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-${{ runner.arch }}-chromium-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps --only-shell chromium
       - run: npm test
       - run: npm run validate
-      - run: npm run dataset -- --samples 5
+      - run: npm run dataset -- --samples 3 --renders
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rendered-dataset
+          path: dist/dataset/
+          if-no-files-found: error
