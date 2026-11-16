@@ -6,11 +6,15 @@ An asset is an ESM module at `assets/<category>/<asset-name>/index.js`. It expor
 
 `schema.parameters` maps case-sensitive parameter names to descriptors. Every descriptor declares a type, a default value, a nonempty unit string and a description. A `number` has finite inclusive `min` and `max`. An `integer` uses safe integer bounds. An `enum` declares an `enum` array of distinct nonempty strings. The default must belong to the domain. Use `m` for lengths, `rad` for angles and `none` for unitless labels. Optional `schema.triangleLimit` is a positive integer, default 20,000 triangles per build.
 
+A `number` may declare a finite positive `step`. Its allowed values are the decimal grid points `min + k * step <= max` for nonnegative integer `k`. The sampler draws a grid index uniformly, and the factory rejects off-grid inputs. For an inclusive upper bound between grid points, the last valid value is the preceding point. Decimal ticks must fit within JavaScript's safe integer range. An enum may supply `labels`, mapping each stored value to a human-readable name.
+
+Each asset also exports a synchronous `describe(params, random)` function from its module. It returns a nonempty English prompt, applies parameter defaults and uses the supplied PRNG for template choices. The validator checks repeat calls using fresh PRNGs with the same seed. State geometric dimensions at the decimal precision of the grid and include exact part counts. Document any appearance attribute described in bands. Its exact numeric value stays in the record.
+
 ```js
 export const schema = {
   triangleLimit: 500,
   parameters: {
-    height: { type: 'number', default: 1, min: 0.5, max: 2, unit: 'm', description: 'Overall height.' }
+    height: { type: 'number', default: 1, min: 0.5, max: 2, step: 0.01, unit: 'm', description: 'Overall height.' }
   }
 };
 ```

@@ -17,7 +17,9 @@ console.log(schema.parameters.width, cabinet.userData.boundingBox);
 | shelfCount | 2 | Integers from 0 to 5 |
 | handleStyle | bar | bar, knob |
 | color | #a8734b | #a8734b, #526878, #e9e4d8 |
-| wear | 0 | 0–1, controls roughness and seeded fading |
+| wear | 0 | 0–1 in steps of 0.05, controls roughness and seeded fading |
+
+Case dimensions use 0.01 m steps and appear with two decimal places in prompts. Paint colors appear as walnut brown, slate blue and off-white, respectively. Records keep the exact wear value. Prompts describe 0 as “brand new”, values through 0.30 as “lightly worn”, through 0.70 as “worn”, and higher values as “heavily worn”.
 
 Use each hinge's signed axis to open its child door from 0 to 1.75 radians. Both hinges use positive opening angles. Grasp points are centered in each grip. Each shelf exposes a rectangular placeable top face with dimensions along local X and Z and normal +Y.
 

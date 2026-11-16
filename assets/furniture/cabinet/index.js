@@ -1,19 +1,48 @@
 import { BoxGeometry, Color, Group, Mesh, MeshStandardMaterial } from 'three';
-import { resolveParams, seededRandom } from '../../../lib/parameters.js';
+import { parameterGrid, resolveParams, seededRandom } from '../../../lib/parameters.js';
 
 export const schema = {
   triangleLimit: 500,
   parameters: {
-    width: { type: 'number', default: 0.9, min: 0.4, max: 1.6, unit: 'm', description: 'Outside case width.' },
-    height: { type: 'number', default: 1.2, min: 0.5, max: 2.2, unit: 'm', description: 'Floor to top of case.' },
-    depth: { type: 'number', default: 0.45, min: 0.25, max: 0.8, unit: 'm', description: 'Case depth, excluding doors and handles.' },
+    width: { type: 'number', default: 0.9, min: 0.4, max: 1.6, step: 0.01, unit: 'm', description: 'Outside case width.' },
+    height: { type: 'number', default: 1.2, min: 0.5, max: 2.2, step: 0.01, unit: 'm', description: 'Floor to top of case.' },
+    depth: { type: 'number', default: 0.45, min: 0.25, max: 0.8, step: 0.01, unit: 'm', description: 'Case depth, excluding doors and handles.' },
     doorCount: { type: 'integer', default: 2, min: 1, max: 2, unit: 'count', description: 'Number of front doors.' },
     shelfCount: { type: 'integer', default: 2, min: 0, max: 5, unit: 'count', description: 'Number of evenly spaced interior shelves.' },
     handleStyle: { type: 'enum', default: 'bar', enum: ['bar', 'knob'], unit: 'none', description: 'Raised pull bar or block knob.' },
-    color: { type: 'enum', default: '#a8734b', enum: ['#a8734b', '#526878', '#e9e4d8'], unit: 'sRGB', description: 'Paint color in hexadecimal sRGB.' },
-    wear: { type: 'number', default: 0, min: 0, max: 1, unit: 'ratio', description: 'Strength of seeded surface fading and roughness.' }
+    color: {
+      type: 'enum', default: '#a8734b', enum: ['#a8734b', '#526878', '#e9e4d8'],
+      labels: { '#a8734b': 'walnut brown', '#526878': 'slate blue', '#e9e4d8': 'off-white' },
+      unit: 'sRGB', description: 'Paint color in hexadecimal sRGB.'
+    },
+    wear: { type: 'number', default: 0, min: 0, max: 1, step: 0.05, unit: 'ratio', description: 'Strength of seeded surface fading and roughness.' }
   }
 };
+
+function wearBand(wear) {
+  if (wear === 0) return 'brand new';
+  if (wear <= 0.3) return 'lightly worn';
+  if (wear <= 0.7) return 'worn';
+  return 'heavily worn';
+}
+
+export function describe(params, random) {
+  const p = resolveParams(schema, params);
+  const words = ['no', 'one', 'two', 'three', 'four', 'five'];
+  const doors = words[p.doorCount] + (p.doorCount === 1 ? ' door' : ' doors');
+  const shelves = words[p.shelfCount] + (p.shelfCount === 1 ? ' shelf' : ' shelves');
+  const handles = p.doorCount === 1 ? 'a ' + p.handleStyle + ' handle' : p.handleStyle + ' handles';
+  const fittings = doors + ', ' + handles + ' and ' + shelves;
+  const meters = key => p[key].toFixed(parameterGrid(schema.parameters[key]).precision) + ' m';
+  const dimensions = meters('width') + ' wide, ' + meters('height') + ' tall and ' + meters('depth') + ' deep';
+  const finish = 'The ' + schema.parameters.color.labels[p.color] + ' finish looks ' + wearBand(p.wear) + '.';
+  const templates = [
+    'Build a wooden cabinet with ' + fittings + '. Make the case ' + dimensions + '.',
+    'A wooden cabinet measuring ' + dimensions + ', with ' + fittings + '.',
+    'Design a wooden cabinet with ' + fittings + '. Its case measures ' + dimensions + '.'
+  ];
+  return templates[Math.floor(random() * 0x100000000) % templates.length] + ' ' + finish;
+}
 
 export function createAsset(params = {}, { seed = 0 } = {}) {
   const { width, height, depth, doorCount, shelfCount, handleStyle, color, wear } = resolveParams(schema, params);
