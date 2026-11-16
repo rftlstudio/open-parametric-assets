@@ -1,0 +1,20 @@
+{
+  "name": "open-parametric-assets",
+  "version": "0.1.0",
+  "description": "Deterministic three.js assets with machine-checkable specifications",
+  "type": "module",
+  "license": "Apache-2.0",
+  "exports": {
+    "./assets/*": "./assets/*/index.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "validate": "node validator/validate.js"
+  },
+  "engines": { "node": ">=24" },
+  "peerDependencies": { "three": "^0.187.0" },
+  "devDependencies": {
+    "three": "0.187.0",
+    "vitest": "5.1.0"
+  }
+}
