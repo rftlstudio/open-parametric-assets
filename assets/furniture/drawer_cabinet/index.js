@@ -126,7 +126,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   }
 
   root.userData = {
-    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.2.0', license: 'CC-BY-4.0', units: 'm',
+    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.2.1', license: 'CC-BY-4.0', units: 'm',
     boundingBox: { min: [-width / 2, 0, -depth / 2], max: [width / 2, height, depth / 2 + face + reach] },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances
   };

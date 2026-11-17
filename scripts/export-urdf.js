@@ -3,12 +3,13 @@ import { MassProperties } from './urdf-inertia.js';
 
 const basis = new Matrix4().makeRotationX(Math.PI / 2);
 const inverseBasis = basis.clone().invert();
-const vec = v => v.toArray().join(' ');
+const number = value => Number(value.toFixed(9)).toString();
+const vec = v => v.toArray().map(number).join(' ');
 const escape = s => String(s).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 const xyz = p => '<origin xyz="' + vec(p) + '"';
 function pose(position, rotation) {
   const e = new Euler().setFromQuaternion(rotation, 'ZYX');
-  return xyz(position) + ' rpy="' + [e.x, e.y, e.z].join(' ') + '"/>';
+  return xyz(position) + ' rpy="' + [e.x, e.y, e.z].map(number).join(' ') + '"/>';
 }
 
 function frame(node) {
@@ -41,7 +42,7 @@ function meshShape(node, local, masses, meshes) {
   const attr = geo.getAttribute('position');
   for (let i = 0; i < attr.count; i++) {
     const v = new Vector3().fromBufferAttribute(attr, i).multiply(scale);
-    lines.push('v ' + vec(v));
+    lines.push('v ' + v.toArray().join(' '));
     vertices.push(v.applyQuaternion(rotation).add(point));
   }
   const count = geo.index?.count ?? attr.count;
@@ -53,6 +54,53 @@ function meshShape(node, local, masses, meshes) {
   const filename = 'meshes/part-' + (meshes.size + 1) + '.obj';
   meshes.set(filename, new TextEncoder().encode(lines.join('\n') + '\n'));
   return pose(point, rotation) + '<geometry><mesh filename="' + filename + '"/></geometry>';
+}
+
+function rectangleBounds(path) {
+  const points = path.getPoints();
+  const xs = [...new Set(points.map(p => p.x))].sort((a, b) => a - b);
+  const ys = [...new Set(points.map(p => p.y))].sort((a, b) => a - b);
+  const corners = new Set(points.map(p => p.x + ',' + p.y));
+  const axisAligned = points.every((p, i) => {
+    const next = points[(i + 1) % points.length];
+    return p.x === next.x || p.y === next.y;
+  });
+  if (xs.length !== 2 || ys.length !== 2 || corners.size !== 4 || !axisAligned) {
+    throw new Error('URDF aperture decomposition requires axis-aligned rectangles');
+  }
+  return [xs[0], xs[1], ys[0], ys[1]];
+}
+
+function collisionShapes(node, local, visual) {
+  const geometry = node.geometry;
+  const shapes = [].concat(geometry.parameters?.shapes ?? []);
+  if (geometry.type !== 'ExtrudeGeometry' || !shapes.some(shape => shape.holes.length)) {
+    return [[node.name, visual]];
+  }
+  if (shapes.length !== 1 || shapes[0].holes.length !== 1 || geometry.parameters.options.bevelEnabled !== false) {
+    throw new Error(node.name + ': URDF aperture decomposition requires one unbeveled rectangular hole');
+  }
+  const [left, right, bottom, top] = rectangleBounds(shapes[0]);
+  const [holeLeft, holeRight, holeBottom, holeTop] = rectangleBounds(shapes[0].holes[0]);
+  if (!(left < holeLeft && holeLeft < holeRight && holeRight < right &&
+        bottom < holeBottom && holeBottom < holeTop && holeTop < top)) {
+    throw new Error(node.name + ': aperture must lie inside the face');
+  }
+  const position = new Vector3(), rotation = new Quaternion(), scale = new Vector3();
+  local.decompose(position, rotation, scale);
+  geometry.computeBoundingBox();
+  const minZ = geometry.boundingBox.min.z, maxZ = geometry.boundingBox.max.z;
+  const panels = [
+    ['above', left, right, holeTop, top],
+    ['below', left, right, bottom, holeBottom],
+    ['left', left, holeLeft, holeBottom, holeTop],
+    ['right', holeRight, right, holeBottom, holeTop]
+  ];
+  return panels.map(([side, minX, maxX, minY, maxY]) => {
+    const center = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2).applyMatrix4(local);
+    const size = new Vector3(maxX - minX, maxY - minY, maxZ - minZ).multiply(scale);
+    return [node.name + '_' + side, pose(center, rotation) + '<geometry><box size="' + vec(size) + '"/></geometry>'];
+  });
 }
 
 export function exportURDF(root) {
@@ -80,15 +128,18 @@ export function exportURDF(root) {
     const masses = new MassProperties();
     const inverse = frame(link).invert();
     for (const node of nodes) {
-      const shape = meshShape(node, inverse.clone().multiply(node.matrixWorld), masses, meshes);
-      const color = node.material.color.toArray().join(' ') + ' ' + node.material.opacity;
+      const local = inverse.clone().multiply(node.matrixWorld);
+      const shape = meshShape(node, local, masses, meshes);
+      const color = node.material.color.toArray().map(number).join(' ') + ' ' + number(node.material.opacity);
       lines.push('    <visual name="visual_' + escape(node.name) + '">' + shape +
-        '<material name="material_' + escape(node.name) + '"><color rgba="' + color + '"/></material></visual>',
-        '    <collision name="' + escape(node.name) + '">' + shape + '</collision>');
+        '<material name="material_' + escape(node.name) + '"><color rgba="' + color + '"/></material></visual>');
+      for (const [name, collision] of collisionShapes(node, local, shape)) {
+        lines.push('    <collision name="' + escape(name) + '">' + collision + '</collision>');
+      }
     }
     const m = masses.finish();
-    const inertia = ['ixx','ixy','ixz','iyy','iyz','izz'].map(k => k + '="' + m[k] + '"').join(' ');
-    lines.push('    <inertial>' + xyz(m.center) + '/><mass value="' + m.mass + '"/><inertia ' + inertia + '/></inertial>', '  </link>');
+    const inertia = ['ixx','ixy','ixz','iyy','iyz','izz'].map(k => k + '="' + number(m[k]) + '"').join(' ');
+    lines.push('    <inertial>' + xyz(m.center) + '/><mass value="' + number(m.mass) + '"/><inertia ' + inertia + '/></inertial>', '  </link>');
   }
   for (const joint of joints) {
     const child = root.getObjectByName(joint.childPart), parent = owner(child.parent);
@@ -103,8 +154,8 @@ export function exportURDF(root) {
     lines.push('  <joint name="' + escape(joint.name) + '" type="' + joint.type + '">',
       '    <parent link="' + escape(parent.name) + '"/><child link="' + escape(child.name) + '"/>',
       '    ' + origin + '<axis xyz="' + vec(axis) + '"/>',
-      '    <limit lower="' + lower + '" upper="' + upper + '" effort="' + effort + '" velocity="' + velocity + '"/>',
-      '    <dynamics damping="' + damping + '" friction="' + friction + '"/>', '  </joint>');
+      '    <limit lower="' + number(lower) + '" upper="' + number(upper) + '" effort="' + number(effort) + '" velocity="' + number(velocity) + '"/>',
+      '    <dynamics damping="' + number(damping) + '" friction="' + number(friction) + '"/>', '  </joint>');
   }
   return { urdf: [...lines, '</robot>', ''].join('\n'), meshes };
 }
