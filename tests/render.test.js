@@ -9,7 +9,7 @@ import { buildDataset } from '../scripts/build-dataset.js';
 import { exportGLB } from '../scripts/export-glb.js';
 import { startRenderer } from '../scripts/render.js';
 
-const views = ['front', 'three_quarter', 'side', 'top', 'open_three_quarter'];
+const views = ['front', 'three_quarter', 'side', 'top', 'open_three_quarter', 'perspective_three_quarter'];
 const sample = fileURLToPath(new URL('../examples/dataset-sample/', import.meta.url));
 let directory;
 let renderer;
@@ -54,13 +54,31 @@ function checkFraming({ width, height, data }) {
       bottom = Math.max(bottom, y);
     }
   }
-  expect(Math.max(right - left, bottom - top)).toBeGreaterThan(width * 0.7);
+  const coverage = Math.max(right - left + 1, bottom - top + 1) / width;
+  expect(coverage).toBeGreaterThan(0.7);
   expect(Math.min(left, width - 1 - right, top, height - 1 - bottom)).toBeGreaterThan(0);
   expect(Math.abs((left + right + 1) / 2 - width / 2)).toBeLessThan(width * 0.05);
   expect(Math.abs((top + bottom + 1) / 2 - height / 2)).toBeLessThan(height * 0.05);
+  return coverage;
 }
 
-it('frames the default cabinet in five views and visibly opens its doors', async () => {
+// Mean relative luminance of a 20 × 20 patch, in linear sRGB.
+function meanLuminance(image, left, top) {
+  const linear = byte => {
+    const c = byte / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  let sum = 0;
+  for (let y = top; y < top + 20; y++) {
+    for (let x = left; x < left + 20; x++) {
+      const i = 4 * (y * image.width + x);
+      sum += 0.2126 * linear(image.data[i]) + 0.7152 * linear(image.data[i+1]) + 0.0722 * linear(image.data[i+2]);
+    }
+  }
+  return sum / 400;
+}
+
+it('frames the default cabinet in six views, distinguishes panels and visibly opens its doors', async () => {
   const cabinet = createAsset();
   const record = { id: 'default', bounding_box: cabinet.userData.boundingBox, glb_path: 'default.glb' };
   await writeFile(join(directory, record.glb_path), await exportGLB(cabinet));
@@ -70,8 +88,16 @@ it('frames the default cabinet in five views and visibly opens its doors', async
   for (const view of views) {
     expect(paths[view]).toBe('renders/default/' + view + '.png');
     images[view] = await readImage(directory, paths[view]);
-    checkFraming(images[view]);
+    const coverage = checkFraming(images[view]);
+    if (view === 'perspective_three_quarter') {
+      expect(coverage).toBeGreaterThanOrEqual(0.78);
+      expect(coverage).toBeLessThanOrEqual(0.82);
+    }
   }
+  // Interior patches on the left door and right case wall in the fixed 512px view.
+  const panel = meanLuminance(images.three_quarter, 150, 210);
+  const side = meanLuminance(images.three_quarter, 345, 210);
+  expect(panel - side).toBeGreaterThan(0.04);
   expect(rgbDifference(images.three_quarter, images.open_three_quarter)).toBeGreaterThan(0.01);
 }, 60000);
 

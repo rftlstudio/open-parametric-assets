@@ -1,5 +1,8 @@
 // Browser module served by scripts/render.js.
-import { Box3, Color, DirectionalLight, HemisphereLight, OrthographicCamera, Scene, Vector3, WebGLRenderer } from 'three';
+import {
+  Box3, Color, DirectionalLight, EdgesGeometry, HemisphereLight, LineBasicMaterial,
+  LineSegments, OrthographicCamera, PerspectiveCamera, Scene, Vector3, WebGLRenderer
+} from 'three';
 import { GLTFLoader } from './loaders/GLTFLoader.js';
 
 const renderer = new WebGLRenderer({
@@ -11,17 +14,22 @@ renderer.shadowMap.enabled = false;
 
 const scene = new Scene();
 scene.background = new Color(0xe6e6e6);
-const sky = new HemisphereLight(0xffffff, 0xbfc4ca, 1.65);
-const key = new DirectionalLight(0xffffff, 2.2);
-key.position.set(3, 5, 4);
-scene.add(sky, key);
+const sky = new HemisphereLight(0xffffff, 0xd0d0d0, 0.8);
+const key = new DirectionalLight(0xffffff, 3.0);
+key.position.set(-3, 5, 7);
+const fill = new DirectionalLight(0xffffff, 0.65);
+fill.position.set(5, 2, 1);
+const rim = new DirectionalLight(0xffffff, 1.4);
+rim.position.set(-2, 4, -5);
+scene.add(sky, key, fill, rim);
 
 const pitch = 25 * Math.PI / 180;
 const yaw = Math.PI / 4;
 const threeQuarter = new Vector3(Math.cos(pitch) * Math.sin(yaw), Math.sin(pitch), Math.cos(pitch) * Math.cos(yaw));
 const views = {
   front: new Vector3(0, 0, 1), three_quarter: threeQuarter,
-  side: new Vector3(1, 0, 0), top: new Vector3(0, 1, 0), open_three_quarter: threeQuarter
+  side: new Vector3(1, 0, 0), top: new Vector3(0, 1, 0),
+  perspective_three_quarter: threeQuarter, open_three_quarter: threeQuarter
 };
 
 function openJoints(asset) {
@@ -34,6 +42,62 @@ function openJoints(asset) {
     moved ||= joint.limits[1] !== 0;
   }
   return moved;
+}
+
+function addEdgeAccents(model) {
+  const meshes = [];
+  model.traverse(part => { if (part.isMesh) meshes.push(part); });
+  const ink = new LineBasicMaterial({ color: 0x202020, opacity: 0.22, transparent: true, depthWrite: false });
+  for (const mesh of meshes) {
+    // A small depth bias keeps visible crease lines on their host surface.
+    for (const material of [].concat(mesh.material)) {
+      material.polygonOffset = true;
+      material.polygonOffsetFactor = 1;
+      material.polygonOffsetUnits = 1;
+    }
+    mesh.add(new LineSegments(new EdgesGeometry(mesh.geometry, 35), ink));
+  }
+}
+
+function forEachCameraVertex(model, camera, visit) {
+  const point = new Vector3();
+  model.updateMatrixWorld(true);
+  model.traverse(part => {
+    if (!part.isMesh) return;
+    const positions = part.geometry.getAttribute('position');
+    for (let i = 0; i < positions.count; i++) {
+      point.fromBufferAttribute(positions, i).applyMatrix4(part.matrixWorld).applyMatrix4(camera.matrixWorldInverse);
+      visit(point);
+    }
+  });
+}
+
+function perspectiveCamera(bounds, direction, model) {
+  const camera = new PerspectiveCamera(35, 1);
+  const center = bounds.getCenter(new Vector3());
+  const diagonal = bounds.getSize(new Vector3()).length();
+  camera.position.copy(center);
+  camera.lookAt(center.clone().sub(direction));
+  camera.updateMatrixWorld();
+  // At depth d - z, the central 80% spans ±slope * (d - z) on either axis.
+  // Solve the four frustum-plane constraints for a centered, tight fit.
+  const slope = 0.8 * Math.tan(camera.fov * Math.PI / 360);
+  let left = Infinity, right = -Infinity, bottom = Infinity, top = -Infinity, nearest = -Infinity;
+  forEachCameraVertex(model, camera, ({ x, y, z }) => {
+    left = Math.min(left, x - slope * z);
+    right = Math.max(right, x + slope * z);
+    bottom = Math.min(bottom, y - slope * z);
+    top = Math.max(top, y + slope * z);
+    nearest = Math.max(nearest, z);
+  });
+  const distance = Math.max((right - left) / (2 * slope), (top - bottom) / (2 * slope), nearest + diagonal * 0.1);
+  camera.translateX((right + left) / 2);
+  camera.translateY((top + bottom) / 2);
+  camera.translateZ(distance);
+  camera.near = diagonal * 0.01;
+  camera.far = distance + diagonal;
+  camera.updateProjectionMatrix();
+  return camera;
 }
 
 function cameraFor(bounds, direction, posedAsset) {
@@ -50,15 +114,7 @@ function cameraFor(bounds, direction, posedAsset) {
   // silhouette in camera space, including thin doors seen at oblique angles.
   if (posedAsset) {
     frame.makeEmpty();
-    const point = new Vector3();
-    posedAsset.traverse(part => {
-      if (!part.isMesh) return;
-      const positions = part.geometry.getAttribute('position');
-      for (let i = 0; i < positions.count; i++) {
-        point.fromBufferAttribute(positions, i).applyMatrix4(part.matrixWorld).applyMatrix4(camera.matrixWorldInverse);
-        frame.expandByPoint(point);
-      }
-    });
+    forEachCameraVertex(posedAsset, camera, point => frame.expandByPoint(point));
   }
 
   const size = frame.getSize(new Vector3());
@@ -82,10 +138,14 @@ export async function renderViews({ glb, boundingBox }) {
   const rest = new Box3(new Vector3(...boundingBox.min), new Vector3(...boundingBox.max));
   const images = {};
   try {
+    addEdgeAccents(model);
     for (const [view, direction] of Object.entries(views)) {
       const opened = view === 'open_three_quarter' && openJoints(asset);
       const bounds = opened ? new Box3().setFromObject(model, true) : rest;
-      renderer.render(scene, cameraFor(bounds, direction, opened ? model : null));
+      const camera = view === 'perspective_three_quarter'
+        ? perspectiveCamera(rest, direction, model)
+        : cameraFor(bounds, direction, opened ? model : null);
+      renderer.render(scene, camera);
       images[view] = renderer.domElement.toDataURL('image/png').split(',')[1];
     }
     return images;
@@ -93,7 +153,7 @@ export async function renderViews({ glb, boundingBox }) {
     scene.remove(model);
     const materials = new Set();
     model.traverse(part => {
-      if (part.isMesh) {
+      if (part.isMesh || part.isLineSegments) {
         part.geometry.dispose();
         for (const material of [].concat(part.material)) materials.add(material);
       }

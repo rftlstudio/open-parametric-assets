@@ -46,11 +46,11 @@ After installing Node 24 and running `npm ci`, download the matching browser onc
 npm run dataset -- --samples 3 --renders
 ```
 
-Each record's `renders` object links to five 512 × 512 PNGs under `renders/<id>/`. Coordinates are right-handed, with +Y up and +Z at the front. The orthographic views look from the front (+Z), right (+X), top (+Y, with −Z up the image) and front-right (45° yaw, 25° elevation). The open view keeps the front-right orientation and rotates every revolute joint to its upper limit. Closed views fit the recorded rest bounding box; the open view fits the articulated geometry.
+Each record's `renders` object links to six 512 × 512 PNGs under `renders/<id>/`. Coordinates are right-handed, with +Y up and +Z at the front. The orthographic views look from the front (+Z), right (+X), top (+Y, with −Z up the image) and front-right (45° yaw, 25° elevation). The open view keeps the front-right orientation and rotates every revolute joint to its upper limit. The closed orthographic views fit the rest bounding box. The open view fits the articulated geometry. The closed perspective_three_quarter view uses the same front-right direction, a 35° vertical field of view and an 80% frame fit.
 
-Playwright serves a local three.js page and blocks network requests. Headless Chromium uses software WebGL, a fixed light-grey background, fixed hemisphere and directional lights, antialiasing and no shadows. Pixels can differ slightly across GPUs, drivers and browser builds. The regression test compares decoded RGB values using a normalized mean absolute difference below 1%.
+Playwright serves a local three.js page and blocks network requests. Headless Chromium uses software WebGL, a fixed light-grey background, neutral key, fill and rear rim lights, subtle crease lines, antialiasing and no shadows. Pixels can differ slightly across GPUs, drivers and browser builds. The regression test compares decoded RGB values using a normalized mean absolute difference below 1%.
 
-[View the open cabinet sample](examples/dataset-sample/renders/f569a731136113c491f44475eb530872ee80d750a6ddd37642a62bbc6228be07/open_three_quarter.png). In GitHub Actions, download the `rendered-dataset` artifact for all three records, their GLBs and all fifteen images.
+[View the open cabinet sample](examples/dataset-sample/renders/15ec0a977b8fb6936e4ddcc58400f24f453a7049bcf7a5ba12bbeb33b2937731/open_three_quarter.png). In GitHub Actions, download the `rendered-dataset` artifact for all three records, their GLBs and all eighteen images.
 
 ## Licensing
 

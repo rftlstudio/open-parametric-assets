@@ -31,7 +31,7 @@ ${count} English prompts paired with executable three.js constructor calls and b
 | id, asset_id, asset_version | Stable record digest, asset module path and asset version. |
 | seed, params | Unsigned 32-bit seed and complete, typed generator inputs. |
 | prompt, code | English request and its constructor call. Import createAsset from the module named by asset_id to replay the call. |
-| glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top and open three-quarter PNGs. GPU and driver changes may cause small pixel differences. |' : ''}
+| glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top, open three-quarter and 35° perspective three-quarter PNGs. GPU and driver changes may cause small pixel differences. |' : ''}
 | bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
 | joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians. |
 | split | Deterministic train or test label. Filter this column when loading data.jsonl. |
@@ -40,7 +40,7 @@ ${count} English prompts paired with executable three.js constructor calls and b
 
 ## How it was generated
 
-From the source repository, run \`npm ci\`${renders ? ', then install the browser with \`npx playwright install --with-deps --only-shell chromium\`' : ''} and \`npm run dataset -- --samples ${samples}${renders ? ' --renders' : ''}\` with Node 24. For each asset, the builder draws seeds from a fixed PRNG stream, samples its schema and describes the result using English templates. Each sample passes geometry, bounds, metadata and repeat-build hash checks before its validated group is exported. Root metadata is stored in the asset node's glTF extras.
+From the source repository, run \`npm ci\`${renders ? ', then install the browser with \`npx playwright install --with-deps --only-shell chromium\`' : ''} and \`npm run dataset -- --samples ${samples}${renders ? ' --renders' : ''}\` with Node 24. For each asset, the builder permutes a 32-bit counter into unique record seeds, samples its schema with hash-seeded Mulberry32 and describes the result using English templates. Each sample passes geometry, bounds, metadata and repeat-build hash checks before its validated group is exported. Root metadata is stored in the asset node's glTF extras.
 
 Record IDs are SHA-256 digests of the asset ID, version, seed and sorted parameter entries. The split uses the first 32 bits of SHA-256 over the JSON pair [asset_id, seed], assigning the lowest tenth to test. Adding samples preserves earlier IDs and assignments.
 
