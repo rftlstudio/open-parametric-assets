@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { Box3, Group, Vector3 } from 'three';
-import { checkDrawerTravel } from './prismatic.js';
+import { checkClearance } from './clearance.js';
 import { isText } from './schema.js';
 
 const finiteVector = (value, n) => Array.isArray(value) && value.length === n && value.every(Number.isFinite);
@@ -24,6 +24,16 @@ function checkMetadata(data, parts, id) {
     assert(['prismatic', 'revolute'].includes(joint.type), 'invalid joint type');
     assert(parts.has(joint.childPart), 'unknown joint childPart: ' + joint.childPart);
     assert(finiteVector(joint.axis, 3) && Math.abs(Math.hypot(...joint.axis) - 1) < 1e-6, 'invalid joint axis');
+    if (joint.dynamics !== undefined) {
+      assert(joint.dynamics && typeof joint.dynamics === 'object', 'invalid joint dynamics');
+      for (const key of ['damping', 'friction']) {
+        const value = joint.dynamics[key];
+        assert(value === undefined || Number.isFinite(value) && value >= 0, 'invalid joint dynamics.' + key);
+      }
+    }
+    for (const key of ['effort', 'velocity']) {
+      assert(joint[key] === undefined || Number.isFinite(joint[key]) && joint[key] > 0, 'invalid joint ' + key);
+    }
     assert(finiteVector(joint.limits, 2) && joint.limits[0] <= joint.limits[1], 'invalid joint limits');
   }
   for (const a of data.affordances) {
@@ -84,14 +94,14 @@ export function inspect(root, id, triangleLimit) {
     for (const key of Object.keys(geo.attributes).sort()) digestAttribute(hash, key, geo.attributes[key]);
     hash.update(JSON.stringify(geo.groups));
     for (const m of [].concat(node.material)) {
-      hash.update(JSON.stringify([m.type, m.color?.toArray(), m.roughness, m.metalness, m.opacity]));
+      hash.update(JSON.stringify([m.type, m.color?.toArray(), m.roughness, m.metalness, m.opacity, m.userData.densityKgM3]));
     }
   });
 
   assert(triangles > 0 && triangles <= triangleLimit, 'triangle count ' + triangles + ' outside budget 1..' + triangleLimit);
   checkMetadata(root.userData, parts, id);
   for (const joint of root.userData.joints) {
-    if (joint.type === 'prismatic') checkDrawerTravel(root, joint);
+    if (joint.clearance !== undefined) checkClearance(root, joint);
   }
   for (const side of ['min', 'max']) {
     const declared = root.userData.boundingBox?.[side];

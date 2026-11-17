@@ -19,6 +19,7 @@
     "three": ">=0.170.0 <1.0.0"
   },
   "devDependencies": {
+    "@xmldom/xmldom": "0.9.12",
     "playwright": "1.65.1",
     "pngjs": "7.0.0",
     "three": "0.187.0",

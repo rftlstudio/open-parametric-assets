@@ -25,7 +25,18 @@ jobs:
       - run: npx playwright install --with-deps --only-shell chromium
       - run: npm test
       - run: npm run validate
-      - run: npm run dataset -- --samples 3 --renders
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: sim/requirements.txt
+      - run: python -m pip install -r sim/requirements.txt
+      - run: npm run dataset -- --samples 3 --renders --urdf
+      - name: Simulate every exported URDF
+        run: |
+          for model in dist/dataset/urdf/*/model.urdf; do
+            python sim/check_asset.py "$model" || exit 1
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: rendered-dataset

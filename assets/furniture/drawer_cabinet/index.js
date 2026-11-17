@@ -55,13 +55,15 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   const root = new Group();
   root.name = 'drawer_cabinet';
   const joints = [], affordances = [];
+  wood.userData.densityKgM3 = 650;
+  metal.userData.densityKgM3 = 2700;
   let massKg = 0;
   function box(parent, name, size, center, material = wood) {
     const mesh = new Mesh(new BoxGeometry(...size), material);
     mesh.position.set(...center);
     mesh.name = name;
     parent.add(mesh);
-    massKg += size[0] * size[1] * size[2] * (material === wood ? 650 : 2700);
+    massKg += size[0] * size[1] * size[2] * material.userData.densityKgM3;
     return mesh;
   }
 
@@ -103,7 +105,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
       const panel = new Mesh(recessedPanel(fw, fh, apertureW, apertureH, face), wood);
       panel.name = name + '_face';
       front.add(panel);
-      massKg += (fw * fh - apertureW * apertureH) * face * 650;
+      massKg += (fw * fh - apertureW * apertureH) * face * wood.userData.densityKgM3;
       box(front, name + '_cup_back', [apertureW, apertureH, 0.003], [0, 0, 0.0015], metal);
       box(front, handle, [apertureW, 0.008, 0.004], [0, 0.012, face - 0.002], metal);
       point = [0, -0.012, -0.01]; // In the free space behind and below the lip.
@@ -119,12 +121,12 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
       }
     }
     affordances.push({ type: 'grasp', part: handle, point });
-    joints.push({ name: 'slide_' + i, type: 'prismatic', axis: [0, 0, 1], limits: [0, 0.8 * trayDepth],
-      childPart: drawer.name, drawerBox: tray.name, caseSides: [...sideNames] });
+    joints.push({ name: 'slide_' + i, type: 'prismatic', axis: [0, 0, 1], limits: [0, 0.75 * trayDepth],
+      childPart: drawer.name, clearance: { moving: tray.name, stationary: [...sideNames], minRetainedRatio: 0.2 } });
   }
 
   root.userData = {
-    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.1.0', license: 'CC-BY-4.0', units: 'm',
+    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.2.0', license: 'CC-BY-4.0', units: 'm',
     boundingBox: { min: [-width / 2, 0, -depth / 2], max: [width / 2, height, depth / 2 + face + reach] },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances
   };

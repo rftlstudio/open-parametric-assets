@@ -40,7 +40,13 @@ A joint has a unique `name`, a `type` of `revolute` or `prismatic`, a unit XYZ `
 
 A grasp is `{ type: 'grasp', part, point: [x,y,z] }`. A rectangular placeable surface also has `normal` (unit XYZ) and `size` (two positive edge lengths in meters). Its `point` is the rectangle center. All coordinates are local to the named part. Document the two surface directions in the asset README.
 
-For prismatic drawers, `drawerBox` names the tray group inside `childPart`, excluding the decorative front and pull. `caseSides` names the two stationary case side meshes. At the upper limit the validator measures their axis-aligned bounds in the slide frame. It permits up to 0.001 m of penetration and requires at least 20% of the measured tray depth to remain inside the case. The group stays in its rest pose during validation.
+A joint may declare `clearance: { moving, stationary, minRetainedRatio }`. The moving part must belong to `childPart`; stationary names must refer to separate parts outside that subtree. Both revolute and prismatic joints are checked at five equally spaced positions, including both limits. Each mesh contributes an oriented box around its local geometry. Separating-axis tests permit up to 0.001 m penetration. This is a conservative box approximation, including for curved or hollow meshes. Validation restores the rest pose even on failure.
+
+Optional `minRetainedRatio` lies in [0,1]. At each sampled position, it measures the moving part's projected depth overlapping the common stationary span along the joint's rest-world axis and requires its transverse bounds to stay within the stationary envelope. Drawer trays declare 0.2 and travel by 0.75 of their depth, leaving a 5% retention margin. Drawer metadata v0.2.0 replaces `drawerBox` and `caseSides` with `clearance`.
+
+Optional `dynamics: { damping, friction }` contains finite nonnegative joint damping and Coulomb friction. URDF export defaults to 1 and 0.05, respectively. Units are N·s/m and N for slides, N·m·s/rad and N·m for hinges. Optional positive `effort` and `velocity` default to 150 N or N·m and 0.5 m/s or 2 rad/s.
+
+URDF export reads `material.userData.densityKgM3` for every mesh. Furniture uses 650 kg/m³ wood and 2700 kg/m³ metal, matching `physics.massKg`. Box integrals and closed-mesh volume integrals determine per-link center of mass and inertia. See [URDF and simulation](URDF.md) for the axis conversion and checks.
 
 ## Validation
 

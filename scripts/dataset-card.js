@@ -4,7 +4,7 @@ const sizes = [
   [1e9, '100M<n<1B'], [1e10, '1B<n<10B'], [Infinity, 'n>10B']
 ];
 
-export function datasetCard(count, testCount, samples, version, renders = false) {
+export function datasetCard(count, testCount, samples, version, renders = false, urdf = false) {
   const category = sizes.find(([limit]) => count < limit)[1];
   return `---
 license: cc-by-4.0
@@ -32,7 +32,7 @@ ${count} English prompts paired with executable three.js constructor calls and b
 | seed, params | Unsigned 32-bit seed and complete, typed generator inputs. |
 | prompt, code | English request and its constructor call. Import createAsset from the module named by asset_id to replay the call. |
 | glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top, open three-quarter and 35° perspective three-quarter PNGs. GPU and driver changes may cause small pixel differences. |' : ''}
-| bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
+${urdf ? '| urdf_path | Relative path to the Z-up URDF; mesh references resolve alongside the model. |\n' : ''}| bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
 | joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians and prismatic limits are meters. |
 | split | Deterministic train or test label. Filter this column when loading data.jsonl. |
 | provenance | Generator and validator release versions, installed three.js version and creating project. |
@@ -40,13 +40,13 @@ ${count} English prompts paired with executable three.js constructor calls and b
 
 ## How it was generated
 
-From the source repository, run \`npm ci\`${renders ? ', then install the browser with \`npx playwright install --with-deps --only-shell chromium\`' : ''} and \`npm run dataset -- --samples ${samples}${renders ? ' --renders' : ''}\` with Node 24. For each asset, the builder permutes a 32-bit counter into unique record seeds, samples its schema with hash-seeded Mulberry32 and describes the result using English templates. Each sample passes geometry, bounds, metadata and repeat-build hash checks before its validated group is exported. Root metadata is stored in the asset node's glTF extras.
+From the source repository, run \`npm ci\`${renders ? ', then install the browser with \`npx playwright install --with-deps --only-shell chromium\`' : ''} and \`npm run dataset -- --samples ${samples}${renders ? ' --renders' : ''}${urdf ? ' --urdf' : ''}\` with Node 24. For each asset, the builder permutes a 32-bit counter into unique record seeds, samples its schema with hash-seeded Mulberry32 and describes the result using English templates. Each sample passes geometry, bounds, metadata and repeat-build hash checks before its validated group is exported. Root metadata is stored in the asset node's glTF extras.
 
 Record IDs are SHA-256 digests of the asset ID, version, seed and sorted parameter entries. The split uses the first 32 bits of SHA-256 over the JSON pair [asset_id, seed], assigning the lowest tenth to test. Adding samples preserves earlier IDs and assignments.
 
 ## Limitations
 
-The current collection varies hinged and drawer cabinets. Test records share the generator and prompt templates used for training. Prompts give exact case dimensions on a 0.01 m grid and exact part counts. Records store wear in steps of 0.05. Drawer prompts also include its exact value. Geometry checks cover the rest pose and the upper travel limit of each drawer slide. Physical properties are estimates.
+The current collection varies hinged and drawer cabinets. Test records share the generator and prompt templates used for training. Prompts give exact case dimensions on a 0.01 m grid and exact part counts. Records store wear in steps of 0.05. Prompts describe wear by band. Geometry checks sample five positions on joints with declared clearance. Physical properties are estimates.
 
 ## Citation
 
