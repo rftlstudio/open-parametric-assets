@@ -48,6 +48,8 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   const wood = new MeshStandardMaterial({ color, roughness: 0.55 + 0.4 * wear });
   wood.color.lerp(new Color('#d6c6ae'), wear * (0.05 + 0.15 * random()));
   const metal = new MeshStandardMaterial({ color: '#53575b', metalness: 0.7, roughness: 0.35 });
+  wood.userData.densityKgM3 = 650;
+  metal.userData.densityKgM3 = 2700;
   let massKg = 0;
 
   function box(parent, name, size, center, material = wood) {
@@ -55,7 +57,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     mesh.name = name;
     mesh.position.set(...center);
     parent.add(mesh);
-    massKg += size[0] * size[1] * size[2] * (material === wood ? 650 : 2700);
+    massKg += size[0] * size[1] * size[2] * material.userData.densityKgM3;
     return mesh;
   }
 

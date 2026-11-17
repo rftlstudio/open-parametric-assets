@@ -57,3 +57,8 @@ Playwright serves a local three.js page and blocks network requests. Headless Ch
 Source code, schemas, documentation and tests are licensed under [Apache-2.0](LICENSE). Project-generated renders and datasets are licensed under [CC BY 4.0](LICENSE-DATA). The asset's `userData.license` identifies this output license. When sharing covered outputs, credit the Open Parametric Assets contributors, link to the source and license, and indicate any changes.
 
 Example credit: “Cabinet by [Open Parametric Assets contributors](https://github.com/rftlstudio/open-parametric-assets), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Modified dimensions.”
+
+
+## URDF export and physical checks
+
+Run `npm run dataset -- --samples 3 --urdf` to include a Z-up URDF and mesh files for each record. Install `sim/requirements.txt` with Python 3.12, then run `python sim/check_asset.py dist/dataset/urdf/<record-id>/model.urdf`. The checker verifies import, passive stability, driven joint travel and cube placement on every declared surface. [URDF frames, inertia and simulation details](docs/URDF.md)

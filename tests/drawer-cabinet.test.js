@@ -14,7 +14,7 @@ it('validates defaults and 20 deterministic drawer configurations', () => {
   }
 });
 
-it.each(['bar', 'knob', 'recessed'])('moves every %s pull out by the declared travel and retains 20% of each tray', handleStyle => {
+it.each(['bar', 'knob', 'recessed'])('moves every %s pull out by the declared travel and retains 25% of each tray', handleStyle => {
   const root = drawers.createAsset({ width: 0.35, height: 0.55, depth: 0.40, drawerCount: 6, handleStyle });
   const joints = root.userData.joints;
   expect(joints).toHaveLength(6);
@@ -23,10 +23,10 @@ it.each(['bar', 'knob', 'recessed'])('moves every %s pull out by the declared tr
     expect(joint.type).toBe('prismatic');
     expect(joint.axis).toEqual([0, 0, 1]);
     const drawer = root.getObjectByName(joint.childPart);
-    const tray = drawer.getObjectByName(joint.drawerBox);
+    const tray = drawer.getObjectByName(joint.clearance.moving);
     const fullDepth = bounds(tray).getSize(new Vector3()).z;
     expect(joint.limits[0]).toBe(0);
-    expect(joint.limits[1]).toBeCloseTo(0.8 * fullDepth, 7);
+    expect(joint.limits[1]).toBeCloseTo(0.75 * fullDepth, 7);
     const grasp = root.userData.affordances.find(a => a.type === 'grasp' && drawer.getObjectByName(a.part));
     const grip = drawer.getObjectByName(grasp.part);
     const closed = grip.localToWorld(new Vector3(...grasp.point));
@@ -48,10 +48,10 @@ it.each(['bar', 'knob', 'recessed'])('moves every %s pull out by the declared tr
     expect(delta.y).toBeCloseTo(0, 8);
     expect(delta.z).toBeCloseTo(joint.limits[1], 8);
     const extended = bounds(tray);
-    for (const name of joint.caseSides) {
+    for (const name of joint.clearance.stationary) {
       const side = bounds(root.getObjectByName(name));
       expect(extended.intersectsBox(side)).toBe(false);
-      expect(side.max.z - extended.min.z).toBeCloseTo(0.2 * fullDepth, 7);
+      expect(side.max.z - extended.min.z).toBeCloseTo(0.25 * fullDepth, 7);
     }
   }
 });
@@ -87,7 +87,7 @@ it('allows 1 mm side overlap and rejects larger overlaps or insufficient engagem
     const createAsset = (params, options) => {
       const root = drawers.createAsset(params, options);
       const joint = root.userData.joints[0];
-      root.getObjectByName(joint.drawerBox).position.x += offset;
+      root.getObjectByName(joint.clearance.moving).position.x += offset;
       joint.limits[1] += extraTravel;
       return root;
     };
@@ -97,7 +97,7 @@ it('allows 1 mm side overlap and rejects larger overlaps or insufficient engagem
   expect(check(0.007, 0).root.getObjectByName('drawer_1').position.z).toBeCloseTo(0.55 / 2, 9);
   expect(() => check(0.008, 0)).toThrow(/intersects case_right/);
   expect(() => check(-0.008, 0)).toThrow(/intersects case_left/);
-  expect(() => check(0, 0.002)).toThrow(/less than 20% retained/);
+  expect(() => check(0, 0.03)).toThrow(/less than 20% retained/);
 });
 
 it('recovers dimensions and fittings and describes wear by band in both drawer templates', () => {
