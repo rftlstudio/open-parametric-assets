@@ -100,8 +100,9 @@ it('allows 1 mm side overlap and rejects larger overlaps or insufficient engagem
   expect(() => check(0, 0.002)).toThrow(/less than 20% retained/);
 });
 
-it('recovers every parameter from both natural-language drawer templates', () => {
+it('recovers dimensions and fittings and describes wear by band in both drawer templates', () => {
   const counts = ['one', 'two', 'three', 'four', 'five', 'six'];
+  const bands = ['brand new', 'lightly worn', 'lightly worn', 'worn', 'heavily worn', 'heavily worn'];
   const palette = drawers.schema.parameters.color.labels;
   for (let i = 0; i < 6; i++) {
     for (const handleStyle of ['bar', 'knob', 'recessed']) {
@@ -111,10 +112,10 @@ it('recovers every parameter from both natural-language drawer templates', () =>
         const text = drawers.describe(params, () => variant);
         const [, n, style] = text.match(/(\w+)-drawer chest with (?:a )?(bar|knob|recessed) (?:handle|pull)s?\./);
         const [, width, height, depth] = text.match(/(\d\.\d{2}) m wide, (\d\.\d{2}) m tall and (\d\.\d{2}) m deep/);
-        const [, label] = text.match(/The ([^.]+) finish looks/);
-        const [, wear] = text.match(/\(wear (\d\.\d{2})\)/);
-        expect({ width: +width, height: +height, depth: +depth, drawerCount: counts.indexOf(n) + 1, handleStyle: style,
-          color: Object.keys(palette).find(hex => palette[hex] === label), wear: +wear }).toEqual(params);
+        const [, label, band] = text.match(/The ([^.]+) finish looks ([^.]+)\.$/);
+        expect(band).toBe(bands[i]);
+        expect(params).toMatchObject({ width: +width, height: +height, depth: +depth, drawerCount: counts.indexOf(n) + 1,
+          handleStyle: style, color: Object.keys(palette).find(hex => palette[hex] === label) });
       }
       expect(drawers.describe(params, seededRandom(42))).toBe(drawers.describe(params, seededRandom(42)));
     }

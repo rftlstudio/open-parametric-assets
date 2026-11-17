@@ -12,7 +12,7 @@ A kitchen base unit or office pedestal with one to six equal-height drawers. The
 | color | #a8734b | walnut brown, slate blue, off-white (same hex palette as the hinged cabinet) |
 | wear | 0 | 0–1 in steps of 0.05 |
 
-All three dimensions use 0.01 m steps. Prompts include the dimensions, count, pull style, paint label, wear band and exact wear value.
+All three dimensions use 0.01 m steps. Prompts include the dimensions, count, pull style, paint label and wear band. The record parameters retain the exact wear value.
 
 ```js
 import { Vector3 } from 'three';

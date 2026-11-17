@@ -24,7 +24,7 @@ export function describe(params, random) {
   const intro = random() < 0.5 ? 'Build a ' + design : 'Make a ' + design;
   const dimensions = p.width.toFixed(2) + ' m wide, ' + p.height.toFixed(2) + ' m tall and ' + p.depth.toFixed(2) + ' m deep';
   return intro + '. The case is ' + dimensions + '. The ' + colorParameter.labels[p.color] +
-    ' finish looks ' + wearBand(p.wear) + ' (wear ' + p.wear.toFixed(2) + ').';
+    ' finish looks ' + wearBand(p.wear) + '.';
 }
 
 function group(parent, name, center) {
