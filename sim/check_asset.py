@@ -124,6 +124,8 @@ def affordance_frame(model, data, xml, affordance):
 
 
 def grasp(path, xml, record):
+    style = record["params"]["handleStyle"]
+    require(style in ("recessed", "bar", "knob"), "unsupported grasp handleStyle " + str(style))
     spec = load(path)
     radius = 1e-6
     spec.worldbody.add_geom(name="test_grasp_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
@@ -142,6 +144,20 @@ def grasp(path, xml, record):
             for geom in range(model.ngeom) if geom != probe
         ]
         # Adding the probe radius gives the signed point-to-solid distance.
+        if style in ("bar", "knob"):
+            own = model.geom(affordance["part"]).id
+            require(model.geom_type[own] == mj.mjtGeom.mjGEOM_BOX,
+                    affordance["part"] + ": raised grasp requires its own collision box")
+            own_distance = next(distance for distance, geom in distances if geom == own)
+            require(own_distance <= 0,
+                    f"{affordance['part']}: raised grasp distance {own_distance:.6f} m "
+                    "must be inside its own collision box (distance <= 0)")
+            distance, nearest = min((distance, geom) for distance, geom in distances if geom != own)
+            require(distance > 0.010 + 1e-9,
+                    f"{affordance['part']}: finger room {distance:.6f} m to "
+                    f"{model.geom(nearest).name} must exceed 0.010 m")
+            print(f"PASS grasp {affordance['part']}, inside own box, finger room {distance:.6f} m")
+            continue
         distance, nearest = min(distances)
         require(distance > 0.002 + 1e-9,
                 f"{affordance['part']}: grasp distance {distance:.6f} m to "

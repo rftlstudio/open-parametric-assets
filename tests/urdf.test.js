@@ -15,6 +15,15 @@ function parse(xml) {
 }
 const elements = (node, tag) => [...node.getElementsByTagName(tag)];
 
+it.each([cabinet, drawers])('keeps bar and knob grasp points at the grip center', asset => {
+  for (const handleStyle of ['bar', 'knob']) {
+    const root = asset.createAsset({ handleStyle });
+    const grasps = root.userData.affordances.filter(a => a.type === 'grasp');
+    expect(grasps.length).toBeGreaterThan(0);
+    for (const grasp of grasps) expect(grasp.point).toEqual([0, 0, 0]);
+  }
+});
+
 it.each([cabinet, drawers])('exports deterministic, well-formed links with positive definite inertia', asset => {
   for (const handleStyle of asset.schema.parameters.handleStyle.enum) {
     const root = asset.createAsset({ handleStyle }, { seed: 42 });

@@ -95,7 +95,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     } else {
       grip = box(pivot, 'handle_' + side, [0.03, 0.03, reach], [handleX, 0, reach / 2], metal);
     }
-    affordances.push({ type: 'grasp', part: grip.name, point: [0, 0, grip.geometry.parameters.depth / 2 + 0.005] });
+    affordances.push({ type: 'grasp', part: grip.name, point: [0, 0, 0] });
     joints.push({ name: 'hinge_' + side, type: 'revolute', axis: [0, -inward, 0], limits: [0, 1.75], childPart: pivot.name });
   }
 

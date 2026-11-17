@@ -99,7 +99,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     const front = group(drawer, name + '_front', [0, pitch / 2, 0]);
     const fw = width - 0.004, fh = pitch - 0.004;
     const handle = name + '_handle';
-    let point = [0, 0, (handleStyle === 'bar' ? 0.012 : reach) / 2 + 0.005];
+    let point = [0, 0, 0];
     if (handleStyle === 'recessed') {
       const apertureW = 0.12, apertureH = 0.032;
       const panel = new Mesh(recessedPanel(fw, fh, apertureW, apertureH, face), wood);

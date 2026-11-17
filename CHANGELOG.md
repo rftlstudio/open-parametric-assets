@@ -1,5 +1,13 @@
 # Changelog
 
+## Asset versions 0.2.1
+
+Both cabinet assets advance to 0.2.1. Recessed drawer faces use four collision boxes around the aperture and retain their separate cup back, keeping the cavity open in MuJoCo. Visual faces remain OBJ meshes.
+
+Grasp checks require recessed points to clear every collision geometry by more than 2 mm. Bar and knob points use the grip center, must lie inside their own collision box, and require more than 10 mm clearance from every other collision geometry. All URDF numeric attributes are rounded to 1e-9.
+
+The asset version change produces new record IDs and file paths. Example records, GLBs and renders are regenerated for 0.2.1.
+
 ## URDF and simulation v0.1
 
 Adds optional URDF dataset export, Z-up rigid links with material-density inertia, and MuJoCo 3.3.7 acceptance checks. Both furniture assets expose material density in material userData.

@@ -25,6 +25,6 @@ const grasp = root.userData.affordances.find(a => a.type === 'grasp');
 console.log(root.getObjectByName(grasp.part).localToWorld(new Vector3(...grasp.point)).toArray());
 ```
 
-Drawers are numbered from the bottom. The tray depth is the case depth minus the 18 mm back and 12 mm of rear clearance. At full travel 75% of the tray depth extends past the case opening and 25% remains between the sides. Raised grasp points sit 5 mm beyond the pull surface and follow the moving pull; the recessed grip lies inside the cutout, behind its lip. Placeable rectangles use local X and Z and cover the clear drawer floors and the case top.
+Drawers are numbered from the bottom. The tray depth is the case depth minus the 18 mm back and 12 mm of rear clearance. At full travel 75% of the tray depth extends past the case opening and 25% remains between the sides. Grasp points follow the moving pull; the recessed grip lies inside the cutout, behind its lip. Placeable rectangles use local X and Z and cover the clear drawer floors and the case top.
 
 Use a box collider for each rectangular part. For a recessed front, use four boxes around the 0.12 × 0.032 m aperture to leave the grip accessible. Mass is estimated from solid volumes at 650 kg/m³ for wood and 2700 kg/m³ for metal. The friction coefficient is 0.5.
