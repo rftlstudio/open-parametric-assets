@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import project from '../package.json' with { type: 'json' };
 import { discoverAssets } from '../lib/assets.js';
-import { seededRandom } from '../lib/parameters.js';
+import { mixSeed, seededRandom } from '../lib/parameters.js';
 import { sampleParams } from '../validator/schema.js';
 import { validateAsset } from '../validator/validate.js';
 import { datasetCard } from './dataset-card.js';
@@ -43,11 +43,12 @@ async function generate(stage, samples, assets, renders) {
     }
     for (const { id: assetId, url } of assets) {
       const asset = await import(url);
-      const next = seededRandom(digest([assetId]).readUInt32BE(0));
+      const seedOffset = digest([assetId]).readUInt32BE(0);
       for (let i = 0; i < samples; i++) {
-        const seed = Math.floor(next() * 0x100000000);
+        // A permuted counter keeps record seeds unique throughout the uint32 domain.
+        const seed = mixSeed((seedOffset + i) >>> 0);
         try {
-          // Separate parameter draws from the LCG that enumerates unique record seeds.
+          // Domain-separate parameter draws from the asset's own random stream.
           const paramSeed = digest(['parameters', assetId, seed]).readUInt32BE(0);
           const params = sampleParams(asset.schema, seededRandom(paramSeed));
           const { root, triangles, prompt } = validateAsset(asset, assetId, { params, seed });

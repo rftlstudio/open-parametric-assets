@@ -58,14 +58,14 @@ it('describes all parameters consistently across multiple English templates', ()
   const params = { width: 0.79, height: 1.2, depth: 0.54, doorCount: 1, shelfCount: 3,
     handleStyle: 'bar', color: '#526878', wear: 0.35 };
   const texts = new Set();
-  for (const seed of [0, 1000, 2000]) {
+  for (let seed = 0; seed < 32; seed++) {
     const prompt = describe(assetId, params, seed);
     expect(describe(assetId, params, seed)).toBe(prompt);
     for (const phrase of ['0.79 m wide', '1.20 m tall', '0.54 m deep', 'one door,', 'bar handle',
       'three shelves', 'slate blue', 'looks worn.']) expect(prompt).toContain(phrase);
     texts.add(prompt);
   }
-  expect(texts.size).toBeGreaterThan(1);
+  expect(texts.size).toBe(3);
   const plural = describe(assetId, { doorCount: 2, handleStyle: 'knob', shelfCount: 1 }, 0);
   expect(plural).toContain('two doors, knob handles and one shelf.');
   expect(describe(assetId, { shelfCount: 0 }, 0)).toContain('no shelves');
