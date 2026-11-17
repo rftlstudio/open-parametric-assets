@@ -35,10 +35,12 @@ const views = {
 function openJoints(asset) {
   let moved = false;
   for (const joint of asset.userData.joints) {
-    if (joint.type !== 'revolute') continue;
     const part = asset.getObjectByName(joint.childPart);
     if (!part) throw new Error('Cannot open joint ' + joint.name + ': missing ' + joint.childPart);
-    part.rotateOnAxis(new Vector3(...joint.axis), joint.limits[1]);
+    const axis = new Vector3(...joint.axis);
+    if (joint.type === 'prismatic') part.translateOnAxis(axis, joint.limits[1]);
+    else if (joint.type === 'revolute') part.rotateOnAxis(axis, joint.limits[1]);
+    else throw new Error('Unsupported joint type: ' + joint.type);
     moved ||= joint.limits[1] !== 0;
   }
   return moved;

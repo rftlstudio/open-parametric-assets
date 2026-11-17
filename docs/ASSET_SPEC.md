@@ -40,6 +40,8 @@ A joint has a unique `name`, a `type` of `revolute` or `prismatic`, a unit XYZ `
 
 A grasp is `{ type: 'grasp', part, point: [x,y,z] }`. A rectangular placeable surface also has `normal` (unit XYZ) and `size` (two positive edge lengths in meters). Its `point` is the rectangle center. All coordinates are local to the named part. Document the two surface directions in the asset README.
 
+For prismatic drawers, `drawerBox` names the tray group inside `childPart`, excluding the decorative front and pull. `caseSides` names the two stationary case side meshes. At the upper limit the validator measures their axis-aligned bounds in the slide frame. It permits up to 0.001 m of penetration and requires at least 20% of the measured tray depth to remain inside the case. The group stays in its rest pose during validation.
+
 ## Validation
 
 Run `npm run validate`. The validator discovers asset modules from their category directories, checks schemas and probes invalid inputs. It builds defaults and 20 pseudo-random parameter sets twice each. For each pair it checks metadata and named references, compares declared bounds with transformed vertices, enforces the triangle budget and compares SHA-256 digests over the hierarchy, transforms, indices, vertex attributes, geometry groups, basic material properties and userData. It reports the asset ID and exits with status 1 if an asset fails. Sampling covers reproducible cases within the declared domain. Asset-specific tests check intended physical behavior such as the direction of door motion.

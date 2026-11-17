@@ -33,7 +33,7 @@ ${count} English prompts paired with executable three.js constructor calls and b
 | prompt, code | English request and its constructor call. Import createAsset from the module named by asset_id to replay the call. |
 | glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top, open three-quarter and 35° perspective three-quarter PNGs. GPU and driver changes may cause small pixel differences. |' : ''}
 | bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
-| joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians. |
+| joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians and prismatic limits are meters. |
 | split | Deterministic train or test label. Filter this column when loading data.jsonl. |
 | provenance | Generator and validator release versions, installed three.js version and creating project. |
 | license | CC-BY-4.0 for generated outputs. |
@@ -46,7 +46,7 @@ Record IDs are SHA-256 digests of the asset ID, version, seed and sorted paramet
 
 ## Limitations
 
-The current collection varies one cabinet design. Test records share the generator and prompt templates used for training. Prompts give exact case dimensions on a 0.01 m grid and exact part counts. Surface wear appears as a descriptive band in the prompt and an exact value in steps of 0.05 in params. Geometry checks cover the rest pose. Physical properties are estimates.
+The current collection varies hinged and drawer cabinets. Test records share the generator and prompt templates used for training. Prompts give exact case dimensions on a 0.01 m grid and exact part counts. Records store wear in steps of 0.05. Drawer prompts also include its exact value. Geometry checks cover the rest pose and the upper travel limit of each drawer slide. Physical properties are estimates.
 
 ## Citation
 
