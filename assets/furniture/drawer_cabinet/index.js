@@ -99,7 +99,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     const front = group(drawer, name + '_front', [0, pitch / 2, 0]);
     const fw = width - 0.004, fh = pitch - 0.004;
     const handle = name + '_handle';
-    let point = [0, 0, 0];
+    let point = [0, 0, (handleStyle === 'bar' ? 0.012 : reach) / 2 + 0.005];
     if (handleStyle === 'recessed') {
       const apertureW = 0.12, apertureH = 0.032;
       const panel = new Mesh(recessedPanel(fw, fh, apertureW, apertureH, face), wood);
@@ -126,7 +126,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   }
 
   root.userData = {
-    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.2.0', license: 'CC-BY-4.0', units: 'm',
+    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.2.1', license: 'CC-BY-4.0', units: 'm',
     boundingBox: { min: [-width / 2, 0, -depth / 2], max: [width / 2, height, depth / 2 + face + reach] },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances
   };

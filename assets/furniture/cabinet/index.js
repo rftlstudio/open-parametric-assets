@@ -95,12 +95,12 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     } else {
       grip = box(pivot, 'handle_' + side, [0.03, 0.03, reach], [handleX, 0, reach / 2], metal);
     }
-    affordances.push({ type: 'grasp', part: grip.name, point: [0, 0, 0] });
+    affordances.push({ type: 'grasp', part: grip.name, point: [0, 0, grip.geometry.parameters.depth / 2 + 0.005] });
     joints.push({ name: 'hinge_' + side, type: 'revolute', axis: [0, -inward, 0], limits: [0, 1.75], childPart: pivot.name });
   }
 
   root.userData = {
-    id: 'furniture/cabinet', category: 'furniture', version: '0.2.0', license: 'CC-BY-4.0', units: 'm',
+    id: 'furniture/cabinet', category: 'furniture', version: '0.2.1', license: 'CC-BY-4.0', units: 'm',
     boundingBox: { min: [-width / 2, 0, -front], max: [width / 2, height, front + thickness + reach] },
     physics: { massKg, friction: 0.5, collision: 'compound' }, affordances, joints
   };

@@ -24,3 +24,5 @@ Case dimensions use 0.01 m steps and appear with two decimal places in prompts. 
 Use each hinge's signed axis to open its child door from 0 to 1.75 radians. Both hinges use positive opening angles. Grasp points are centered in each grip. Each shelf exposes a rectangular placeable top face with dimensions along local X and Z and normal +Y.
 
 For a compound collider use one oriented box per mesh, retaining its parent transform. Estimated mass sums box volumes using 650 kg/m³ for wood and 2700 kg/m³ for handles and mounts. The friction coefficient 0.5 is a simulation assumption.
+
+Grasp points sit 5 mm beyond the front surface of each handle.

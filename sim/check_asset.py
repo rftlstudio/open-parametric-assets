@@ -108,19 +108,45 @@ def rotation(rpy):
                      [-sy, cy*sx, cy*cx]])
 
 
-def surface_frame(model, data, xml, affordance):
+def affordance_frame(model, data, xml, affordance):
     for link in xml.findall("link"):
-        for collision in link.findall("collision"):
-            if collision.get("name") != affordance["part"]:
+        for visual in link.findall("visual"):
+            if visual.get("name") != "visual_" + affordance["part"]:
                 continue
-            origin = collision.find("origin")
+            origin = visual.find("origin")
             pos = np.fromstring(origin.get("xyz", "0 0 0"), sep=" ")
             rot = rotation(np.fromstring(origin.get("rpy", "0 0 0"), sep=" "))
             body = model.body(link.get("name")).id
             world = data.xmat[body].reshape(3, 3)
             point = data.xpos[body] + world @ (pos + rot @ affordance["point"])
             return point, world @ rot, body
-    raise ValueError("Missing affordance collision part " + affordance["part"])
+    raise ValueError("Missing affordance part " + affordance["part"])
+
+
+def grasp(path, xml, record):
+    spec = load(path)
+    radius = 1e-6
+    spec.worldbody.add_geom(name="test_grasp_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
+                           size=[radius, 0, 0], pos=[0, 0, 10])
+    model = spec.compile()
+    data = initial(model, record["joints"])
+    probe = model.geom("test_grasp_probe").id
+    for affordance in record["affordances"]:
+        if affordance["type"] != "grasp":
+            continue
+        point, _, _ = affordance_frame(model, data, xml, affordance)
+        model.geom_pos[probe] = point
+        mj.mj_forward(model, data)
+        distances = [
+            (mj.mj_geomDistance(model, data, probe, geom, 1.0, None) + radius, geom)
+            for geom in range(model.ngeom) if geom != probe
+        ]
+        # Adding the probe radius gives the signed point-to-solid distance.
+        distance, nearest = min(distances)
+        require(distance > 0.002 + 1e-9,
+                f"{affordance['part']}: grasp distance {distance:.6f} m to "
+                f"{model.geom(nearest).name} must exceed 0.002 m")
+        print(f"PASS grasp {affordance['part']}, minimum distance {distance:.6f} m")
 
 
 def drop(path, xml, record, limits):
@@ -138,7 +164,7 @@ def drop(path, xml, record, limits):
                       size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
         model = spec.compile()
         data = initial(model, joints, upper=True)
-        point, frame, support_body = surface_frame(model, data, xml, affordance)
+        point, frame, support_body = affordance_frame(model, data, xml, affordance)
         normal = frame @ affordance["normal"]
         require(np.linalg.norm(normal - [0, 0, 1]) < 1e-6,
                 affordance["part"] + ": drop check requires an upward horizontal surface")
@@ -153,7 +179,7 @@ def drop(path, xml, record, limits):
         for _ in range(round(2 / model.opt.timestep)):
             controller(model, data, joints, targets, limits)
             mj.mj_step(model, data)
-            point, frame, support_body = surface_frame(model, data, xml, affordance)
+            point, frame, support_body = affordance_frame(model, data, xml, affordance)
             delta = data.xpos[cube_id] - point
             local = frame.T @ delta
             on_surface = abs(delta @ normal - 0.025) <= 0.002
@@ -195,6 +221,7 @@ def check(path):
     passive(model, joints)
     driven(model, joints, limits)
     drop(path, xml, record, limits)
+    grasp(path, xml, record)
 
 
 if __name__ == "__main__":
