@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { Box3, Group, Vector3 } from 'three';
+import { checkDrawerTravel } from './prismatic.js';
 import { isText } from './schema.js';
 
 const finiteVector = (value, n) => Array.isArray(value) && value.length === n && value.every(Number.isFinite);
@@ -89,6 +90,9 @@ export function inspect(root, id, triangleLimit) {
 
   assert(triangles > 0 && triangles <= triangleLimit, 'triangle count ' + triangles + ' outside budget 1..' + triangleLimit);
   checkMetadata(root.userData, parts, id);
+  for (const joint of root.userData.joints) {
+    if (joint.type === 'prismatic') checkDrawerTravel(root, joint);
+  }
   for (const side of ['min', 'max']) {
     const declared = root.userData.boundingBox?.[side];
     assert(finiteVector(declared, 3), 'invalid boundingBox.' + side);

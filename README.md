@@ -1,6 +1,6 @@
 # Open Parametric Assets
 
-Build a three.js object from parameters and inspect how to interact with it through its named parts, joints and affordances. The first asset is a [cabinet](assets/furniture/cabinet/README.md) with hinged doors and adjustable shelf count.
+Build a three.js object from parameters and inspect how to interact with it through its named parts, joints and affordances. Choose a [hinged cabinet](assets/furniture/cabinet/README.md) with adjustable shelves or a [drawer cabinet](assets/furniture/drawer_cabinet/README.md) with sliding trays.
 
 ## Try the cabinet
 
@@ -25,7 +25,7 @@ Add the returned group to a three.js scene or query it directly in Node. Run `np
 
 Run `npm run dataset -- --samples 200 --out dist/dataset` on Node 24. Each asset contributes 200 validated records to `data.jsonl`, with binary glTF models in `glb/` and a dataset card in `README.md`. Each record includes its exact constructor call, seed, template-generated English prompt and train/test label. Use a fresh output folder for a self-contained snapshot. Rebuilding in place updates the manifest and retains older GLBs.
 
-Inspect the [three sample records and their models](examples/dataset-sample/) or export a single asset from the repository:
+Inspect the [sample records and their models](examples/dataset-sample/) or export a single asset from the repository:
 
 ```js
 import { writeFile } from 'node:fs/promises';
@@ -46,11 +46,11 @@ After installing Node 24 and running `npm ci`, download the matching browser onc
 npm run dataset -- --samples 3 --renders
 ```
 
-Each record's `renders` object links to six 512 × 512 PNGs under `renders/<id>/`. Coordinates are right-handed, with +Y up and +Z at the front. The orthographic views look from the front (+Z), right (+X), top (+Y, with −Z up the image) and front-right (45° yaw, 25° elevation). The open view keeps the front-right orientation and rotates every revolute joint to its upper limit. The closed orthographic views fit the rest bounding box. The open view fits the articulated geometry. The closed perspective_three_quarter view uses the same front-right direction, a 35° vertical field of view and an 80% frame fit.
+Each record's `renders` object links to six 512 × 512 PNGs under `renders/<id>/`. Coordinates are right-handed, with +Y up and +Z at the front. The orthographic views look from the front (+Z), right (+X), top (+Y, with −Z up the image) and front-right (45° yaw, 25° elevation). The open view keeps the front-right orientation and moves each hinge and drawer slide to its upper limit. The closed orthographic views fit the rest bounding box. The open view fits the articulated geometry. The closed perspective_three_quarter view uses the same front-right direction, a 35° vertical field of view and an 80% frame fit.
 
 Playwright serves a local three.js page and blocks network requests. Headless Chromium uses software WebGL, a fixed light-grey background, neutral key, fill and rear rim lights, subtle crease lines, antialiasing and no shadows. Pixels can differ slightly across GPUs, drivers and browser builds. The regression test compares decoded RGB values using a normalized mean absolute difference below 1%.
 
-[View the open cabinet sample](examples/dataset-sample/renders/15ec0a977b8fb6936e4ddcc58400f24f453a7049bcf7a5ba12bbeb33b2937731/open_three_quarter.png). In GitHub Actions, download the `rendered-dataset` artifact for all three records, their GLBs and all eighteen images.
+[View the open cabinet sample](examples/dataset-sample/renders/15ec0a977b8fb6936e4ddcc58400f24f453a7049bcf7a5ba12bbeb33b2937731/open_three_quarter.png). [View the extended drawer sample](examples/dataset-sample/renders/331a28cb0e6809544238d6ab2714ab0c6e0b80b164297ffbe7722a0d208eadd3/open_three_quarter.png). In GitHub Actions, download the `rendered-dataset` artifact for three records per asset, their GLBs and six views per record.
 
 ## Licensing
 

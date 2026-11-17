@@ -171,7 +171,8 @@ it('aborts publication when the exact sampled geometry is invalid', async () => 
   const out = await directory();
   await buildDataset({ samples: 1, out });
   const originalManifest = await readFile(join(out, 'data.jsonl'), 'utf8');
-  const firstSeed = JSON.parse(originalManifest).seed;
+  const baseline = originalManifest.trim().split('\n').map(line => JSON.parse(line));
+  const firstSeed = baseline.find(row => row.asset_id === assetId).seed;
   const original = cabinet.createAsset;
   vi.spyOn(cabinet, 'createAsset').mockImplementation((params, options) => {
     const root = original(params, options);
@@ -180,5 +181,5 @@ it('aborts publication when the exact sampled geometry is invalid', async () => 
   });
   await expect(buildDataset({ samples: 2, out })).rejects.toThrow(/seed .*non-finite vertex/);
   expect(await readFile(join(out, 'data.jsonl'), 'utf8')).toBe(originalManifest);
-  expect(await readdir(join(out, 'glb'))).toHaveLength(1);
+  expect((await readdir(join(out, 'glb'))).sort()).toEqual(baseline.map(row => row.id + '.glb').sort());
 });
