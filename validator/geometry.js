@@ -112,6 +112,16 @@ export function inspect(root, id, triangleLimit) {
 
   assert(triangles > 0 && triangles <= triangleLimit, 'triangle count ' + triangles + ' outside budget 1..' + triangleLimit);
   checkMetadata(root.userData, parts, id);
+  if (root.userData.installation !== undefined) {
+    const {type, cutout} = root.userData.installation;
+    assert(type === 'built_in' && finiteVector(cutout,3) && cutout.every(n => n > 0), 'invalid installation cutout');
+    const body = root.getObjectByName('body');
+    assert(body, 'built-in asset requires body');
+    const envelope = new Box3().setFromObject(body,true);
+    const opening = new Box3(new Vector3(-cutout[0]/2,0,-cutout[2]/2),
+      new Vector3(cutout[0]/2,cutout[1],cutout[2]/2)).expandByScalar(1e-7);
+    assert(opening.containsBox(envelope), 'installation cutout does not enclose body');
+  }
   checkControls(root);
   for (const joint of root.userData.joints) {
     if (joint.clearance !== undefined) checkClearance(root, joint);

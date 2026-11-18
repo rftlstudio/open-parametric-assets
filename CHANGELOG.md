@@ -1,5 +1,9 @@
 # Changelog
 
+## Built-in oven 0.1.0
+
+Adds 60/75/90 cm wall ovens, installation cutouts, a bottom-hinged door, seeded wire racks and physical or touch controls. MuJoCo checks door release, rebound and cube transport on sliding surfaces, including drawer trays.
+
 ## Microwave 0.2.1 and asset spec v0.3
 
 Breaking metadata change: button springs move from control.state.spring to joint.dynamics.spring. Record IDs change. Fixed panel scales show dial detents and their values.

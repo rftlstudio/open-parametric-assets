@@ -34,7 +34,7 @@ ${count} English prompts paired with executable three.js constructor calls and b
 | glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top, open three-quarter and 35° perspective three-quarter PNGs. Assets with controls also include control_panel, a front-facing close-up of their combined regions, moving parts and markings with 15% added framing space. GPU and driver changes may cause small pixel differences. |' : ''}
 ${urdf ? '| urdf_path | Relative path to the Z-up URDF; mesh references resolve alongside the model. |\n' : ''}| bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
 | joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians and prismatic limits are meters. |
-| controls | Button, knob and touch definitions, interaction regions, joint references and state semantics. Empty for assets without controls. |
+| installation | Built-in assets include the cabinet cutout dimensions in meters (width, height, depth). |\n| controls | Button, knob and touch definitions, interaction regions, joint references and state semantics. Empty for assets without controls. |
 | split | Deterministic train or test label. Filter this column when loading data.jsonl. |
 | provenance | Generator and validator release versions, installed three.js version and creating project. |
 | license | CC-BY-4.0 for generated outputs. |
@@ -47,7 +47,7 @@ Record IDs are SHA-256 digests of the asset ID, version, seed and sorted paramet
 
 ## Limitations
 
-The current collection varies hinged cabinets, drawer cabinets and countertop microwaves. Microwave button springs are applied from the record by the MuJoCo checker. Microwave markings are vector geometry and touch fields specify their activation force. Test records share the generator and prompt templates used for training. Prompts give exact case dimensions on a 0.01 m grid and exact part counts. Records store wear in steps of 0.05. Prompts describe wear by band. Geometry checks sample five positions on joints with declared clearance. Physical properties are estimates.
+The current collection varies hinged cabinets, drawer cabinets, countertop microwaves and built-in ovens. Microwave button springs are applied from the record by the MuJoCo checker. Microwave markings are vector geometry and touch fields specify their activation force. Test records share the generator and prompt templates used for training. Prompts give exact case dimensions on a 0.01 m grid and exact part counts. Records store wear in steps of 0.05. Prompts describe wear by band. Geometry checks sample five positions on joints with declared clearance. Physical properties are estimates.
 
 ## Citation
 

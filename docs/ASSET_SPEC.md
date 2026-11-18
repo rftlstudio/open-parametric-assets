@@ -23,6 +23,8 @@ An optional parameter condition `activeWhen` maps parameter names to required va
 
 A mesh marked `userData.visualOnly = true` contributes to rendering, geometry hashes and triangle counts. URDF exports its visual with zero contribution to mass or inertia. Clearance and collision checks omit it. Affordances and control regions must reference physical parts.
 
+A built-in appliance declares installation = { type: 'built_in', cutout: [width,height,depth] } in meters. The installation opening is centered on X/Z and starts at floor level. The group named body contains the inset enclosure. Its bounds must fit the opening. Fascias, doors and handles may project forward.
+
 ## Root metadata and part frames
 
 All fields below belong to `root.userData` and contain JSON values.
@@ -45,9 +47,9 @@ A grasp is `{ type: 'grasp', grip: 'raised' | 'recessed', part, point: [x,y,z] }
 
 A joint may declare `clearance: { moving, stationary, minRetainedRatio }`. The moving part must belong to `childPart`; stationary names must refer to separate parts outside that subtree. Both revolute and prismatic joints are checked at five equally spaced positions, including both limits. Each mesh contributes an oriented box around its local geometry. Separating-axis tests permit up to 0.001 m penetration. This is a conservative box approximation, including for curved or hollow meshes. Validation restores the rest pose even on failure.
 
-Optional `minRetainedRatio` lies in [0,1]. At each sampled position, it measures the moving part's projected depth overlapping the common stationary span along the joint's rest-world axis and requires its transverse bounds to stay within the stationary envelope. Drawer trays declare 0.2 and travel by 0.75 of their depth, leaving a 5% retention margin. Drawer metadata v0.3.0 replaces `drawerBox` and `caseSides` with `clearance`.
+Optional `minRetainedRatio` lies in [0,1]. At each sampled position, it measures the moving part's projected depth overlapping the common stationary span along the joint's rest-world axis and requires its transverse bounds to stay within the stationary envelope. Drawer trays declare 0.2 and travel by 0.75 of their depth, leaving a 5% retention margin. Drawer metadata v0.2.0 replaces `drawerBox` and `caseSides` with `clearance`.
 
-Optional `dynamics: { damping, friction }` contains finite nonnegative joint damping and Coulomb friction. URDF export defaults to 1 and 0.05, respectively. Units are N·s/m and N for slides, N·m·s/rad and N·m for hinges. Optional positive `effort` and `velocity` default to 150 N or N·m and 0.5 m/s or 2 rad/s.
+Optional `dynamics: { damping, friction, spring? }` contains finite nonnegative joint damping and Coulomb friction. URDF export defaults to 1 and 0.05, respectively. Units are N·s/m and N for slides, N·m·s/rad and N·m for hinges. Optional positive `effort` and `velocity` default to 150 N or N·m and 0.5 m/s or 2 rad/s.
 
 URDF export reads `material.userData.densityKgM3` for every mesh. Furniture uses 650 kg/m³ wood and 2700 kg/m³ metal, matching `physics.massKg`. Box integrals and closed-mesh volume integrals determine per-link center of mass and inertia. See [URDF and simulation](URDF.md) for the axis conversion and checks.
 
@@ -66,11 +68,11 @@ The function vocabulary defines appliance-level effects.
 | power_level | Select the operating power level. |
 | timer | Select the operation duration in the declared unit. |
 
-The function `digit` enters a keypad digit and requires an integer `value` from 0 to 9. The icon vocabulary includes `open`, `digit_0` through `digit_9`, and `play`, `stop`, `plus_30`, `power` and `clock`. Labels and icons may independently be null. Appliance READMEs describe effects and interlocks; the metadata does not execute an appliance state machine.
+The function `digit` enters a keypad digit and requires an integer `value` from 0 to 9. Mode keys carry their selected string value. Functions mode, temperature, temp_up and temp_down select heating mode, set a temperature, and step the temperature up or down. Knob states may include an icons array aligned one-to-one with detent positions and values. Panel scales start at twelve o’clock and follow the joint axis. Label every detent through twelve positions, otherwise every fifth. The icon vocabulary includes off, bake, fan, grill, defrost, up, down, `open`, `digit_0` through `digit_9`, and `play`, `stop`, `plus_30`, `power` and `clock`. Labels and icons may independently be null. Appliance READMEs describe effects and interlocks; the metadata does not execute an appliance state machine.
 
 A region is `{ part, point, normal, size }`, using a named mesh's local coordinates. The unit normal points outward and `size` contains the rectangle's two edge lengths in meters. Its first tangent is local +X projected onto the face, or local +Y when the normal is nearly parallel to X. The second tangent is normal × first tangent. This gives local X/Y rectangles on front faces and X/Z rectangles on horizontal surfaces. The validator clips outward-facing triangles against the rectangle and requires full area coverage within a 1 mm plane tolerance.
 
-A button names a prismatic `joint` whose `childPart` contains `region.part`. Its lower limit is zero, upper limit is 0.002–0.004 m and its axis points into the panel. The state is `{ kind: 'momentary', pressedAt }`. `pressedAt` is a finite fraction in [0,1], and a press means q ≥ pressedAt × upper limit. Momentary buttons require a spring on their joint. Any joint can declare dynamics.spring = { stiffness, restPosition }. Stiffness is positive in N/m for slides or N·m/rad for hinges; its rest position is finite, in meters and within the joint limits.
+A button names a prismatic `joint` whose `childPart` contains `region.part`. Its lower limit is zero, upper limit is 0.002–0.004 m and its axis points into the panel. The state is `{ kind: 'momentary', pressedAt }`. `pressedAt` is a finite fraction in [0,1], and a press means q ≥ pressedAt × upper limit. Momentary buttons require a spring on their joint. Any joint can declare dynamics.spring = { stiffness, restPosition }. Stiffness is positive in N/m for slides or N·m/rad for hinges; its rest position is finite, within the joint limits, in meters for slides or radians for hinges.
 
 A knob names a revolute `joint` whose `childPart` contains `region.part`. Its state is `{ kind: 'detent', positions, values, unit }`. There are at least two finite, strictly increasing positions in radians within the joint limits. Values have the same length and contain finite numbers or nonempty strings. The nonempty unit string describes those values. Choose the nearest position to obtain the state value, breaking midpoint ties toward the lower index.
 

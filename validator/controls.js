@@ -3,8 +3,8 @@ import { regionCorners } from '../lib/control-region.js';
 import { Matrix3, Ray, Triangle, Vector3 } from 'three';
 import { isText } from './schema.js';
 
-export const controlFunctions = ['start', 'stop', 'add_30s', 'door_release', 'power_level', 'timer', 'digit'];
-export const controlIcons = ['play', 'stop', 'plus_30', 'power', 'clock', 'open', ...Array.from({length:10}, (_,i) => 'digit_'+i)];
+export const controlFunctions = ['start', 'stop', 'add_30s', 'door_release', 'power_level', 'timer', 'digit', 'mode', 'temperature', 'temp_up', 'temp_down'];
+export const controlIcons = ['off', 'bake', 'fan', 'grill', 'defrost', 'up', 'down', 'play', 'stop', 'plus_30', 'power', 'clock', 'open', ...Array.from({length:10}, (_,i) => 'digit_'+i)];
 const vector = (v, n) => Array.isArray(v) && v.length === n && v.every(Number.isFinite);
 
 // Clip a projected face triangle against the region rectangle.
@@ -128,6 +128,8 @@ export function checkControls(root) {
       assert(state.kind === 'detent' && Array.isArray(state.positions) && state.positions.length >= 2 &&
         state.positions.every((p, i, a) => Number.isFinite(p) && p >= lower && p <= upper && (i === 0 || p > a[i-1])),
         name + ': invalid detent positions');
+      if (state.icons !== undefined) assert(Array.isArray(state.icons) && state.icons.length === state.positions.length &&
+        state.icons.every(icon => controlIcons.includes(icon)), name + ': invalid detent icons');
       assert(Array.isArray(state.values) && state.values.length === state.positions.length &&
         state.values.every(v => Number.isFinite(v) || isText(v)) && isText(state.unit), name + ': invalid detent values or unit');
     }

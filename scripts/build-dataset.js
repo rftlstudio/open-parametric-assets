@@ -64,6 +64,7 @@ async function generate(stage, samples, assets, renders, urdf) {
             provenance, license: meta.license
           };
           await writeFile(join(stage, record.glb_path), await exportGLB(root), { flag: 'wx' });
+          if (meta.installation) record.installation = meta.installation;
           if (urdf) {
             record.urdf_path = 'urdf/' + id + '/model.urdf';
             const directory = join(stage, 'urdf', id);

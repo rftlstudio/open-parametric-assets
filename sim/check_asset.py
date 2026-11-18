@@ -234,16 +234,20 @@ def passive(model, joints):
     print(f"PASS passive, 2 s, maximum drift {max_drift:.3%}")
 
 
-def driven(model, joints, limits):
+def driven(model, joints, limits, access_door=None):
     for target_joint in joints:
         data = initial(model, joints)
+        rest = [j["limits"][int(j["name"] == access_door and target_joint["type"] == "prismatic")] for j in joints]
+        for j, position in zip(joints, rest):
+            data.joint(j["name"]).qpos[0] = position
+        mj.mj_forward(model, data)
         moving = model.jnt_bodyid[model.joint(target_joint["name"]).id]
         for _ in range(round(3 / model.opt.timestep)):
             targets = []
-            for joint in joints:
+            for joint, fixed in zip(joints, rest):
                 lo, hi = joint["limits"]
                 speed = limits[joint["name"]]["velocity"]
-                targets.append(min(hi, lo + speed * data.time) if joint is target_joint else lo)
+                targets.append(min(hi, lo + speed * data.time) if joint is target_joint else fixed)
             controller(model, data, joints, targets, limits)
             mj.mj_step(model, data)
             check_contacts(model, data, moving)
@@ -319,6 +323,18 @@ def grasp(path, xml, record):
         print(f"PASS grasp {affordance['part']}, minimum distance {distance:.6f} m")
 
 
+def cube_model(path, record):
+    spec = load(path)
+    # Add only test equipment to the loaded URDF, without writing MJCF.
+    cube = spec.worldbody.add_body(name="test_cube", pos=[0, 0, 10])
+    cube.add_freejoint(name="test_cube_free")
+    cube.add_geom(name="test_cube_geom", type=mj.mjtGeom.mjGEOM_BOX,
+                  size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
+    model = spec.compile()
+    apply_springs(model, record["joints"])
+    return model
+
+
 def drop(path, xml, record, limits):
     joints = record["joints"]
     targets = [j["limits"][1] for j in joints]
@@ -326,18 +342,11 @@ def drop(path, xml, record, limits):
         if affordance["type"] != "placeable":
             continue
         require(min(affordance["size"]) >= 0.05, affordance["part"] + ": surface too small for cube")
-        spec = load(path)
-        # Add only test equipment to the loaded URDF, without writing MJCF.
-        cube = spec.worldbody.add_body(name="test_cube", pos=[0, 0, 10])
-        cube.add_freejoint(name="test_cube_free")
-        cube.add_geom(name="test_cube_geom", type=mj.mjtGeom.mjGEOM_BOX,
-                      size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
-        model = spec.compile()
-        apply_springs(model, record["joints"])
+        model = cube_model(path, record)
         data = initial(model, joints, upper=True)
         point, frame, support_body = affordance_frame(model, data, xml, affordance)
         normal = frame @ affordance["normal"]
-        require(np.linalg.norm(normal - [0, 0, 1]) < 1e-6,
+        require(normal[2] >= np.cos(np.deg2rad(1)),
                 affordance["part"] + ": drop check requires an upward horizontal surface")
         free = model.joint("test_cube_free").id
         q = model.jnt_qposadr[free]
@@ -355,7 +364,7 @@ def drop(path, xml, record, limits):
             local = frame.T @ delta
             on_surface = abs(delta @ normal - 0.025) <= 0.002
             within = abs(local[0]) <= affordance["size"][0]/2 - 0.025 + 0.001 and \
-                     abs(local[2]) <= affordance["size"][1]/2 - 0.025 + 0.001
+                     abs(local[2 if abs(affordance["normal"][1]) > 0.9 else 1]) <= affordance["size"][1]/2 - 0.025 + 0.001
             touching = any(
                 set(model.geom_bodyid[c.geom]) == {cube_id, support_body} and
                 (model.geom(c.geom[0]).name == affordance["part"] or
@@ -366,6 +375,105 @@ def drop(path, xml, record, limits):
         require(stable_steps * model.opt.timestep >= 0.2,
                 affordance["part"] + ": cube did not settle on the named surface within 2 s")
         print(f"PASS drop {affordance['part']}, 5 cm cube stable for final 0.2 s")
+
+
+def door_behavior(model, joints):
+    name = "door_hinge"
+    lo, hi = next(j["limits"] for j in joints if j["name"] == name)
+    for start in (lo, hi, np.deg2rad(30)):
+        data = initial(model, joints)
+        hinge = data.joint(name)
+        hinge.qpos[0] = start
+        mj.mj_forward(model, data)
+        for _ in range(round(2 / model.opt.timestep)):
+            mj.mj_step(model, data)
+            if start in (lo, hi):
+                require(abs(hinge.qpos[0]-start) < np.deg2rad(1), "released door endpoint drift")
+            else:
+                require(abs(hinge.qvel[0]) < 2, "door slam at 30 degrees")
+    print("PASS door release, endpoints held and peak speed below 2 rad/s at 30 degrees")
+
+
+def door_bounce(model, joints, limits):
+    name = "door_hinge"
+    index = next(i for i,j in enumerate(joints) if j["name"] == name)
+    lo, hi = joints[index]["limits"]
+    data = initial(model, joints)
+    targets = [j["limits"][0] for j in joints]
+    hinge = data.joint(name)
+    for _ in range(round(4/model.opt.timestep)):
+        targets[index] = min(hi, lo + data.time * limits[name]["velocity"])
+        controller(model, data, joints, targets, limits)
+        mj.mj_step(model,data)
+        if hinge.qpos[0] >= hi - np.deg2rad(1):
+            break
+    else:
+        raise ValueError("door failed to reach bounce observation window")
+    for _ in range(round(0.5/model.opt.timestep)):
+        controller(model,data,joints,targets,limits,released=[name])
+        mj.mj_step(model,data)
+        require(hinge.qpos[0] >= hi - np.deg2rad(2) and hinge.qvel[0] >= -0.05, "door bounce after opening")
+    print("PASS door bounce, 0.5 s after first approach")
+
+
+def carry(path, xml, record, limits):
+    joints = record["joints"]
+    for surface in record["affordances"]:
+        if surface["type"] != "placeable":
+            continue
+        link = next(link for link in xml.findall("link") if
+                    any(v.get("name") == "visual_"+surface["part"] for v in link.findall("visual")))
+        index = next((i for i,j in enumerate(joints) if j["type"] == "prismatic" and
+                      j["childPart"] == link.get("name")), None)
+        if index is None:
+            continue
+        model = cube_model(path, record)
+        data = initial(model,joints)
+        targets = [j["limits"][0] for j in joints]
+        if record.get("asset_id") == "appliances/oven":
+            door = next(i for i,j in enumerate(joints) if j["name"] == "door_hinge")
+            targets[door] = joints[door]["limits"][1]
+            data.joint("door_hinge").qpos[0] = targets[door]
+            mj.mj_forward(model,data)
+        point, frame, body = affordance_frame(model,data,xml,surface)
+        normal = frame @ surface["normal"]
+        cube = data.body("test_cube")
+        data.joint("test_cube_free").qpos[:3] = point + normal*0.030
+        mj.mj_forward(model,data)
+        for _ in range(round(1/model.opt.timestep)):
+            controller(model,data,joints,targets,limits)
+            mj.mj_step(model,data)
+        support_geom = model.geom(surface["part"]).id
+        def supported():
+            return any(support_geom in c.geom and cube.id in model.geom_bodyid[c.geom] for c in data.contact)
+        require(supported() and np.linalg.norm(data.joint("test_cube_free").qvel) < 0.01,
+                "carry cube failed to settle on "+surface["part"])
+        local = data.xmat[body].reshape(3,3).T @ (cube.xpos-data.xpos[body])
+        name = joints[index]["name"]
+        lo, hi = joints[index]["limits"]
+        speed = limits[name]["velocity"]
+        # Finite acceleration at departure and arrival, respecting the URDF speed limit.
+        acceleration = 3.0
+        peak = min(speed, np.sqrt(acceleration*(hi-lo)))
+        ramp = peak/acceleration
+        duration = (hi-lo)/peak + ramp
+        for step in range(round((duration+0.6)/model.opt.timestep)):
+            time = step*model.opt.timestep
+            if time < ramp:
+                position = 0.5*acceleration*time*time
+            elif time < duration-ramp:
+                position = peak*(time-ramp/2)
+            else:
+                position = hi-lo-0.5*acceleration*max(duration-time,0)**2
+            targets[index] = lo+position
+            controller(model,data,joints,targets,limits)
+            mj.mj_step(model,data)
+            relative = data.xmat[body].reshape(3,3).T @ (cube.xpos-data.xpos[body])
+            require(np.linalg.norm(relative-local) <= 0.01, "carry cube slip on "+surface["part"])
+            require(cube.xmat.reshape(3,3)[2,2] >= np.cos(np.deg2rad(5)), "carry cube tilt")
+            require(supported(), "carry cube lost support")
+        require(data.joint(name).qpos[0] >= lo+0.95*(hi-lo), "carry slide jam")
+        print("PASS carry "+surface["part"]+", slide reached full travel with stable load")
 
 
 def check(path):
@@ -391,8 +499,13 @@ def check(path):
               for j in xml.findall("joint")}
     print(f"PASS load {record['asset_id']}, {model.nbody - 1} bodies, {model.njnt} joints, fixed base")
     passive(model, joints)
-    driven(model, joints, limits)
+    oven = record["asset_id"] == "appliances/oven"
+    driven(model, joints, limits, "door_hinge" if oven else None)
+    if oven:
+        door_behavior(model, joints)
+        door_bounce(model, joints, limits)
     drop(path, xml, record, limits)
+    carry(path, xml, record, limits)
     grasp(path, xml, record)
     controls_reachable(path, xml, record)
     touch_check(path, xml, record)

@@ -6,6 +6,7 @@ Build a three.js object from parameters and inspect how to interact with its nam
 | --- | --- | --- |
 | [Hinged cabinet](assets/furniture/cabinet/README.md) | 0.2.2 | Swinging doors, handles and shelves |
 | [Drawer cabinet](assets/furniture/drawer_cabinet/README.md) | 0.2.2 | Sliding trays, raised or recessed pulls |
+| [Built-in oven](assets/appliances/oven/README.md) | 0.1.0 | Spring-balanced bottom hinge, sliding wire racks, marked dials or touch strip |
 | [Microwave](assets/appliances/microwave/README.md) | 0.2.1 | Marked physical, touch and mixed panels with sensor checks |
 
 ## Try the cabinet
