@@ -148,10 +148,12 @@ export async function renderViews({ glb, boundingBox }) {
       const [a,b,,d] = regions[0];
       const direction = b.clone().sub(a).cross(d.clone().sub(a)).normalize();
       const camera = cameraFor(rest,direction);
-      fitControlPanel(camera, asset, regions);
+      const pixels = fitControlPanel(camera, asset, regions);
+      renderer.setSize(pixels.width,pixels.height,false);
       renderer.render(scene,camera);
       images.control_panel = renderer.domElement.toDataURL('image/png').split(',')[1];
     }
+    renderer.setSize(512,512,false);
     for (const [view, direction] of Object.entries(views)) {
       const opened = view === 'open_three_quarter' && openJoints(asset);
       const bounds = opened ? new Box3().setFromObject(model, true) : rest;

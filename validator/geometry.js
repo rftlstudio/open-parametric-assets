@@ -20,6 +20,12 @@ function checkMetadata(data, parts, id) {
   assert(Array.isArray(data.joints) && Array.isArray(data.affordances), 'expected joints and affordances arrays');
   const jointNames = new Set();
   for (const joint of data.joints) {
+    const spring = joint.dynamics?.spring;
+    if (spring !== undefined) {
+      assert(spring && Number.isFinite(spring.stiffness) && spring.stiffness > 0 &&
+        Number.isFinite(spring.restPosition) && spring.restPosition >= joint.limits[0] &&
+        spring.restPosition <= joint.limits[1], joint.name + ': invalid spring');
+    }
     assert(isText(joint.name) && !jointNames.has(joint.name), 'invalid or duplicate joint name');
     jointNames.add(joint.name);
     assert(['prismatic', 'revolute'].includes(joint.type), 'invalid joint type');
@@ -36,6 +42,34 @@ function checkMetadata(data, parts, id) {
       assert(joint[key] === undefined || Number.isFinite(joint[key]) && joint[key] > 0, 'invalid joint ' + key);
     }
     assert(finiteVector(joint.limits, 2) && joint.limits[0] <= joint.limits[1], 'invalid joint limits');
+  }
+  const byName = new Map(data.joints.map(j => [j.name,j]));
+  for (const joint of data.joints) {
+    if (joint.behavior !== undefined) {
+      assert(joint.behavior === 'balanced_door' && joint.type === 'revolute' &&
+        joint.limits[0] === 0 && joint.limits[1] > Math.PI/6, joint.name + ': invalid joint behavior');
+    }
+    if (joint.requires === undefined) continue;
+    assert(Array.isArray(joint.requires), joint.name + ': invalid requires');
+    const seen = new Set();
+    for (const r of joint.requires) {
+      assert(r && byName.has(r.joint) && !seen.has(r.joint) && ['upper','lower'].includes(r.at),
+        joint.name + ': invalid prerequisite');
+      seen.add(r.joint);
+    }
+  }
+  for (const target of data.joints) {
+    const stops = new Map(), visiting = new Set();
+    function check(joint) {
+      visiting.add(joint.name);
+      for (const {joint:name,at} of joint.requires ?? []) {
+        assert(!visiting.has(name), target.name + ': cyclic prerequisite');
+        if (stops.has(name)) assert.equal(stops.get(name),at,target.name + ': conflicting prerequisites');
+        else { stops.set(name,at); check(byName.get(name)); }
+      }
+      visiting.delete(joint.name);
+    }
+    check(target);
   }
   for (const a of data.affordances) {
     assert(parts.has(a.part) && finiteVector(a.point, 3), 'invalid affordance target or point');
@@ -106,6 +140,16 @@ export function inspect(root, id, triangleLimit) {
 
   assert(triangles > 0 && triangles <= triangleLimit, 'triangle count ' + triangles + ' outside budget 1..' + triangleLimit);
   checkMetadata(root.userData, parts, id);
+  if (root.userData.installation !== undefined) {
+    const {type, cutout} = root.userData.installation;
+    assert(type === 'built_in' && finiteVector(cutout,3) && cutout.every(n => n > 0), 'invalid installation cutout');
+    const body = root.getObjectByName('body');
+    assert(body, 'built-in asset requires body');
+    const envelope = new Box3().setFromObject(body,true);
+    const opening = new Box3(new Vector3(-cutout[0]/2,0,-cutout[2]/2),
+      new Vector3(cutout[0]/2,cutout[1],cutout[2]/2)).expandByScalar(1e-7);
+    assert(opening.containsBox(envelope), 'installation cutout does not enclose body');
+  }
   checkControls(root);
   for (const joint of root.userData.joints) {
     if (joint.clearance !== undefined) checkClearance(root, joint);

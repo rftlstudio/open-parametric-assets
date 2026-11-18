@@ -32,7 +32,7 @@ jobs:
           cache-dependency-path: sim/requirements.txt
       - run: python -m pip install -r sim/requirements.txt
       - run: python -m unittest discover -s sim -p "test_*.py"
-      - run: npm run dataset -- --samples 3 --renders --urdf
+      - run: npm run dataset -- --samples 3 --corners --renders --urdf
       - name: Simulate every exported URDF
         run: |
           for model in dist/dataset/urdf/*/model.urdf; do

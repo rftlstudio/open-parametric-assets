@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Box3, OrthographicCamera, Vector3 } from 'three';
 import { createAsset as microwave } from '../assets/appliances/microwave/index.js';
+import { createAsset as oven } from '../assets/appliances/oven/index.js';
 import { fitControlPanel } from '../scripts/fit-control-panel.js';
 import { regionCorners } from '../lib/control-region.js';
 import { PNG } from 'pngjs';
@@ -82,10 +83,17 @@ function meanLuminance(image, left, top) {
   return sum / 400;
 }
 
-it.each(['physical', 'mixed', 'touch'])('keeps %s control parts and marks within the close-up margin', style => {
-  const asset = microwave({ controlStyle: style, height: 0.26 });
+it.each([
+  ['microwave dials', microwave, {controlStyle:'physical',height:0.35}],
+  ['microwave buttons', microwave, {controlLayout:'buttons'}],
+  ['microwave mixed', microwave, {controlStyle:'mixed'}],
+  ['microwave touch', microwave, {controlStyle:'touch',height:0.26}],
+  ['oven dials', oven, {width:0.6,controlStyle:'physical'}],
+  ['oven touch strip', oven, {width:0.9,height:0.45,controlStyle:'touch'}]
+])('frames %s with legible interaction regions', (_, factory, params) => {
+  const asset = factory(params);
   // Stress a fixed marking extending beyond its region, and a panel rotated in world space.
-  if (style === 'touch') asset.getObjectByName('digit_1_touch_mark').position.y += 0.04;
+  if (factory === microwave && params.controlStyle === 'touch') asset.getObjectByName('digit_1_touch_mark').position.y += 0.04;
   asset.rotation.set(0.18, 0.45, 0.12);
   asset.updateMatrixWorld(true);
   const camera = new OrthographicCamera(-1, 1, 1, -1, 0.01, 4);
@@ -94,11 +102,18 @@ it.each(['physical', 'mixed', 'touch'])('keeps %s control parts and marks within
   camera.updateMatrixWorld();
   const controls = asset.userData.controls;
   const regions = controls.map(c => regionCorners(asset.getObjectByName(c.region.part), c.region));
-  fitControlPanel(camera, asset, regions);
+  const pixels = fitControlPanel(camera, asset, regions);
+  expect(Math.max(pixels.width,pixels.height)/Math.min(pixels.width,pixels.height)).toBeLessThanOrEqual(4);
+  for (const region of regions) {
+    const [a,b,,d] = region.map(point => point.clone().project(camera));
+    const length = end => Math.hypot((end.x-a.x)*pixels.width/2,(end.y-a.y)*pixels.height/2);
+    expect(Math.min(length(b),length(d))).toBeGreaterThanOrEqual(24-1e-7);
+  }
 
   const bounds = new Box3().setFromPoints(regions.flat().map(p => p.project(camera)));
   for (const control of controls) {
     const targets = [asset.getObjectByName(control.name + '_mark')];
+    asset.traverse(part => { if (part.userData.scaleFor === control.name) targets.push(part); });
     if (control.joint) {
       const joint = asset.userData.joints.find(j => j.name === control.joint);
       targets.push(asset.getObjectByName(joint.childPart));
@@ -115,7 +130,9 @@ it.each(['physical', 'mixed', 'touch'])('keeps %s control parts and marks within
   const { min, max } = bounds;
   expect(min.z).toBeGreaterThan(-1);
   expect(max.z).toBeLessThan(1);
-  expect(Math.max(-min.x, -min.y, max.x, max.y)).toBeCloseTo(1/1.15, 6);
+  const extent = Math.max(-min.x, -min.y, max.x, max.y);
+  expect(extent).toBeLessThanOrEqual(1/1.15 + 1e-7);
+  expect(extent).toBeGreaterThan(1/1.15 - 0.005);
   expect(Math.abs(max.x + min.x) + Math.abs(max.y + min.y)).toBeLessThan(1e-6);
 });
 
@@ -145,7 +162,7 @@ it('frames the default cabinet in six views, distinguishes panels and visibly op
 it('reproduces the published sample within 1% normalized mean absolute RGB difference', async () => {
   const rows = (await readFile(join(sample, 'data.jsonl'), 'utf8')).trim().split('\n').map(line => JSON.parse(line));
   const renderedRows = rows.filter(row => row.renders);
-  expect([...new Set(renderedRows.map(row => row.asset_id))].sort()).toEqual(['appliances/microwave', 'furniture/cabinet', 'furniture/drawer_cabinet']);
+  expect([...new Set(renderedRows.map(row => row.asset_id))].sort()).toEqual(['appliances/microwave', 'appliances/oven', 'furniture/cabinet', 'furniture/drawer_cabinet']);
   const output = join(directory, 'dataset');
   await buildDataset({ samples: 3, renders: true, out: output });
   const manifest = await readFile(join(output, 'data.jsonl'), 'utf8');

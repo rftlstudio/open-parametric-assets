@@ -6,7 +6,8 @@ Build a three.js object from parameters and inspect how to interact with its nam
 | --- | --- | --- |
 | [Hinged cabinet](assets/furniture/cabinet/README.md) | 0.2.2 | Swinging doors, handles and shelves |
 | [Drawer cabinet](assets/furniture/drawer_cabinet/README.md) | 0.2.2 | Sliding trays, raised or recessed pulls |
-| [Microwave](assets/appliances/microwave/README.md) | 0.2.0 | Marked physical, touch and mixed panels with sensor checks |
+| [Built-in oven](assets/appliances/oven/README.md) | 0.1.0 | Spring-balanced bottom hinge, sliding wire racks, marked dials or touch strip |
+| [Microwave](assets/appliances/microwave/README.md) | 0.2.1 | Marked physical, touch and mixed panels with sensor checks |
 
 ## Try the cabinet
 
@@ -52,11 +53,11 @@ After installing Node 24 and running `npm ci`, download the matching browser onc
 npm run dataset -- --samples 3 --renders
 ```
 
-Assets with controls also get a `control_panel` close-up. Each record includes six standard 512 × 512 PNGs under `renders/<id>/`. Coordinates are right-handed, with +Y up and +Z at the front. The orthographic views look from the front (+Z), right (+X), top (+Y, with −Z up the image) and front-right (45° yaw, 25° elevation). The open view keeps the front-right orientation and moves each hinge and drawer slide to its upper limit. The closed orthographic views fit the rest bounding box. The open view fits the articulated geometry. The closed perspective_three_quarter view uses the same front-right direction, a 35° vertical field of view and an 80% frame fit.
+Assets with controls also get a variable-aspect `control_panel` close-up with a minimum of 24 pixels across each control region. Each record includes six standard 512 × 512 PNGs under `renders/<id>/`. Coordinates are right-handed, with +Y up and +Z at the front. The orthographic views look from the front (+Z), right (+X), top (+Y, with −Z up the image) and front-right (45° yaw, 25° elevation). The open view keeps the front-right orientation and moves each hinge and drawer slide to its upper limit. The closed orthographic views fit the rest bounding box. The open view fits the articulated geometry. The closed perspective_three_quarter view uses the same front-right direction, a 35° vertical field of view and an 80% frame fit.
 
 Playwright serves a local three.js page and blocks network requests. Headless Chromium uses software WebGL, a fixed light-grey background, neutral key, fill and rear rim lights, subtle crease lines, antialiasing and no shadows. Pixels can differ slightly across GPUs, drivers and browser builds. The regression test compares decoded RGB values using a normalized mean absolute difference below 1%.
 
-[View the open cabinet sample](examples/dataset-sample/renders/aa526f9c6f4a8a14680ee7c64396217be3a2891b5b1a54c397673a1a889dd2ea/open_three_quarter.png). [View the extended drawer sample](examples/dataset-sample/renders/8527ffb29683fdc26f0ac3fcc020902495b2e6101a41a1997f5acab8b72e5257/open_three_quarter.png). In GitHub Actions, download the `rendered-dataset` artifact for three records per asset, their GLBs and their rendered views.
+[View the open cabinet sample](examples/dataset-sample/renders/aa526f9c6f4a8a14680ee7c64396217be3a2891b5b1a54c397673a1a889dd2ea/open_three_quarter.png). [View the extended drawer sample](examples/dataset-sample/renders/8527ffb29683fdc26f0ac3fcc020902495b2e6101a41a1997f5acab8b72e5257/open_three_quarter.png). In GitHub Actions, download the `rendered-dataset` artifact for three sampled records per asset plus fixed numeric and enum boundary cases and two single-drawer regressions, their GLBs and their rendered views.
 
 ## Licensing
 

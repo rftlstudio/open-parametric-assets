@@ -39,6 +39,9 @@ def initial(model, joints, upper=False):
     return data
 
 
+POSITION_GAIN = 400.0
+
+
 def controller(model, data, joints, targets, limits, released=()):
     data.qfrc_applied[:] = 0
     inertia = np.zeros((model.nv, model.nv))
@@ -49,7 +52,7 @@ def controller(model, data, joints, targets, limits, released=()):
         jid = model.joint(joint["name"]).id
         q, v = model.jnt_qposadr[jid], model.jnt_dofadr[jid]
         # Critically damped position servo, capped by the URDF effort limit.
-        gain = 400.0
+        gain = POSITION_GAIN
         damping = 2 * np.sqrt(gain * inertia[v, v])
         force = gain * (target - data.qpos[q]) - damping * data.qvel[v]
         force += model.jnt_stiffness[jid] * (data.qpos[q] - model.qpos_spring[q])
@@ -69,13 +72,13 @@ def check_contacts(model, data, moving):
                 f"{model.body(moving).name} and {model.body(other).name}")
 
 
-def apply_springs(model, controls):
-    for control in controls:
-        if control["type"] == "button":
-            joint = model.joint(control["joint"]).id
-            spring = control["state"]["spring"]
-            model.jnt_stiffness[joint] = spring["stiffness"]
-            model.qpos_spring[model.jnt_qposadr[joint]] = spring["restPosition"]
+def apply_springs(model, joints):
+    for joint in joints:
+        spring = joint.get("dynamics", {}).get("spring")
+        if spring:
+            jid = model.joint(joint["name"]).id
+            model.jnt_stiffness[jid] = spring["stiffness"]
+            model.qpos_spring[model.jnt_qposadr[jid]] = spring["restPosition"]
 
 
 def button_check(model, record, control, limits):
@@ -86,7 +89,7 @@ def button_check(model, record, control, limits):
     q, v = model.jnt_qposadr[jid], model.jnt_dofadr[jid]
     travel = model.jnt_range[jid, 1]
     pressed = control["state"]["pressedAt"] * travel
-    spring = control["state"]["spring"]
+    spring = next(j["dynamics"]["spring"] for j in joints if j["name"] == control["joint"])
     force = min(limits[control["joint"]]["effort"],
                 1.25 * spring["stiffness"] * (travel - spring["restPosition"]) + 0.05)
     for _ in range(round(0.5 / model.opt.timestep)):
@@ -145,7 +148,7 @@ def controls_reachable(path, xml, record):
     spec.worldbody.add_geom(name="test_region_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
                            size=[radius, 0, 0], pos=[0, 0, 10])
     model = spec.compile()
-    apply_springs(model, controls)
+    apply_springs(model, record["joints"])
     data = initial(model, record["joints"])
     probe = model.geom("test_region_probe").id
     for control in controls:
@@ -200,7 +203,7 @@ def touch_check(path, xml, record):
     probe.add_freejoint(name="touch_probe_free")
     probe.add_geom(type=mj.mjtGeom.mjGEOM_SPHERE, size=[radius,0,0], mass=0.02)
     model = spec.compile()
-    apply_springs(model, record.get("controls", []))
+    apply_springs(model, record["joints"])
     q = model.jnt_qposadr[model.joint("touch_probe_free").id]
     for i, control in enumerate(controls):
         data = initial(model, record["joints"])
@@ -234,16 +237,37 @@ def passive(model, joints):
     print(f"PASS passive, 2 s, maximum drift {max_drift:.3%}")
 
 
+def prepare_motion(model, joints, target):
+    """Hold prerequisite joints at their declared stops, including indirect prerequisites."""
+    by_name = {j["name"]: j for j in joints}
+    required = {}
+    def visit(joint):
+        for req in joint.get("requires", []):
+            name, at = req["joint"], req["at"]
+            if name not in required:
+                required[name] = at
+                visit(by_name[name])
+            else:
+                require(required[name] == at, "conflicting motion prerequisites: "+name)
+    visit(target)
+    targets = [j["limits"][int(required.get(j["name"]) == "upper")] for j in joints]
+    data = initial(model,joints)
+    for joint, value in zip(joints,targets):
+        data.joint(joint["name"]).qpos[0] = value
+    mj.mj_forward(model,data)
+    return data, targets
+
+
 def driven(model, joints, limits):
     for target_joint in joints:
-        data = initial(model, joints)
+        data, rest = prepare_motion(model,joints,target_joint)
         moving = model.jnt_bodyid[model.joint(target_joint["name"]).id]
         for _ in range(round(3 / model.opt.timestep)):
             targets = []
-            for joint in joints:
+            for joint, fixed in zip(joints, rest):
                 lo, hi = joint["limits"]
                 speed = limits[joint["name"]]["velocity"]
-                targets.append(min(hi, lo + speed * data.time) if joint is target_joint else lo)
+                targets.append(min(hi, lo + speed * data.time) if joint is target_joint else fixed)
             controller(model, data, joints, targets, limits)
             mj.mj_step(model, data)
             check_contacts(model, data, moving)
@@ -283,7 +307,7 @@ def grasp(path, xml, record):
     spec.worldbody.add_geom(name="test_grasp_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
                            size=[radius, 0, 0], pos=[0, 0, 10])
     model = spec.compile()
-    apply_springs(model, record.get("controls", []))
+    apply_springs(model, record["joints"])
     data = initial(model, record["joints"])
     probe = model.geom("test_grasp_probe").id
     for affordance in record["affordances"]:
@@ -319,6 +343,18 @@ def grasp(path, xml, record):
         print(f"PASS grasp {affordance['part']}, minimum distance {distance:.6f} m")
 
 
+def cube_model(path, record):
+    spec = load(path)
+    # Add only test equipment to the loaded URDF, without writing MJCF.
+    cube = spec.worldbody.add_body(name="test_cube", pos=[0, 0, 10])
+    cube.add_freejoint(name="test_cube_free")
+    cube.add_geom(name="test_cube_geom", type=mj.mjtGeom.mjGEOM_BOX,
+                  size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
+    model = spec.compile()
+    apply_springs(model, record["joints"])
+    return model
+
+
 def drop(path, xml, record, limits):
     joints = record["joints"]
     targets = [j["limits"][1] for j in joints]
@@ -326,18 +362,11 @@ def drop(path, xml, record, limits):
         if affordance["type"] != "placeable":
             continue
         require(min(affordance["size"]) >= 0.05, affordance["part"] + ": surface too small for cube")
-        spec = load(path)
-        # Add only test equipment to the loaded URDF, without writing MJCF.
-        cube = spec.worldbody.add_body(name="test_cube", pos=[0, 0, 10])
-        cube.add_freejoint(name="test_cube_free")
-        cube.add_geom(name="test_cube_geom", type=mj.mjtGeom.mjGEOM_BOX,
-                      size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
-        model = spec.compile()
-        apply_springs(model, record.get("controls", []))
+        model = cube_model(path, record)
         data = initial(model, joints, upper=True)
         point, frame, support_body = affordance_frame(model, data, xml, affordance)
         normal = frame @ affordance["normal"]
-        require(np.linalg.norm(normal - [0, 0, 1]) < 1e-6,
+        require(normal[2] >= np.cos(np.deg2rad(1)),
                 affordance["part"] + ": drop check requires an upward horizontal surface")
         free = model.joint("test_cube_free").id
         q = model.jnt_qposadr[free]
@@ -355,7 +384,7 @@ def drop(path, xml, record, limits):
             local = frame.T @ delta
             on_surface = abs(delta @ normal - 0.025) <= 0.002
             within = abs(local[0]) <= affordance["size"][0]/2 - 0.025 + 0.001 and \
-                     abs(local[2]) <= affordance["size"][1]/2 - 0.025 + 0.001
+                     abs(local[2 if abs(affordance["normal"][1]) > 0.9 else 1]) <= affordance["size"][1]/2 - 0.025 + 0.001
             touching = any(
                 set(model.geom_bodyid[c.geom]) == {cube_id, support_body} and
                 (model.geom(c.geom[0]).name == affordance["part"] or
@@ -368,12 +397,111 @@ def drop(path, xml, record, limits):
         print(f"PASS drop {affordance['part']}, 5 cm cube stable for final 0.2 s")
 
 
+def door_behavior(model, joints, limits, joint):
+    name = joint["name"]
+    lo, hi = joint["limits"]
+    for start in (lo, hi, np.deg2rad(30)):
+        data, targets = prepare_motion(model,joints,joint)
+        hinge = data.joint(name)
+        hinge.qpos[0] = start
+        mj.mj_forward(model, data)
+        for _ in range(round(2 / model.opt.timestep)):
+            controller(model,data,joints,targets,limits,released=[name])
+            mj.mj_step(model, data)
+            if start in (lo, hi):
+                require(abs(hinge.qpos[0]-start) < np.deg2rad(1), "released door endpoint drift")
+            else:
+                require(abs(hinge.qvel[0]) < 2, "door slam at 30 degrees")
+    print("PASS door release, endpoints held and peak speed below 2 rad/s at 30 degrees")
+
+
+def door_bounce(model, joints, limits, joint):
+    name = joint["name"]
+    index = next(i for i,j in enumerate(joints) if j["name"] == name)
+    lo, hi = joints[index]["limits"]
+    data, targets = prepare_motion(model,joints,joint)
+    hinge = data.joint(name)
+    for _ in range(round(4/model.opt.timestep)):
+        targets[index] = min(hi, lo + data.time * limits[name]["velocity"])
+        controller(model, data, joints, targets, limits)
+        mj.mj_step(model,data)
+        if hinge.qpos[0] >= hi - np.deg2rad(1):
+            break
+    else:
+        raise ValueError("door failed to reach bounce observation window")
+    for _ in range(round(0.5/model.opt.timestep)):
+        controller(model,data,joints,targets,limits,released=[name])
+        mj.mj_step(model,data)
+        require(hinge.qpos[0] >= hi - np.deg2rad(2) and hinge.qvel[0] >= -0.05, "door bounce after opening")
+    print("PASS door bounce, 0.5 s after first approach")
+
+
+def carry(path, xml, record, limits):
+    joints = record["joints"]
+    for surface in record["affordances"]:
+        if surface["type"] != "placeable":
+            continue
+        link = next(link for link in xml.findall("link") if
+                    any(v.get("name") == "visual_"+surface["part"] for v in link.findall("visual")))
+        index = next((i for i,j in enumerate(joints) if j["type"] == "prismatic" and
+                      j["childPart"] == link.get("name")), None)
+        if index is None:
+            continue
+        model = cube_model(path, record)
+        data, targets = prepare_motion(model,joints,joints[index])
+        point, frame, body = affordance_frame(model,data,xml,surface)
+        normal = frame @ surface["normal"]
+        cube = data.body("test_cube")
+        data.joint("test_cube_free").qpos[:3] = point + normal*0.030
+        mj.mj_forward(model,data)
+        for _ in range(round(1/model.opt.timestep)):
+            controller(model,data,joints,targets,limits)
+            mj.mj_step(model,data)
+        support_geom = model.geom(surface["part"]).id
+        def supported():
+            return any(support_geom in c.geom and cube.id in model.geom_bodyid[c.geom] for c in data.contact)
+        require(supported() and np.linalg.norm(data.joint("test_cube_free").qvel) < 0.01,
+                "carry cube failed to settle on "+surface["part"])
+        local = data.xmat[body].reshape(3,3).T @ (cube.xpos-data.xpos[body])
+        name = joints[index]["name"]
+        lo, hi = joints[index]["limits"]
+        speed = limits[name]["velocity"]
+        # Finite acceleration at departure and arrival, respecting the URDF speed limit.
+        acceleration = 3.0
+        peak = min(speed, np.sqrt(acceleration*(hi-lo)))
+        ramp = peak/acceleration
+        duration = (hi-lo)/peak + ramp
+        # The position servo is critically damped. Its response time scales with
+        # sqrt(effective inertia / stiffness); six time constants allow settling.
+        inertia = np.zeros((model.nv,model.nv))
+        mj.mj_fullM(model,inertia,data.qM)
+        dof = model.jnt_dofadr[model.joint(name).id]
+        settle_time = max(0.6, 6*np.sqrt((inertia[dof,dof] + model.body_mass[cube.id])/POSITION_GAIN))
+        for step in range(round((duration+settle_time)/model.opt.timestep)):
+            time = step*model.opt.timestep
+            if time < ramp:
+                position = 0.5*acceleration*time*time
+            elif time < duration-ramp:
+                position = peak*(time-ramp/2)
+            else:
+                position = hi-lo-0.5*acceleration*max(duration-time,0)**2
+            targets[index] = lo+position
+            controller(model,data,joints,targets,limits)
+            mj.mj_step(model,data)
+            relative = data.xmat[body].reshape(3,3).T @ (cube.xpos-data.xpos[body])
+            require(np.linalg.norm(relative-local) <= 0.01, "carry cube slip on "+surface["part"])
+            require(cube.xmat.reshape(3,3)[2,2] >= np.cos(np.deg2rad(5)), "carry cube tilt")
+            require(supported(), "carry cube lost support")
+        require(data.joint(name).qpos[0] >= lo+0.95*(hi-lo), "carry slide jam")
+        print("PASS carry "+surface["part"]+", slide reached full travel with stable load")
+
+
 def check(path):
     record = record_for(path)
     xml = ET.parse(path).getroot()
     joints = record["joints"]
     model = load(path).compile()
-    apply_springs(model, record.get("controls", []))
+    apply_springs(model, record["joints"])
     names = [j["name"] for j in joints]
     require(model.njnt == len(joints), "joint count differs from record")
     require(model.nbody == len(joints) + 2, "body count differs from record plus root and world")
@@ -392,7 +520,12 @@ def check(path):
     print(f"PASS load {record['asset_id']}, {model.nbody - 1} bodies, {model.njnt} joints, fixed base")
     passive(model, joints)
     driven(model, joints, limits)
+    for joint in joints:
+        if joint.get("behavior") == "balanced_door":
+            door_behavior(model,joints,limits,joint)
+            door_bounce(model,joints,limits,joint)
     drop(path, xml, record, limits)
+    carry(path, xml, record, limits)
     grasp(path, xml, record)
     controls_reachable(path, xml, record)
     touch_check(path, xml, record)

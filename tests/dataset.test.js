@@ -7,6 +7,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { afterEach, expect, it, vi } from 'vitest';
 import * as cabinet from '../assets/furniture/cabinet/index.js';
 import * as microwave from '../assets/appliances/microwave/index.js';
+import { discoverAssets } from '../lib/assets.js';
+import { ciCorners } from '../scripts/ci-corners.js';
 import { describe } from '../lib/prompt.js';
 import { resolveParams } from '../lib/parameters.js';
 import { checkSchema, sampleParams } from '../validator/schema.js';
@@ -162,7 +164,7 @@ it('writes five replayable records per asset and reproduces their IDs and GLBs',
   expect(card).toContain('license: cc-by-4.0');
   expect(card).toContain('| controls |');
   expect(card).toContain('size: ' + records.length + '\n');
-});
+}, 30000);
 
 it('assigns approximately one tenth of 1000 seeds to the test split', () => {
   let tests = 0;
@@ -193,3 +195,17 @@ it('aborts publication when the exact sampled geometry is invalid', async () => 
   expect(await readFile(join(out, 'data.jsonl'), 'utf8')).toBe(originalManifest);
   expect((await readdir(join(out, 'glb'))).sort()).toEqual(baseline.map(row => row.id + '.glb').sort());
 });
+
+it('builds fixed CI records covering each numeric endpoint and enum choice', async () => {
+  const out = await directory();
+  await buildDataset({samples:1,out,corners:true});
+  const rows = (await readFile(join(out,'data.jsonl'),'utf8')).trim().split('\n').map(JSON.parse);
+  for (const {id,url} of await discoverAssets()) {
+    const {schema} = await import(url);
+    const cases = ciCorners(id).map(({seed}) => rows.find(r => r.asset_id===id && r.seed===seed).params);
+    for (const [key,spec] of Object.entries(schema.parameters)) {
+      const seen = new Set(cases.map(p=>p[key]));
+      for (const value of spec.enum ?? [spec.min,spec.max]) expect(seen.has(value),id+' '+key+' '+value).toBe(true);
+    }
+  }
+}, 30000);

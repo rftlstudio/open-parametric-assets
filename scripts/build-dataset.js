@@ -6,7 +6,8 @@ import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import project from '../package.json' with { type: 'json' };
 import { discoverAssets } from '../lib/assets.js';
-import { mixSeed, seededRandom } from '../lib/parameters.js';
+import { ciCorners } from './ci-corners.js';
+import { mixSeed, seededRandom, resolveParams } from '../lib/parameters.js';
 import { sampleParams } from '../validator/schema.js';
 import { validateAsset } from '../validator/validate.js';
 import { datasetCard } from './dataset-card.js';
@@ -27,7 +28,7 @@ function recordId(assetId, version, seed, params) {
   return digest([assetId, version, seed, entries]).toString('hex');
 }
 
-async function generate(stage, samples, assets, renders, urdf) {
+async function generate(stage, samples, assets, renders, urdf, corners) {
   const threePackage = JSON.parse(await readFile(findPackageJSON('three', import.meta.url), 'utf8'));
   const provenance = {
     generator_version: project.version, validator_version: project.version,
@@ -45,13 +46,17 @@ async function generate(stage, samples, assets, renders, urdf) {
     for (const { id: assetId, url } of assets) {
       const asset = await import(url);
       const seedOffset = digest([assetId]).readUInt32BE(0);
-      for (let i = 0; i < samples; i++) {
+      const extra = corners ? ciCorners(assetId) : [];
+      const extraSeeds = new Set(extra.filter(c => !c.params).map(c => c.seed));
+      for (let i = 0; i < samples + extra.length; i++) {
         // A permuted counter keeps record seeds unique throughout the uint32 domain.
-        const seed = mixSeed((seedOffset + i) >>> 0);
+        const fixture = extra[i-samples];
+        const seed = fixture?.seed ?? mixSeed((seedOffset + i) >>> 0);
+        if (!fixture && extraSeeds.has(seed)) continue;
         try {
           // Domain-separate parameter draws from the asset's own random stream.
           const paramSeed = digest(['parameters', assetId, seed]).readUInt32BE(0);
-          const params = sampleParams(asset.schema, seededRandom(paramSeed));
+          const params = fixture?.params ? resolveParams(asset.schema, fixture.params) : sampleParams(asset.schema, seededRandom(paramSeed));
           const { root, triangles, prompt } = validateAsset(asset, assetId, { params, seed });
           const meta = root.userData;
           const id = recordId(assetId, meta.version, seed, params);
@@ -64,6 +69,7 @@ async function generate(stage, samples, assets, renders, urdf) {
             provenance, license: meta.license
           };
           await writeFile(join(stage, record.glb_path), await exportGLB(root), { flag: 'wx' });
+          if (meta.installation) record.installation = meta.installation;
           if (urdf) {
             record.urdf_path = 'urdf/' + id + '/model.urdf';
             const directory = join(stage, 'urdf', id);
@@ -84,11 +90,11 @@ async function generate(stage, samples, assets, renders, urdf) {
   } finally {
     await Promise.all([manifest.close(), renderer?.close()]);
   }
-  await writeFile(join(stage, 'README.md'), datasetCard(count, testCount, samples, project.version, renders, urdf));
+  await writeFile(join(stage, 'README.md'), datasetCard(count, testCount, samples, project.version, renders, urdf, corners));
   return count;
 }
 
-export async function buildDataset({ samples = 200, out = 'dist/dataset', renders = false, urdf = false } = {}) {
+export async function buildDataset({ samples = 200, out = 'dist/dataset', renders = false, urdf = false, corners = false } = {}) {
   if (!Number.isSafeInteger(samples) || samples < 1 || samples > 0x100000000) {
     throw new RangeError('samples must be a positive integer within the uint32 seed space');
   }
@@ -97,7 +103,7 @@ export async function buildDataset({ samples = 200, out = 'dist/dataset', render
   const stage = await mkdtemp(join(out, '.build-'));
   try {
     await mkdir(join(stage, 'glb'));
-    const count = await generate(stage, samples, assets, renders, urdf);
+    const count = await generate(stage, samples, assets, renders, urdf, corners);
     // Publish the manifest last, after every referenced model is in place.
     const models = join(out, 'glb');
     await mkdir(models, { recursive: true });
@@ -136,9 +142,9 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
   try {
     const { values } = parseArgs({ options: {
       samples: { type: 'string', default: '200' }, out: { type: 'string', default: 'dist/dataset' },
-      renders: { type: 'boolean', default: false }, urdf: { type: 'boolean', default: false }
+      renders: { type: 'boolean', default: false }, urdf: { type: 'boolean', default: false }, corners: { type: 'boolean', default: false }
     } });
-    const count = await buildDataset({ samples: Number(values.samples), out: values.out, renders: values.renders, urdf: values.urdf });
+    const count = await buildDataset({ samples: Number(values.samples), out: values.out, renders: values.renders, urdf: values.urdf, corners: values.corners });
     console.log('Wrote ' + count + ' validated records to ' + resolve(values.out));
   } catch (error) {
     console.error(error.message);

@@ -44,7 +44,7 @@ Clearance validation samples five joint positions and uses conservative per-mesh
 
 ## Physical controls
 
-Dataset records carry `controls` with the same definitions as root metadata. Button and knob links and joints use the ordinary URDF representation. URDF carries joint damping and friction. The checker reads each button's spring stiffness and rest position from the record and assigns MuJoCo's in-memory joint stiffness and spring reference. A future MJCF exporter can encode those properties natively.
+Dataset records carry `controls` with the same definitions as root metadata. Button and knob links and joints use the ordinary URDF representation. URDF carries joint damping and friction. The checker reads each joint's spring stiffness and rest position from the record and assigns MuJoCo's in-memory joint stiffness and spring reference. A future MJCF exporter can encode those properties natively.
 
 Actuated position checks compensate spring force while holding a target. The button check applies force along its slide until the press threshold is reached, releases the force and requires return to within 10% of travel in 0.5 seconds. The spring acts during release, while other joints hold their lower limits.
 
@@ -53,3 +53,7 @@ The knob check drives to each declared detent, removes actuation on that knob an
 Run `python -m unittest discover -s sim -p "test_*.py"` for the grasp, button-return and detent regression tests. Touch sensor simulation and appliance runtime state are reserved for later work.
 
 Visual-only control markings export as OBJ visuals without collision geometry or inertial contribution. The touch check creates a box site on the panel body for each rectangular region. A 4 mm radius free sphere presses each center at 1.25 times its declared threshold. The checker requires the settled sensor reading to reach the threshold, every other sensor to read zero throughout the press, and the region to stay fixed.
+
+For each oven the checker releases the unactuated hinge from closed, fully open and 30° for two seconds. Endpoint excursions must stay below 1° and peak speed from 30° below 2 rad/s. A separate opening run releases the hinge when it first approaches within 1° of full opening and checks its next 0.5 s for more than 2° of retreat or reverse speed beyond 0.05 rad/s. The calibrated door uses the imported MuJoCo limit defaults (solreflimit 0.02, 1 and solimplimit 0.9, 0.95, 0.001, 0.5, 2) at 2 ms steps; joint damping and spring/friction values are exported in the dataset.
+
+For a sliding support the checker settles a free 5 cm cube with the slide closed and all declared joint prerequisites at their required stops. The target follows a trapezoidal profile capped by the URDF velocity and 3 m/s² acceleration (triangular on short slides). During transport the cube must keep contact, remain within 1 cm of its settled attachment-frame position and tilt at most 5°. The slide must reach at least 95% travel. The checker allows at least six servo time constants after the target arrives, using the effective slide inertia plus cube mass and the position gain (minimum hold 0.6 s). The effort limit remains active during settling.
