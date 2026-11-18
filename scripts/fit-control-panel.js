@@ -31,10 +31,24 @@ export function fitControlPanel(camera, asset, regions) {
     }
   }
   const center = frame.getCenter(new Vector3()), size = frame.getSize(new Vector3());
-  const half = 1.15 * Math.max(size.x, size.y) / 2;
-  camera.left = center.x - half;
-  camera.right = center.x + half;
-  camera.bottom = center.y - half;
-  camera.top = center.y + half;
+  const aspect = Math.max(0.25, Math.min(4, size.x/size.y));
+  const height = Math.max(size.y, size.x/aspect)*1.15;
+  const width = height*aspect;
+  // Preserve roughly the pixel budget of a 512-square view, increasing the
+  // density if the smallest projected interaction patch would be under 24 px.
+  let density = 512/Math.sqrt(width*height);
+  for (const corners of regions) {
+    const [a,b,,d] = corners.map(p => p.clone().applyMatrix4(camera.matrixWorldInverse));
+    const shortest = Math.min(Math.hypot(a.x-b.x,a.y-b.y), Math.hypot(a.x-d.x,a.y-d.y));
+    if (shortest < 1e-8) throw new Error('Control region is edge-on to the panel camera');
+    density = Math.max(density, 24/shortest);
+  }
+  const pixels = {width:Math.ceil(width*density), height:Math.ceil(height*density)};
+  const frameWidth = pixels.width/density, frameHeight = pixels.height/density;
+  camera.left = center.x - frameWidth/2;
+  camera.right = center.x + frameWidth/2;
+  camera.bottom = center.y - frameHeight/2;
+  camera.top = center.y + frameHeight/2;
   camera.updateProjectionMatrix();
+  return pixels;
 }

@@ -18,28 +18,29 @@ class OvenChecks(unittest.TestCase):
           <mujoco><compiler fusestatic="false"/></mujoco><link name="base"/>
           <link name="door"><inertial><origin xyz="0 0 .04"/><mass value="1"/>
           <inertia ixx=".0003" iyy=".0003" izz=".0003" ixy="0" ixz="0" iyz="0"/></inertial></link>
-          <joint name="door_hinge" type="revolute"><parent link="base"/><child link="door"/>
+          <joint name="test_hinge" type="revolute"><parent link="base"/><child link="door"/>
           <axis xyz="1 0 0"/><limit lower="0" upper="1.57" effort="8" velocity="2"/>
           <dynamics damping="{damping}" friction="{friction}"/></joint></robot>""")
-        joints = [dict(name="door_hinge", limits=[0,1.57], dynamics=dict(spring=dict(stiffness=spring,restPosition=0)))]
+        joints = [dict(name="test_hinge", behavior="balanced_door", limits=[0,1.57], dynamics=dict(spring=dict(stiffness=spring,restPosition=0)))]
         model = load(self.path).compile()
         apply_springs(model,joints)
-        return model,joints,{"door_hinge":{"effort":8,"velocity":2}}
+        return model,joints,{"test_hinge":{"effort":8,"velocity":2}}
 
     def test_damped_hinge(self):
         model,joints,limits = self.door()
-        door_behavior(model,joints)
-        door_bounce(model,joints,limits)
+        door_behavior(model,joints,limits,joints[0])
+        door_bounce(model,joints,limits,joints[0])
 
     def test_unrestrained_slam(self):
         with self.assertRaisesRegex(ValueError,"slam"):
-            door_behavior(*self.door(damping=0,friction=0)[:2])
+            model,joints,limits = self.door(damping=0,friction=0)
+            door_behavior(model,joints,limits,joints[0])
 
     def test_rebounding_limit(self):
         model,joints,limits = self.door(damping=0,friction=0)
         model.jnt_solref[0] = [0.025, 0.15]
         with self.assertRaisesRegex(ValueError,"bounce"):
-            door_bounce(model,joints,limits)
+            door_bounce(model,joints,limits,joints[0])
 
     def tray(self, effort):
         box = '<geometry><box size=".2 .25 .01"/></geometry>'

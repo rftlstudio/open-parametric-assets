@@ -39,6 +39,9 @@ def initial(model, joints, upper=False):
     return data
 
 
+POSITION_GAIN = 400.0
+
+
 def controller(model, data, joints, targets, limits, released=()):
     data.qfrc_applied[:] = 0
     inertia = np.zeros((model.nv, model.nv))
@@ -49,7 +52,7 @@ def controller(model, data, joints, targets, limits, released=()):
         jid = model.joint(joint["name"]).id
         q, v = model.jnt_qposadr[jid], model.jnt_dofadr[jid]
         # Critically damped position servo, capped by the URDF effort limit.
-        gain = 400.0
+        gain = POSITION_GAIN
         damping = 2 * np.sqrt(gain * inertia[v, v])
         force = gain * (target - data.qpos[q]) - damping * data.qvel[v]
         force += model.jnt_stiffness[jid] * (data.qpos[q] - model.qpos_spring[q])
@@ -234,13 +237,30 @@ def passive(model, joints):
     print(f"PASS passive, 2 s, maximum drift {max_drift:.3%}")
 
 
-def driven(model, joints, limits, access_door=None):
+def prepare_motion(model, joints, target):
+    """Hold prerequisite joints at their declared stops, including indirect prerequisites."""
+    by_name = {j["name"]: j for j in joints}
+    required = {}
+    def visit(joint):
+        for req in joint.get("requires", []):
+            name, at = req["joint"], req["at"]
+            if name not in required:
+                required[name] = at
+                visit(by_name[name])
+            else:
+                require(required[name] == at, "conflicting motion prerequisites: "+name)
+    visit(target)
+    targets = [j["limits"][int(required.get(j["name"]) == "upper")] for j in joints]
+    data = initial(model,joints)
+    for joint, value in zip(joints,targets):
+        data.joint(joint["name"]).qpos[0] = value
+    mj.mj_forward(model,data)
+    return data, targets
+
+
+def driven(model, joints, limits):
     for target_joint in joints:
-        data = initial(model, joints)
-        rest = [j["limits"][int(j["name"] == access_door and target_joint["type"] == "prismatic")] for j in joints]
-        for j, position in zip(joints, rest):
-            data.joint(j["name"]).qpos[0] = position
-        mj.mj_forward(model, data)
+        data, rest = prepare_motion(model,joints,target_joint)
         moving = model.jnt_bodyid[model.joint(target_joint["name"]).id]
         for _ in range(round(3 / model.opt.timestep)):
             targets = []
@@ -377,15 +397,16 @@ def drop(path, xml, record, limits):
         print(f"PASS drop {affordance['part']}, 5 cm cube stable for final 0.2 s")
 
 
-def door_behavior(model, joints):
-    name = "door_hinge"
-    lo, hi = next(j["limits"] for j in joints if j["name"] == name)
+def door_behavior(model, joints, limits, joint):
+    name = joint["name"]
+    lo, hi = joint["limits"]
     for start in (lo, hi, np.deg2rad(30)):
-        data = initial(model, joints)
+        data, targets = prepare_motion(model,joints,joint)
         hinge = data.joint(name)
         hinge.qpos[0] = start
         mj.mj_forward(model, data)
         for _ in range(round(2 / model.opt.timestep)):
+            controller(model,data,joints,targets,limits,released=[name])
             mj.mj_step(model, data)
             if start in (lo, hi):
                 require(abs(hinge.qpos[0]-start) < np.deg2rad(1), "released door endpoint drift")
@@ -394,12 +415,11 @@ def door_behavior(model, joints):
     print("PASS door release, endpoints held and peak speed below 2 rad/s at 30 degrees")
 
 
-def door_bounce(model, joints, limits):
-    name = "door_hinge"
+def door_bounce(model, joints, limits, joint):
+    name = joint["name"]
     index = next(i for i,j in enumerate(joints) if j["name"] == name)
     lo, hi = joints[index]["limits"]
-    data = initial(model, joints)
-    targets = [j["limits"][0] for j in joints]
+    data, targets = prepare_motion(model,joints,joint)
     hinge = data.joint(name)
     for _ in range(round(4/model.opt.timestep)):
         targets[index] = min(hi, lo + data.time * limits[name]["velocity"])
@@ -428,13 +448,7 @@ def carry(path, xml, record, limits):
         if index is None:
             continue
         model = cube_model(path, record)
-        data = initial(model,joints)
-        targets = [j["limits"][0] for j in joints]
-        if record.get("asset_id") == "appliances/oven":
-            door = next(i for i,j in enumerate(joints) if j["name"] == "door_hinge")
-            targets[door] = joints[door]["limits"][1]
-            data.joint("door_hinge").qpos[0] = targets[door]
-            mj.mj_forward(model,data)
+        data, targets = prepare_motion(model,joints,joints[index])
         point, frame, body = affordance_frame(model,data,xml,surface)
         normal = frame @ surface["normal"]
         cube = data.body("test_cube")
@@ -457,7 +471,13 @@ def carry(path, xml, record, limits):
         peak = min(speed, np.sqrt(acceleration*(hi-lo)))
         ramp = peak/acceleration
         duration = (hi-lo)/peak + ramp
-        for step in range(round((duration+0.6)/model.opt.timestep)):
+        # The position servo is critically damped. Its response time scales with
+        # sqrt(effective inertia / stiffness); six time constants allow settling.
+        inertia = np.zeros((model.nv,model.nv))
+        mj.mj_fullM(model,inertia,data.qM)
+        dof = model.jnt_dofadr[model.joint(name).id]
+        settle_time = max(0.6, 6*np.sqrt((inertia[dof,dof] + model.body_mass[cube.id])/POSITION_GAIN))
+        for step in range(round((duration+settle_time)/model.opt.timestep)):
             time = step*model.opt.timestep
             if time < ramp:
                 position = 0.5*acceleration*time*time
@@ -499,11 +519,11 @@ def check(path):
               for j in xml.findall("joint")}
     print(f"PASS load {record['asset_id']}, {model.nbody - 1} bodies, {model.njnt} joints, fixed base")
     passive(model, joints)
-    oven = record["asset_id"] == "appliances/oven"
-    driven(model, joints, limits, "door_hinge" if oven else None)
-    if oven:
-        door_behavior(model, joints)
-        door_bounce(model, joints, limits)
+    driven(model, joints, limits)
+    for joint in joints:
+        if joint.get("behavior") == "balanced_door":
+            door_behavior(model,joints,limits,joint)
+            door_bounce(model,joints,limits,joint)
     drop(path, xml, record, limits)
     carry(path, xml, record, limits)
     grasp(path, xml, record)

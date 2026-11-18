@@ -43,6 +43,34 @@ function checkMetadata(data, parts, id) {
     }
     assert(finiteVector(joint.limits, 2) && joint.limits[0] <= joint.limits[1], 'invalid joint limits');
   }
+  const byName = new Map(data.joints.map(j => [j.name,j]));
+  for (const joint of data.joints) {
+    if (joint.behavior !== undefined) {
+      assert(joint.behavior === 'balanced_door' && joint.type === 'revolute' &&
+        joint.limits[0] === 0 && joint.limits[1] > Math.PI/6, joint.name + ': invalid joint behavior');
+    }
+    if (joint.requires === undefined) continue;
+    assert(Array.isArray(joint.requires), joint.name + ': invalid requires');
+    const seen = new Set();
+    for (const r of joint.requires) {
+      assert(r && byName.has(r.joint) && !seen.has(r.joint) && ['upper','lower'].includes(r.at),
+        joint.name + ': invalid prerequisite');
+      seen.add(r.joint);
+    }
+  }
+  for (const target of data.joints) {
+    const stops = new Map(), visiting = new Set();
+    function check(joint) {
+      visiting.add(joint.name);
+      for (const {joint:name,at} of joint.requires ?? []) {
+        assert(!visiting.has(name), target.name + ': cyclic prerequisite');
+        if (stops.has(name)) assert.equal(stops.get(name),at,target.name + ': conflicting prerequisites');
+        else { stops.set(name,at); check(byName.get(name)); }
+      }
+      visiting.delete(joint.name);
+    }
+    check(target);
+  }
   for (const a of data.affordances) {
     assert(parts.has(a.part) && finiteVector(a.point, 3), 'invalid affordance target or point');
     assert(['grasp', 'placeable'].includes(a.type), 'unknown affordance type');

@@ -4,7 +4,7 @@ import { Matrix3, Ray, Triangle, Vector3 } from 'three';
 import { isText } from './schema.js';
 
 export const controlFunctions = ['start', 'stop', 'add_30s', 'door_release', 'power_level', 'timer', 'digit', 'mode', 'temperature', 'temp_up', 'temp_down'];
-export const controlIcons = ['off', 'bake', 'fan', 'grill', 'defrost', 'up', 'down', 'play', 'stop', 'plus_30', 'power', 'clock', 'open', ...Array.from({length:10}, (_,i) => 'digit_'+i)];
+export const controlIcons = ['thermometer', 'off', 'bake', 'fan', 'grill', 'defrost', 'up', 'down', 'play', 'stop', 'plus_30', 'power', 'clock', 'open', ...Array.from({length:10}, (_,i) => 'digit_'+i)];
 const vector = (v, n) => Array.isArray(v) && v.length === n && v.every(Number.isFinite);
 
 // Clip a projected face triangle against the region rectangle.

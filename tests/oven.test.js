@@ -65,3 +65,21 @@ it('validates hinge spring units and limits and requires a joint spring for each
   delete joint.dynamics.spring;
   expect(() => inspect(appliance,'appliances/microwave',1800)).toThrow(/spring/);
 });
+
+it('validates joint prerequisite graphs and behavior tags', () => {
+  for(const invalid of [
+    j => {j[0].behavior='unknown';},
+    j => {j[1].behavior='balanced_door';},
+    j => {j[1].requires=[{joint:'missing',at:'upper'}];},
+    j => {j[1].requires[0].at='middle';},
+    j => {j[0].requires=[{joint:j[1].name,at:'upper'}];},
+    j => {j[2].requires=[{joint:j[1].name,at:'upper'},{joint:j[0].name,at:'lower'}];}
+  ]) {
+    const root=oven.createAsset();
+    invalid(root.userData.joints);
+    expect(()=>inspect(root,'appliances/oven',2200)).toThrow(/prerequisite|behavior/);
+  }
+  const root=oven.createAsset();
+  expect(root.userData.controls.find(c=>c.function==='temperature').icon).toBe('thermometer');
+  expect(oven.describe({},()=>0)).toContain('brushed stainless steel');
+});

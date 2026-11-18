@@ -11,12 +11,13 @@ export const schema = { triangleLimit:2200, parameters:{
   controlStyle:choice(['physical','touch'],'Fascia controls.'),
   rackCount:{type:'integer',min:1,max:3,default:2,unit:'count',description:'Number of pull-out racks.'},
   handleStyle:choice(['bar','recessed'],'Door handle.'),
-  finish:choice(['stainless','black','white'],'Fascia and door finish.'), wear:wearParameter
+  finish:{...choice(['stainless','black','white'],'Fascia and door finish.'),
+    labels:{stainless:'brushed stainless steel',black:'black',white:'white'}}, wear:wearParameter
 }};
 export function describe(params, random) {
   const p = resolveParams(schema,params);
   return (random()<0.5 ? 'A ' : 'Build a ') + Math.round(100*p.width) + ' cm built-in oven with a ' +
-    (p.height===0.45 ? 'compact' : 'full-height') + ' body, ' + p.finish + ' finish, ' +
+    (p.height===0.45 ? 'compact' : 'full-height') + ' body, ' + schema.parameters.finish.labels[p.finish] + ' finish, ' +
     p.rackCount + (p.rackCount===1 ? ' rack' : ' racks') + ', a ' + p.handleStyle + ' handle and ' +
     (p.controlStyle==='physical' ? 'two physical dials' : 'a touch strip') + '. It looks ' + wearBand(p.wear) + '.';
 }
@@ -83,7 +84,7 @@ export function createAsset(params={}, {seed=0}={}) {
     const {width,height,depth}=part.geometry.parameters;
     gravityMoment+=width*height*depth*part.material.userData.densityKgM3*9.81*part.position.y;
   }
-  joints.push({name:'door_hinge',type:'revolute',childPart:'door',axis:[1,0,0],limits:[0,1.57],
+  joints.push({name:'door_hinge',behavior:'balanced_door',type:'revolute',childPart:'door',axis:[1,0,0],limits:[0,1.57],
     dynamics:{spring:{stiffness:gravityMoment/1.57,restPosition:0},friction:gravityMoment*0.12,damping:gravityMoment*0.8},
     effort:100,velocity:1});
   const levels=Array.from({length:5},(_,i)=>0.059+i*(doorH-0.112)/4);
@@ -108,7 +109,7 @@ export function createAsset(params={}, {seed=0}={}) {
     }
     affordances.push({type:'grasp',grip:'raised',part:name+'_front',point:[0,0,0]});
     joints.push({name:name+'_slide',type:'prismatic',childPart:name,axis:[0,0,1],limits:[0,rackD/2],
-      velocity:0.2,effort:100,dynamics:{damping:1,friction:0.1},
+      requires:[{joint:'door_hinge',at:'upper'}],velocity:0.2,effort:100,dynamics:{damping:1,friction:0.1},
       clearance:{moving:name,stationary:['case_left','case_right'],minRetainedRatio:0.3}});
   }
   function knob(fn,x,values,unit,icon,detentIcons) {
@@ -131,7 +132,7 @@ export function createAsset(params={}, {seed=0}={}) {
   }
   if(p.controlStyle==='physical') {
     knob('mode',-0.055,modes,'mode','bake',icons);
-    knob('temperature',0.055,[0,...Array.from({length:9},(_,i)=>50+25*i)],'degC','up');
+    knob('temperature',0.055,[0,...Array.from({length:9},(_,i)=>50+25*i)],'degC','thermometer');
   } else {
     const keys=[...modes.map((mode,i)=>['mode',mode.toUpperCase().replace('_',' '),icons[i],mode]),
       ['temp_up','TEMP UP','up'],['temp_down','TEMP DOWN','down'],['start','START','play'],['stop','STOP','stop']];
