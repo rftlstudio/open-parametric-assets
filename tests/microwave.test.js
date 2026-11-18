@@ -1,4 +1,5 @@
 import { BoxGeometry, Group, Mesh, Vector3 } from 'three';
+import { DOMParser } from '@xmldom/xmldom';
 import { expect, it } from 'vitest';
 import * as microwave from '../assets/appliances/microwave/index.js';
 import { validateAsset } from '../validator/validate.js';
@@ -56,11 +57,72 @@ it('describes every layout, finish and opening style deterministically with exac
         expect(microwave.describe(params, () => n)).toBe(text);
         expect(text).toContain('0.47 m wide, 0.29 m tall and 0.41 m deep');
         expect(text).toContain(microwave.schema.parameters.finish.labels[finish]);
-        expect(text).toContain(controlLayout === 'dials' ? 'two dials and a start button' : 'a button panel');
+        expect(text).toContain(controlLayout === 'dials' ? 'two dials, a start button' : 'a button panel');
         expect(text).toContain(doorOpening === 'handle' ? 'raised door handle' : 'door-release button and a recessed pull edge');
         expect(text).toContain('looks worn.');
         expect(text).not.toContain('0.35');
+        const features = {
+          'dials/handle': 'two dials, a start button and a raised door handle',
+          'dials/release_button': 'two dials, a start button, a door-release button and a recessed pull edge',
+          'buttons/handle': 'a button panel and a raised door handle',
+          'buttons/release_button': 'a button panel, a door-release button and a recessed pull edge'
+        };
+        expect(text).toContain(features[controlLayout + '/' + doorOpening] + '.');
       }
+    }
+  }
+});
+
+it('turns both knob indicators clockwise from the front for positive joint positions', () => {
+  const root = microwave.createAsset();
+  for (const control of root.userData.controls.filter(c => c.type === 'knob')) {
+    const joint = root.userData.joints.find(j => j.name === control.joint);
+    const part = root.getObjectByName(joint.childPart);
+    const indicator = root.getObjectByName(control.name + '_indicator');
+    const before = indicator.getWorldPosition(new Vector3());
+    expect(joint.axis).toEqual([0, 0, -1]);
+    part.rotateOnAxis(new Vector3(...joint.axis), Math.PI / 2);
+    const after = indicator.getWorldPosition(new Vector3());
+    expect(after.x - before.x).toBeCloseTo(0.013, 9);
+    expect(after.y - before.y).toBeCloseTo(-0.013, 9);
+  }
+});
+
+it('surrounds a centered inset glass box with opaque panels in the shell finish', () => {
+  for (const finish of ['stainless', 'black', 'white']) for (const doorOpening of ['handle', 'release_button']) {
+    const root = microwave.createAsset({ finish, doorOpening });
+    const window = root.getObjectByName('door_window');
+    const left = root.getObjectByName('door_frame_left');
+    const top = root.getObjectByName('door_frame_top');
+    const bottom = root.getObjectByName('door_frame_bottom');
+    const right = root.getObjectByName('door_frame_right_inner');
+    const doorWidth = 0.52 * 0.73 - 0.004, doorHeight = 0.30 - 0.008;
+    expect(window.geometry.parameters.width).toBeCloseTo(doorWidth * 0.60, 9);
+    expect(window.geometry.parameters.height).toBeCloseTo(doorHeight * 0.55, 9);
+    expect(window.position.x).toBeCloseTo(doorWidth / 2, 9);
+    expect(window.position.y).toBe(0);
+    for (const panel of [left, top, bottom, right]) {
+      expect(panel.material).toBe(root.getObjectByName('case_top').material);
+      expect(panel.material.transparent).toBe(false);
+      expect(panel.material.opacity).toBe(1);
+    }
+    expect(left.position.x + left.geometry.parameters.width / 2)
+      .toBeCloseTo(window.position.x - window.geometry.parameters.width / 2, 9);
+    expect(right.position.x - right.geometry.parameters.width / 2)
+      .toBeCloseTo(window.position.x + window.geometry.parameters.width / 2, 9);
+    expect(top.position.y - top.geometry.parameters.height / 2).toBeCloseTo(window.geometry.parameters.height / 2, 9);
+    expect(bottom.position.y + bottom.geometry.parameters.height / 2).toBeCloseTo(-window.geometry.parameters.height / 2, 9);
+    expect(window.position.z + window.geometry.parameters.depth / 2)
+      .toBeLessThan(top.position.z + top.geometry.parameters.depth / 2);
+    const xml = new DOMParser().parseFromString(exportURDF(root).urdf, 'text/xml');
+    const visual = Array.from(xml.getElementsByTagName('visual')).find(e => e.getAttribute('name') === 'visual_door_window');
+    const collision = Array.from(xml.getElementsByTagName('collision')).find(e => e.getAttribute('name') === 'door_window');
+    for (const tag of ['origin', 'geometry']) {
+      expect(collision.getElementsByTagName(tag)[0].toString()).toBe(visual.getElementsByTagName(tag)[0].toString());
+    }
+    const dimensions = collision.getElementsByTagName('box')[0].getAttribute('size').split(' ').map(Number);
+    for (const [i, size] of [window.geometry.parameters.width, window.geometry.parameters.height, 0.004].entries()) {
+      expect(dimensions[i]).toBeCloseTo(size, 7);
     }
   }
 });

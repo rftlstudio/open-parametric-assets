@@ -19,10 +19,11 @@ export const schema = {
 
 export function describe(params, random) {
   const p = resolveParams(schema, params);
-  const layout = p.controlLayout === 'dials' ? 'two dials and a start button' : 'a button panel';
-  const opening = p.doorOpening === 'handle' ? 'a raised door handle' : 'a door-release button and a recessed pull edge';
+  const features = p.controlLayout === 'dials' ? ['two dials', 'a start button'] : ['a button panel'];
+  features.push(...(p.doorOpening === 'handle' ? ['a raised door handle'] : ['a door-release button', 'a recessed pull edge']));
+  const featureList = features.slice(0, -1).join(', ') + ' and ' + features.at(-1);
   const intro = random() < 0.5 ? 'A countertop microwave' : 'Build a countertop microwave';
-  return intro + ' with a ' + schema.parameters.finish.labels[p.finish] + ' finish, ' + layout + ' and ' + opening +
+  return intro + ' with a ' + schema.parameters.finish.labels[p.finish] + ' finish, ' + featureList +
     '. The case is ' + p.width.toFixed(2) + ' m wide, ' + p.height.toFixed(2) + ' m tall and ' + p.depth.toFixed(2) +
     ' m deep. It looks ' + wearBand(p.wear) + '.';
 }
@@ -77,14 +78,19 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
 
   const doorWidth = width - panelWidth - 0.004, doorHeight = height - 0.008;
   const door = group(root, 'door', [-width / 2 + 0.002, height / 2, front + 0.022]);
-  box(door, 'door_frame_left', [0.018, doorHeight, 0.018], [0.009, 0, -0.009], dark);
+  const windowWidth = doorWidth * 0.60, windowHeight = doorHeight * 0.55;
+  const borderWidth = (doorWidth - windowWidth) / 2, borderHeight = (doorHeight - windowHeight) / 2;
+  box(door, 'door_frame_left', [borderWidth, doorHeight, 0.018], [borderWidth / 2, 0, -0.009]);
   for (const [side, sign] of [['top', 1], ['bottom', -1]]) {
-    box(door, 'door_frame_' + side, [doorWidth - 0.036, 0.022, 0.018],
-      [doorWidth / 2, sign * (doorHeight - 0.022) / 2, -0.009], dark);
+    box(door, 'door_frame_' + side, [windowWidth, borderHeight, 0.018],
+      [doorWidth / 2, sign * (doorHeight - borderHeight) / 2, -0.009]);
   }
-  box(door, 'door_window', [doorWidth - 0.036, doorHeight - 0.044, 0.004], [doorWidth / 2, 0, -0.009], glass);
+  box(door, 'door_window', [windowWidth, windowHeight, 0.004], [doorWidth / 2, 0, -0.009], glass);
+  // Reserve the outer 18 mm for the handle edge or the open recessed pull channel.
+  box(door, 'door_frame_right_inner', [borderWidth - 0.018, doorHeight, 0.018],
+    [doorWidth - (borderWidth + 0.018) / 2, 0, -0.009]);
   if (p.doorOpening === 'handle') {
-    box(door, 'door_frame_right', [0.018, doorHeight, 0.018], [doorWidth - 0.009, 0, -0.009], dark);
+    box(door, 'door_frame_right', [0.018, doorHeight, 0.018], [doorWidth - 0.009, 0, -0.009]);
     for (const [end, y] of [['top', 0.043], ['bottom', -0.043]]) {
       box(door, 'door_handle_mount_' + end, [0.012, 0.012, 0.024], [doorWidth - 0.030, y, 0.012], dark);
     }
@@ -94,10 +100,10 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     const segmentHeight = (doorHeight - 0.08) / 2;
     for (const [end, sign] of [['top', 1], ['bottom', -1]]) {
       box(door, 'door_edge_' + end, [0.018, segmentHeight, 0.018],
-        [doorWidth - 0.009, sign * (0.04 + segmentHeight / 2), -0.009], dark);
+        [doorWidth - 0.009, sign * (0.04 + segmentHeight / 2), -0.009]);
     }
     box(door, 'door_pull_back', [0.018, 0.08, 0.003], [doorWidth - 0.009, 0, -0.0165], dark);
-    box(door, 'door_pull_edge', [0.006, 0.08, 0.004], [doorWidth - 0.003, 0, -0.002], dark);
+    box(door, 'door_pull_edge', [0.006, 0.08, 0.004], [doorWidth - 0.003, 0, -0.002]);
     affordances.push({ type: 'grasp', grip: 'recessed', part: 'door_pull_edge', point: [-0.009, 0, -0.005] });
   }
   joints.push({ name: 'door_hinge', type: 'revolute', axis: [0, -1, 0], limits: [0, 1.75],
@@ -125,7 +131,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     massKg += 12 * Math.sin(2 * Math.PI / 24) * radius * radius * length * shell.userData.densityKgM3;
     box(moving, name + '_indicator', [0.003, 0.006, 0.001], [0, 0.013, length / 2 + 0.0005], mark);
     const upper = 1.5 * Math.PI;
-    joints.push({ name: joint, type: 'revolute', axis: [0, 0, 1], limits: [0, upper],
+    joints.push({ name: joint, type: 'revolute', axis: [0, 0, -1], limits: [0, upper],
       childPart: name, dynamics: { damping: 0.04, friction: 0.02 }, effort: 0.3, velocity: 5 });
     controls.push({ name, type: 'knob', function: fn, label: fn === 'timer' ? 'TIMER' : 'POWER',
       icon: fn === 'timer' ? 'clock' : 'power', joint,

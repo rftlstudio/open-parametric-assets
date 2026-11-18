@@ -1,6 +1,6 @@
 # Microwave v0.1.0
 
-A countertop appliance with a hollow chamber, left-hinged door, semi-transparent glass and a right-hand control panel occupying 27% of the width. +Y is up and +Z faces the user. The origin is the case footprint center at floor level.
+A countertop appliance with a hollow chamber, an opaque left-hinged door in the shell finish and a right-hand control panel occupying 27% of the width. A centered, inset glass window spans 60% of the door width and 55% of its height, surrounded by solid panels. +Y is up and +Z faces the user. The origin is the case footprint center at floor level.
 
 | Parameter | Default | Domain |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ const slide = root.userData.joints.find(j => j.name === start.joint);
 
 The dials layout has a 0–30 minute timer in one-minute detents, five power settings (20–100%) and a start button. The release-button opening style adds a separate OPEN button to this layout. The buttons layout has START, STOP, +30 s and OPEN. Labels and icon IDs are metadata in this release.
 
-Buttons travel 3 mm into the panel, register a press at 60% travel, and use a 300 N/m return spring with zero rest position. Knobs rotate through 270° and use joint friction to hold their position. The state is the nearest detent value; an exact midpoint chooses the lower index. Control rectangles use local X and Y on the front faces.
+Buttons travel 3 mm into the panel, register a press at 60% travel, and use a 300 N/m return spring with zero rest position. Knobs rotate clockwise as seen from the front through 270° around axis [0, 0, -1] and use joint friction to hold their position. The state is the nearest detent value; an exact midpoint chooses the lower index. Control rectangles use local X and Y on the front faces.
 
 The raised bar uses a grasp point at its center. The release-button variant has a recessed right-edge pull, with a grasp point in its free channel. The door swings outward from 0 to 1.75 rad. A real latch is not simulated. The OPEN control represents a release request and the edge remains available for pulling.
 
