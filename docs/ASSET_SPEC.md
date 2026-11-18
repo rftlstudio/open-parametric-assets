@@ -19,7 +19,9 @@ export const schema = {
 };
 ```
 
-Omitted parameters use defaults. Reject unknown names, wrong types, non-finite numbers and out-of-domain values by throwing. Do not silently coerce or clamp. A seed is an unsigned 32-bit integer. Use a local seeded PRNG for any variation. Avoid Math.random, clocks and shared mutable generation state. Within a given asset version and locked dependency environment, equal parameters and seed must reproduce geometry, part transforms, material appearance and metadata. Runtime three.js object identities and UUIDs are excluded.
+An optional parameter condition `activeWhen` maps parameter names to required values. Inactive parameters accept only their default. Omitted parameters use defaults. Reject unknown names, wrong types, non-finite numbers and out-of-domain values by throwing. Do not silently coerce or clamp. A seed is an unsigned 32-bit integer. Use a local seeded PRNG for any variation. Avoid Math.random, clocks and shared mutable generation state. Within a given asset version and locked dependency environment, equal parameters and seed must reproduce geometry, part transforms, material appearance and metadata. Runtime three.js object identities and UUIDs are excluded.
+
+A mesh marked `userData.visualOnly = true` contributes to rendering, geometry hashes and triangle counts. URDF exports its visual with zero contribution to mass or inertia. Clearance and collision checks omit it. Affordances and control regions must reference physical parts.
 
 ## Root metadata and part frames
 
@@ -51,7 +53,7 @@ URDF export reads `material.userData.densityKgM3` for every mesh. Furniture uses
 
 ## Controls
 
-Every control contains a unique nonempty `name`, `type` (`button`, `knob` or `touch`), `function`, `label` (nonempty printed text or null), `icon` (enum ID or null), `region` and `state`. Labels and icons declare intended markings. Rendering those markings is deferred.
+Every control contains a unique nonempty `name`, `type` (`button`, `knob` or `touch`), `function`, `label` (nonempty printed text or null), `icon` (enum ID or null), `region` and `state`. Labels and icons declare intended markings. Microwave markings use flat vector meshes mounted 0.3 mm above each control.
 
 The function vocabulary defines appliance-level effects.
 
@@ -64,7 +66,7 @@ The function vocabulary defines appliance-level effects.
 | power_level | Select the operating power level. |
 | timer | Select the operation duration in the declared unit. |
 
-The icon vocabulary is `play`, `stop`, `plus_30`, `power` and `clock`. Labels and icons may independently be null. Appliance READMEs describe effects and interlocks; the metadata does not execute an appliance state machine.
+The function `digit` enters a keypad digit and requires an integer `value` from 0 to 9. The icon vocabulary includes `open`, `digit_0` through `digit_9`, and `play`, `stop`, `plus_30`, `power` and `clock`. Labels and icons may independently be null. Appliance READMEs describe effects and interlocks; the metadata does not execute an appliance state machine.
 
 A region is `{ part, point, normal, size }`, using a named mesh's local coordinates. The unit normal points outward and `size` contains the rectangle's two edge lengths in meters. Its first tangent is local +X projected onto the face, or local +Y when the normal is nearly parallel to X. The second tangent is normal × first tangent. This gives local X/Y rectangles on front faces and X/Z rectangles on horizontal surfaces. The validator clips outward-facing triangles against the rectangle and requires full area coverage within a 1 mm plane tolerance.
 
@@ -72,7 +74,7 @@ A button names a prismatic `joint` whose `childPart` contains `region.part`. Its
 
 A knob names a revolute `joint` whose `childPart` contains `region.part`. Its state is `{ kind: 'detent', positions, values, unit }`. There are at least two finite, strictly increasing positions in radians within the joint limits. Values have the same length and contain finite numbers or nonempty strings. The nonempty unit string describes those values. Choose the nearest position to obtain the state value, breaking midpoint ties toward the lower index.
 
-A touch control has no `joint` field. Its state is `{ kind: 'touch', minForceN }` with a positive finite force threshold in newtons. The structure is validated with a synthetic asset. Touch interaction and touch-equipped assets are reserved for a later version.
+A touch control has no `joint` field. Its state is `{ kind: 'touch', minForceN }` with a positive finite force threshold in newtons. Its panel is fixed. At rest, all control rectangles must be separated by at least 0.002 m, measured between their closest points in world space.
 
 ## Validation
 

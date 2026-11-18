@@ -5,7 +5,9 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from check_asset import apply_springs, button_check, knob_check, load
+import xml.etree.ElementTree as ET
+
+from check_asset import touch_check, apply_springs, button_check, knob_check, load
 
 
 class ControlTests(unittest.TestCase):
@@ -47,6 +49,26 @@ class ControlTests(unittest.TestCase):
                 limits["control_joint"]["effort"] = 0.0001
             with contextlib.redirect_stdout(io.StringIO()):
                 (button_check if button else knob_check)(model, record, control, limits)
+
+    def exercise_touch_panel(self, separation):
+        box = '<geometry><box size=".10 .04 .01"/></geometry>'
+        xml = f"""<robot name="panel"><mujoco><compiler fusestatic="false" discardvisual="true"/></mujoco>
+        <link name="panel"><visual name="visual_glass"><origin xyz="0 0 0"/>{box}</visual>
+        <collision name="glass">{box}</collision></link></robot>"""
+        controls = [dict(name=f"key_{i}", type="touch", state={"minForceN": 1},
+                         region=dict(part="glass", point=[x,0,.005], normal=[0,0,1], size=[.02,.02]))
+                    for i, x in enumerate([0,separation])]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "model.urdf"
+            path.write_text(xml)
+            touch_check(path, ET.fromstring(xml), {"controls": controls, "joints": []})
+
+    def test_touch_regions_measure_independent_forces(self):
+        self.exercise_touch_panel(0.025)
+
+    def test_overlapping_touch_sensors_report_crosstalk(self):
+        with self.assertRaisesRegex(ValueError, "neighbouring region activated"):
+            self.exercise_touch_panel(0.003)
 
     def test_button_presses_and_returns(self):
         self.run_control("button")

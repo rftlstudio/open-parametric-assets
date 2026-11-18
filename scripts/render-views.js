@@ -3,6 +3,8 @@ import {
   Box3, Color, DirectionalLight, EdgesGeometry, HemisphereLight, LineBasicMaterial,
   LineSegments, OrthographicCamera, PerspectiveCamera, Scene, Vector3, WebGLRenderer
 } from 'three';
+import { fitControlPanel } from './fit-control-panel.js';
+import { regionCorners } from '../lib/control-region.js';
 import { GLTFLoader } from './loaders/GLTFLoader.js';
 
 const renderer = new WebGLRenderer({
@@ -48,7 +50,7 @@ function openJoints(asset) {
 
 function addEdgeAccents(model) {
   const meshes = [];
-  model.traverse(part => { if (part.isMesh) meshes.push(part); });
+  model.traverse(part => { if (part.isMesh && !part.userData.visualOnly) meshes.push(part); });
   const ink = new LineBasicMaterial({ color: 0x202020, opacity: 0.22, transparent: true, depthWrite: false });
   for (const mesh of meshes) {
     // A small depth bias keeps visible crease lines on their host surface.
@@ -141,6 +143,15 @@ export async function renderViews({ glb, boundingBox }) {
   const images = {};
   try {
     addEdgeAccents(model);
+    if (asset.userData.controls?.length) {
+      const regions = asset.userData.controls.map(c => regionCorners(asset.getObjectByName(c.region.part), c.region));
+      const [a,b,,d] = regions[0];
+      const direction = b.clone().sub(a).cross(d.clone().sub(a)).normalize();
+      const camera = cameraFor(rest,direction);
+      fitControlPanel(camera, asset, regions);
+      renderer.render(scene,camera);
+      images.control_panel = renderer.domElement.toDataURL('image/png').split(',')[1];
+    }
     for (const [view, direction] of Object.entries(views)) {
       const opened = view === 'open_three_quarter' && openJoints(asset);
       const bounds = opened ? new Box3().setFromObject(model, true) : rest;

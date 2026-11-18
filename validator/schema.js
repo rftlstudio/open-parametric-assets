@@ -12,6 +12,13 @@ export function checkSchema(schema) {
   for (const [name, spec] of Object.entries(schema.parameters)) {
     assert(isText(name) && isObject(spec), 'invalid parameter definition');
     assert(isText(spec.unit) && isText(spec.description), name + ': missing unit or description');
+    if (Object.hasOwn(spec, 'activeWhen')) {
+      assert(isObject(spec.activeWhen) && Object.keys(spec.activeWhen).length, name + ': invalid activeWhen');
+      for (const [key, value] of Object.entries(spec.activeWhen)) {
+        const dependency = schema.parameters[key];
+        assert(key !== name && dependency && !dependency.activeWhen && accepts(dependency,value), name + ': invalid activeWhen dependency');
+      }
+    }
     if (Object.hasOwn(spec, 'step')) assert.equal(spec.type, 'number', name + ': step requires a number parameter');
     if (spec.type === 'enum') {
       assert(Array.isArray(spec.enum) && spec.enum.length > 0 && spec.enum.every(isText), name + ': invalid enum');
@@ -58,6 +65,9 @@ export function sampleParams(schema, random) {
       const grid = parameterGrid(spec);
       params[name] = grid.valueAt(Math.floor(u * grid.size));
     } else params[name] = spec.min + u * (spec.max - spec.min);
+  }
+  for (const [name, spec] of Object.entries(schema.parameters)) {
+    if (spec.activeWhen && !Object.entries(spec.activeWhen).every(([key,value]) => params[key] === value)) params[name] = spec.default;
   }
   return params;
 }

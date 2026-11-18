@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { Matrix3, Vector3 } from 'three';
+import { regionCorners } from '../lib/control-region.js';
+import { Matrix3, Ray, Triangle, Vector3 } from 'three';
 import { isText } from './schema.js';
 
-export const controlFunctions = ['start', 'stop', 'add_30s', 'door_release', 'power_level', 'timer'];
-export const controlIcons = ['play', 'stop', 'plus_30', 'power', 'clock'];
+export const controlFunctions = ['start', 'stop', 'add_30s', 'door_release', 'power_level', 'timer', 'digit'];
+export const controlIcons = ['play', 'stop', 'plus_30', 'power', 'clock', 'open', ...Array.from({length:10}, (_,i) => 'digit_'+i)];
 const vector = (v, n) => Array.isArray(v) && v.length === n && v.every(Number.isFinite);
 
 // Clip a projected face triangle against the region rectangle.
@@ -35,6 +36,7 @@ function checkRegion(root, region, name) {
     vector(region.size, 2) && region.size.every(n => n > 0), name + ': invalid region');
   const part = root.getObjectByName(region.part);
   assert(part?.isMesh, name + ': unknown region part');
+  assert(!part.userData.visualOnly, name + ': visualOnly region target');
   const normal = new Vector3(...region.normal), center = new Vector3(...region.point);
   const u = (Math.abs(normal.x) < 0.9 ? new Vector3(1, 0, 0) : new Vector3(0, 1, 0))
     .projectOnPlane(normal).normalize();
@@ -53,11 +55,33 @@ function checkRegion(root, region, name) {
   return part;
 }
 
+// Vertex/face and edge/edge pairs cover the minimum distance between rectangles.
+function separated(a,b) {
+  const minSq = (0.002 - 1e-8)**2;
+  for (const [p,q] of [[a,b],[b,a]]) {
+    const faces = [new Triangle(q[0],q[1],q[2]),new Triangle(q[0],q[2],q[3])];
+    for (let i=0;i<4;i++) {
+      const start = p[i], edge = p[(i+1)%4].clone().sub(start);
+      const length = edge.length(), ray = new Ray(start,edge.normalize());
+      const hit = new Vector3();
+      for (const t of faces) {
+        if (t.closestPointToPoint(start,hit).distanceToSquared(start) < minSq) return false;
+        if (ray.intersectTriangle(t.a,t.b,t.c,false,hit) && hit.distanceTo(start) <= length) return false;
+      }
+      for (let j=0;j<4;j++) {
+        if (ray.distanceSqToSegment(q[j],q[(j+1)%4],hit) < minSq && hit.distanceTo(start) <= length) return false;
+      }
+    }
+  }
+  return true;
+}
+
 export function checkControls(root) {
   const controls = root.userData.controls;
   if (controls === undefined) return;
   assert(Array.isArray(controls), 'controls must be an array');
-  const names = new Set();
+  const names = new Set(), rectangles = [];
+  root.updateMatrixWorld(true);
   for (const control of controls) {
     assert(control && isText(control.name) && !names.has(control.name), 'invalid or duplicate control name');
     names.add(control.name);
@@ -67,10 +91,15 @@ export function checkControls(root) {
     assert(control.label === null || isText(control.label), name + ': invalid label');
     assert(control.icon === null || controlIcons.includes(control.icon), name + ': unknown icon');
     const part = checkRegion(root, control.region, name);
+    if (control.function === 'digit') assert(Number.isInteger(control.value) && control.value >= 0 && control.value <= 9, name + ': invalid digit value');
+    const corners = regionCorners(part, control.region);
+    assert(rectangles.every(other => separated(corners,other)), name + ': control regions require 2 mm gap');
+    rectangles.push(corners);
     const state = control.state;
     assert(state && typeof state === 'object', name + ': missing state');
     if (control.type === 'touch') {
       assert(!Object.hasOwn(control, 'joint'), name + ': touch must not have a joint');
+      assert(!root.userData.joints.some(j => root.getObjectByName(j.childPart)?.getObjectById(part.id)), name + ': touch panel must be fixed');
       assert(state.kind === 'touch' && Number.isFinite(state.minForceN) && state.minForceN > 0,
         name + ': invalid touch state');
       continue;
@@ -84,7 +113,8 @@ export function checkControls(root) {
       assert(joint.type === 'prismatic', name + ': button joint type mismatch');
       assert(lower === 0 && upper >= 0.002 && upper <= 0.004, name + ': button travel must be 2–4 mm');
       const axis = new Vector3(...joint.axis).transformDirection(child.matrixWorld);
-      const normal = new Vector3(...control.region.normal).applyNormalMatrix(new Matrix3().getNormalMatrix(part.matrixWorld));
+      assert(!part.userData.visualOnly, name + ': visualOnly region target');
+  const normal = new Vector3(...control.region.normal).applyNormalMatrix(new Matrix3().getNormalMatrix(part.matrixWorld));
       assert(axis.dot(normal) < -0.999, name + ': button axis must point into the panel');
       assert(state.kind === 'momentary' && Number.isFinite(state.pressedAt) && state.pressedAt >= 0 && state.pressedAt <= 1,
         name + ': invalid momentary state');

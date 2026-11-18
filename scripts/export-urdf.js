@@ -29,13 +29,13 @@ function meshShape(node, local, masses, meshes) {
     throw new Error(node.name + ': sheared mesh transform cannot be represented by a URDF primitive');
   }
   const density = node.material.userData.densityKgM3;
-  if (!(Number.isFinite(density) && density > 0)) throw new Error(node.name + ': missing positive material densityKgM3');
+  if (masses && !(Number.isFinite(density) && density > 0)) throw new Error(node.name + ': missing positive material densityKgM3');
   const geo = node.geometry;
   if (geo.type === 'BoxGeometry') {
     geo.computeBoundingBox();
     const size = geo.boundingBox.getSize(new Vector3()).multiply(scale);
     const center = geo.boundingBox.getCenter(new Vector3()).applyMatrix4(local);
-    masses.box(center, size, rotation, density);
+    masses?.box(center, size, rotation, density);
     return pose(center, rotation) + '<geometry><box size="' + vec(size) + '"/></geometry>';
   }
   const vertices = [], lines = [];
@@ -49,7 +49,7 @@ function meshShape(node, local, masses, meshes) {
   for (let i = 0; i < count; i += 3) {
     const [a,b,c] = [i, i+1, i+2].map(j => geo.index ? geo.index.getX(j) : j);
     lines.push('f ' + [a+1,b+1,c+1].join(' '));
-    masses.triangle(vertices[a], vertices[b], vertices[c], density);
+    masses?.triangle(vertices[a], vertices[b], vertices[c], density);
   }
   const filename = 'meshes/part-' + (meshes.size + 1) + '.obj';
   meshes.set(filename, new TextEncoder().encode(lines.join('\n') + '\n'));
@@ -129,10 +129,11 @@ export function exportURDF(root) {
     const inverse = frame(link).invert();
     for (const node of nodes) {
       const local = inverse.clone().multiply(node.matrixWorld);
-      const shape = meshShape(node, local, masses, meshes);
+      const shape = meshShape(node, local, node.userData.visualOnly ? null : masses, meshes);
       const color = node.material.color.toArray().map(number).join(' ') + ' ' + number(node.material.opacity);
       lines.push('    <visual name="visual_' + escape(node.name) + '">' + shape +
         '<material name="material_' + escape(node.name) + '"><color rgba="' + color + '"/></material></visual>');
+      if (node.userData.visualOnly) continue;
       for (const [name, collision] of collisionShapes(node, local, shape)) {
         lines.push('    <collision name="' + escape(name) + '">' + collision + '</collision>');
       }

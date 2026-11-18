@@ -2,14 +2,16 @@ import { Box3, BoxGeometry, Color, CylinderGeometry, Group, Mesh, MeshStandardMa
 import { resolveParams, seededRandom } from '../../../lib/parameters.js';
 import { wearParameter, wearBand } from '../../../lib/furniture-finish.js';
 
+import { markControl } from '../../../lib/control-marks.js';
+
 export const schema = {
   triangleLimit: 1800,
   parameters: {
     width: { type: 'number', min: 0.45, max: 0.60, default: 0.52, step: 0.01, unit: 'm', description: 'Outside case width.' },
     height: { type: 'number', min: 0.26, max: 0.35, default: 0.30, step: 0.01, unit: 'm', description: 'Outside case height.' },
     depth: { type: 'number', min: 0.33, max: 0.45, default: 0.39, step: 0.01, unit: 'm', description: 'Case depth excluding door and controls.' },
-    controlStyle: { type: 'enum', default: 'physical', enum: ['physical'], unit: 'none', description: 'Physical controls; touch and mixed are reserved for a future version.' },
-    controlLayout: { type: 'enum', default: 'dials', enum: ['dials', 'buttons'], unit: 'none', description: 'Two dials with start, or four push buttons.' },
+    controlStyle: { type: 'enum', default: 'physical', enum: ['physical', 'touch', 'mixed'], unit: 'none', description: 'Panel technology.' },
+    controlLayout: { activeWhen: { controlStyle: 'physical' }, type: 'enum', default: 'dials', enum: ['dials', 'buttons'], unit: 'none', description: 'Two dials with start, or four push buttons.' },
     doorOpening: { type: 'enum', default: 'handle', enum: ['handle', 'release_button'], unit: 'none', description: 'Raised handle or release button with a recessed pull edge.' },
     finish: { type: 'enum', default: 'stainless', enum: ['stainless', 'black', 'white'],
       labels: { stainless: 'brushed stainless steel', black: 'black', white: 'white' }, unit: 'none', description: 'Enclosure finish.' },
@@ -19,8 +21,8 @@ export const schema = {
 
 export function describe(params, random) {
   const p = resolveParams(schema, params);
-  const features = p.controlLayout === 'dials' ? ['two dials', 'a start button'] : ['a button panel'];
-  features.push(...(p.doorOpening === 'handle' ? ['a raised door handle'] : ['a door-release button', 'a recessed pull edge']));
+  const features = p.controlStyle === 'touch' ? ['a touch keypad'] : p.controlStyle === 'mixed' ? ['a timer dial with touch buttons'] : p.controlLayout === 'dials' ? ['two dials', 'a start button'] : ['a button panel'];
+  features.push(...(p.doorOpening === 'handle' ? ['a raised door handle'] : (p.controlStyle === 'mixed' ? ['a recessed pull edge'] : ['a door-release button', 'a recessed pull edge'])));
   const featureList = features.slice(0, -1).join(', ') + ' and ' + features.at(-1);
   const intro = random() < 0.5 ? 'A countertop microwave' : 'Build a countertop microwave';
   return intro + ' with a ' + schema.parameters.finish.labels[p.finish] + ' finish, ' + featureList +
@@ -72,7 +74,9 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   box(body, 'cavity_floor', [width, wall, depth], [0, wall / 2, 0], interior);
   box(body, 'case_back', [width - 2 * wall, height - 2 * wall, wall], [0, height / 2, -front + wall / 2]);
   box(body, 'cavity_divider', [wall, height - 2 * wall, depth - wall], [split - wall / 2, height / 2, wall / 2], interior);
-  box(body, 'control_panel', [panelWidth, height - 2 * wall, wall], [split + panelWidth / 2, height / 2, front - wall / 2], dark);
+  const physical = p.controlStyle === 'physical';
+  const panelFront = front - 0.001;
+  const panel = box(body, physical ? 'control_panel' : 'touch_panel', [panelWidth - wall, height - 2 * wall, wall], [split + (panelWidth - wall) / 2, height / 2, panelFront - wall / 2], physical ? dark : material('#17242c', 2500, { roughness: 0.12 }));
   affordances.push({ type: 'placeable', part: 'cavity_floor', point: [cavityCenter, wall / 2, 0],
     normal: [0, 1, 0], size: [cavityWidth, depth - 2 * wall] });
 
@@ -109,15 +113,15 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   joints.push({ name: 'door_hinge', type: 'revolute', axis: [0, -1, 0], limits: [0, 1.75],
     childPart: door.name, clearance: { moving: door.name, stationary: ['body'] } });
 
-  const controlX = split + panelWidth / 2;
+  const controlX = panel.position.x;
   function button(fn, label, icon, y, size = [0.06, 0.022]) {
     const name = fn + '_button', part = name + '_cap', joint = name + '_slide';
-    const moving = group(root, name, [controlX, y, front + 0.012]);
-    box(moving, part, [size[0], size[1], 0.016], [0, 0, 0], shell);
+    const moving = group(root, name, [controlX, y, panelFront + 0.0035]);
+    box(moving, part, [size[0], size[1], 0.001], [0, 0, 0], shell);
     joints.push({ name: joint, type: 'prismatic', axis: [0, 0, -1], limits: [0, 0.003],
       childPart: name, dynamics: { damping: 1.5, friction: 0.005 }, effort: 3, velocity: 0.04 });
     controls.push({ name, type: 'button', function: fn, label, icon, joint,
-      region: { part, point: [0, 0, 0.008], normal: [0, 0, 1], size: [size[0] * 0.7, size[1] * 0.7] },
+      region: { part, point: [0, 0, 0.0005], normal: [0, 0, 1], size: [size[0] * 0.7, size[1] * 0.7] },
       state: { kind: 'momentary', pressedAt: 0.6, spring: { stiffness: 300, restPosition: 0 } } });
   }
   function knob(fn, y, values, unit) {
@@ -138,20 +142,43 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
       region: { part, point: [0, 0, length / 2], normal: [0, 0, 1], size: [0.012, 0.012] },
       state: { kind: 'detent', positions: values.map((_, i) => upper * i / (values.length - 1)), values, unit } });
   }
-  if (p.controlLayout === 'dials') {
+  function touch(fn, label, icon, x, y, size, value) {
+    const name = value === undefined ? fn : 'digit_' + value;
+    controls.push({ name: name + '_touch', type: 'touch', function: fn, label, icon,
+      ...(value === undefined ? {} : { value }),
+      region: { part: panel.name, point: [x, y, wall/2], normal: [0, 0, 1], size },
+      state: { kind: 'touch', minForceN: 1 } });
+  }
+  const actions = [['start','START','play'], ['stop','STOP','stop'], ['add_30s','+30 S','plus_30']];
+  if (p.controlStyle === 'touch') {
+    const keys = [1,2,3,4,5,6,7,8,9,0].map(n => ['digit', String(n), 'digit_' + n, n]);
+    keys.push(...actions, ['door_release','OPEN','open']);
+    const pitchX = (panelWidth - 0.018)/3, pitchY = (height - 0.05)/5;
+    keys.forEach(([fn,label,icon,value], i) => touch(fn,label,icon,(i%3-1)*pitchX,
+      (2-Math.floor(i/3))*pitchY,[pitchX-0.004,pitchY-0.004],value));
+  } else if (p.controlStyle === 'mixed') {
+    knob('timer', height * 0.78, Array.from({length:31}, (_,i) => i), 'min');
+    actions.forEach(([fn,label,icon],i) => touch(fn,label,icon,0,height*(0.02-i*0.17),[panelWidth*0.68,height*0.13]));
+  } else if (p.controlLayout === 'dials') {
     knob('timer', height * 0.73, Array.from({ length: 31 }, (_, i) => i), 'min');
     knob('power_level', height * 0.46, [20, 40, 60, 80, 100], '%');
     button('start', 'START', 'play', height * 0.20, [0.042, 0.014]);
-    if (p.doorOpening === 'release_button') button('door_release', 'OPEN', null, height * 0.08, [0.042, 0.014]);
+    if (p.doorOpening === 'release_button') button('door_release', 'OPEN', 'open', height * 0.08, [0.042, 0.014]);
   } else {
     for (const [i, [fn, label, icon]] of [['start', 'START', 'play'], ['stop', 'STOP', 'stop'],
-      ['add_30s', '+30 s', 'plus_30'], ['door_release', 'OPEN', null]].entries()) {
+      ['add_30s', '+30 S', 'plus_30'], ['door_release', 'OPEN', 'open']].entries()) {
       button(fn, label, icon, height * (0.80 - i * 0.20));
     }
   }
+  for (const control of controls) markControl(root.getObjectByName(control.region.part), control);
+  // A lumped transformer/electronics assembly fills the enclosed side bay.
+  const equipment = [panelWidth*0.65,height*0.55,depth*0.60];
+  const targetMass = 11.5 + 2*(width-0.45)/0.15;
+  const density = (targetMass-massKg)/equipment.reduce((a,b) => a*b,1);
+  box(body,'electronics',equipment,[controlX,height/2,0],material('#34383c',density));
   root.updateMatrixWorld(true);
   const bounds = new Box3().setFromObject(root, true);
-  root.userData = { id: 'appliances/microwave', category: 'appliances', version: '0.1.0',
+  root.userData = { id: 'appliances/microwave', category: 'appliances', version: '0.2.0',
     license: 'CC-BY-4.0', units: 'm', boundingBox: { min: bounds.min.toArray(), max: bounds.max.toArray() },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances, controls };
   return root;

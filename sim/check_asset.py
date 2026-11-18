@@ -166,6 +166,60 @@ def controls_reachable(path, xml, record):
         print(f"PASS region {control['name']}, on its part with more than 2 mm clearance")
 
 
+def touch_check(path, xml, record):
+    controls = [c for c in record.get("controls", []) if c["type"] == "touch"]
+    if not controls:
+        return
+    spec = load(path)
+    base = spec.compile()
+    rest = initial(base, record["joints"])
+    centers, normals = [], []
+    for control in controls:
+        region = control["region"]
+        center, frame, body = affordance_frame(base, rest, xml, region)
+        require("joint" not in control and base.body_weldid[body] == 0,
+                control["name"] + ": touch region must be fixed")
+        n = np.array(region["normal"])
+        u = np.array([1., 0., 0.] if abs(n[0]) < 0.9 else [0., 1., 0.])
+        u -= n * (u @ n)
+        u /= np.linalg.norm(u)
+        axes = np.column_stack([u, np.cross(n, u), n])
+        local = rest.xmat[body].reshape(3, 3).T
+        quat = np.zeros(4)
+        mj.mju_mat2Quat(quat, (local @ frame @ axes).ravel())
+        name = control["name"]
+        spec.body(base.body(body).name).add_site(name=name, type=mj.mjtGeom.mjGEOM_BOX,
+                pos=local @ (center-rest.xpos[body]), quat=quat,
+                size=[region["size"][0]/2, region["size"][1]/2, 0.001])
+        spec.add_sensor(name=name, type=mj.mjtSensor.mjSENS_TOUCH,
+                        objtype=mj.mjtObj.mjOBJ_SITE, objname=name)
+        centers.append(center)
+        normals.append(frame @ n)
+    radius = 0.004
+    probe = spec.worldbody.add_body(name="touch_probe", gravcomp=1)
+    probe.add_freejoint(name="touch_probe_free")
+    probe.add_geom(type=mj.mjtGeom.mjGEOM_SPHERE, size=[radius,0,0], mass=0.02)
+    model = spec.compile()
+    apply_springs(model, record.get("controls", []))
+    q = model.jnt_qposadr[model.joint("touch_probe_free").id]
+    for i, control in enumerate(controls):
+        data = initial(model, record["joints"])
+        data.qpos[q:q+3] = centers[i] + normals[i]*(radius+0.0001)
+        mj.mj_forward(model, data)
+        force = control["state"]["minForceN"]
+        data.xfrc_applied[model.body("touch_probe").id,:3] = -normals[i]*1.25*force
+        for _ in range(100):
+            mj.mj_step(model, data)
+            for j, other in enumerate(controls):
+                sensor = other["name"]
+                require(np.linalg.norm(data.site(sensor).xpos-centers[j]) < 1e-12, sensor + ": touch region drift")
+                if j != i:
+                    require(data.sensor(sensor).data[0] == 0, sensor + ": neighbouring region activated")
+        measured = data.sensor(control["name"]).data[0]
+        require(measured >= force, control["name"] + ": insufficient touch reading")
+        print(f"PASS touch {control['name']}, {measured:.3f} N, neighbouring sensors silent")
+
+
 def passive(model, joints):
     data = initial(model, joints)
     max_drift = 0.0
@@ -341,6 +395,7 @@ def check(path):
     drop(path, xml, record, limits)
     grasp(path, xml, record)
     controls_reachable(path, xml, record)
+    touch_check(path, xml, record)
     for control in record.get("controls", []):
         if control["type"] == "button":
             button_check(model, record, control, limits)

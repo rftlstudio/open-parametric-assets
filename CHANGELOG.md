@@ -1,5 +1,9 @@
 # Changelog
 
+## Microwave 0.2.0
+
+Physical controls gain vector icons and uppercase labels. Touch and mixed panels add force-tested, separated control regions and a control-panel close-up. Updated button caps, recessed panel and electronics mass change microwave sample IDs. The triangle budget remains 1,800.
+
 ## Microwave + controls v0.1
 
 Adds appliances/microwave v0.1.0 with a hollow cavity, hinged windowed door, raised or recessed opening, and physical button or dial layouts. Asset spec v0.2 defines controls, function/icon vocabularies, regions, momentary springs, detents and the reserved touch contract. Dataset records include controls. MuJoCo checks button return, detent stability and region access, with button springs applied in memory.
