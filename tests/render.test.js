@@ -2,6 +2,10 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Box3, OrthographicCamera, Vector3 } from 'three';
+import { createAsset as microwave } from '../assets/appliances/microwave/index.js';
+import { fitControlPanel } from '../scripts/fit-control-panel.js';
+import { regionCorners } from '../lib/control-region.js';
 import { PNG } from 'pngjs';
 import { afterAll, beforeAll, expect, it } from 'vitest';
 import { createAsset } from '../assets/furniture/cabinet/index.js';
@@ -77,6 +81,43 @@ function meanLuminance(image, left, top) {
   }
   return sum / 400;
 }
+
+it.each(['physical', 'mixed', 'touch'])('keeps %s control parts and marks within the close-up margin', style => {
+  const asset = microwave({ controlStyle: style, height: 0.26 });
+  // Stress a fixed marking extending beyond its region, and a panel rotated in world space.
+  if (style === 'touch') asset.getObjectByName('digit_1_touch_mark').position.y += 0.04;
+  asset.rotation.set(0.18, 0.45, 0.12);
+  asset.updateMatrixWorld(true);
+  const camera = new OrthographicCamera(-1, 1, 1, -1, 0.01, 4);
+  camera.position.set(0, 0, 1).applyQuaternion(asset.quaternion);
+  camera.lookAt(asset.position);
+  camera.updateMatrixWorld();
+  const controls = asset.userData.controls;
+  const regions = controls.map(c => regionCorners(asset.getObjectByName(c.region.part), c.region));
+  fitControlPanel(camera, asset, regions);
+
+  const bounds = new Box3().setFromPoints(regions.flat().map(p => p.project(camera)));
+  for (const control of controls) {
+    const targets = [asset.getObjectByName(control.name + '_mark')];
+    if (control.joint) {
+      const joint = asset.userData.joints.find(j => j.name === control.joint);
+      targets.push(asset.getObjectByName(joint.childPart));
+    }
+    for (const target of targets) target.traverse(mesh => {
+      if (!mesh.isMesh) return;
+      const vertices = mesh.geometry.attributes.position;
+      for (let i = 0; i < vertices.count; i++) {
+        const world = mesh.localToWorld(new Vector3().fromBufferAttribute(vertices, i));
+        bounds.expandByPoint(world.project(camera));
+      }
+    });
+  }
+  const { min, max } = bounds;
+  expect(min.z).toBeGreaterThan(-1);
+  expect(max.z).toBeLessThan(1);
+  expect(Math.max(-min.x, -min.y, max.x, max.y)).toBeCloseTo(1/1.15, 6);
+  expect(Math.abs(max.x + min.x) + Math.abs(max.y + min.y)).toBeLessThan(1e-6);
+});
 
 it('frames the default cabinet in six views, distinguishes panels and visibly opens its doors', async () => {
   const cabinet = createAsset();

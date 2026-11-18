@@ -3,6 +3,7 @@ import {
   Box3, Color, DirectionalLight, EdgesGeometry, HemisphereLight, LineBasicMaterial,
   LineSegments, OrthographicCamera, PerspectiveCamera, Scene, Vector3, WebGLRenderer
 } from 'three';
+import { fitControlPanel } from './fit-control-panel.js';
 import { regionCorners } from '../lib/control-region.js';
 import { GLTFLoader } from './loaders/GLTFLoader.js';
 
@@ -147,12 +148,7 @@ export async function renderViews({ glb, boundingBox }) {
       const [a,b,,d] = regions[0];
       const direction = b.clone().sub(a).cross(d.clone().sub(a)).normalize();
       const camera = cameraFor(rest,direction);
-      const projected = new Box3().setFromPoints(regions.flat().map(p => p.applyMatrix4(camera.matrixWorldInverse)));
-      const center = projected.getCenter(new Vector3()), size = projected.getSize(new Vector3());
-      const half = 0.575 * Math.max(size.x,size.y);
-      camera.left = center.x-half; camera.right = center.x+half;
-      camera.top = center.y+half; camera.bottom = center.y-half;
-      camera.updateProjectionMatrix();
+      fitControlPanel(camera, asset, regions);
       renderer.render(scene,camera);
       images.control_panel = renderer.domElement.toDataURL('image/png').split(',')[1];
     }

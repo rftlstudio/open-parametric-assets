@@ -31,7 +31,7 @@ ${count} English prompts paired with executable three.js constructor calls and b
 | id, asset_id, asset_version | Stable record digest, asset module path and asset version. |
 | seed, params | Unsigned 32-bit seed and complete, typed generator inputs. |
 | prompt, code | English request and its constructor call. Import createAsset from the module named by asset_id to replay the call. |
-| glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top, open three-quarter and 35° perspective three-quarter PNGs. Assets with controls also include control_panel, a front-facing close-up of their combined regions with 15% added framing space. GPU and driver changes may cause small pixel differences. |' : ''}
+| glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top, open three-quarter and 35° perspective three-quarter PNGs. Assets with controls also include control_panel, a front-facing close-up of their combined regions, moving parts and markings with 15% added framing space. GPU and driver changes may cause small pixel differences. |' : ''}
 ${urdf ? '| urdf_path | Relative path to the Z-up URDF; mesh references resolve alongside the model. |\n' : ''}| bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
 | joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians and prismatic limits are meters. |
 | controls | Button, knob and touch definitions, interaction regions, joint references and state semantics. Empty for assets without controls. |
