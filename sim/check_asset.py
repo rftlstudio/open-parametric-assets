@@ -39,17 +39,20 @@ def initial(model, joints, upper=False):
     return data
 
 
-def controller(model, data, joints, targets, limits):
+def controller(model, data, joints, targets, limits, released=()):
     data.qfrc_applied[:] = 0
     inertia = np.zeros((model.nv, model.nv))
     mj.mj_fullM(model, inertia, data.qM)
     for joint, target in zip(joints, targets):
+        if joint["name"] in released:
+            continue
         jid = model.joint(joint["name"]).id
         q, v = model.jnt_qposadr[jid], model.jnt_dofadr[jid]
         # Critically damped position servo, capped by the URDF effort limit.
         gain = 400.0
         damping = 2 * np.sqrt(gain * inertia[v, v])
         force = gain * (target - data.qpos[q]) - damping * data.qvel[v]
+        force += model.jnt_stiffness[jid] * (data.qpos[q] - model.qpos_spring[q])
         effort = limits[joint["name"]]["effort"]
         data.qfrc_applied[v] = np.clip(force, -effort, effort)
 
@@ -64,6 +67,103 @@ def check_contacts(model, data, moving):
         require(other in (moving, parent) or contact.dist >= -0.001,
                 f"contact penetration {-contact.dist:.6f} m between "
                 f"{model.body(moving).name} and {model.body(other).name}")
+
+
+def apply_springs(model, controls):
+    for control in controls:
+        if control["type"] == "button":
+            joint = model.joint(control["joint"]).id
+            spring = control["state"]["spring"]
+            model.jnt_stiffness[joint] = spring["stiffness"]
+            model.qpos_spring[model.jnt_qposadr[joint]] = spring["restPosition"]
+
+
+def button_check(model, record, control, limits):
+    joints = record["joints"]
+    data = initial(model, joints)
+    targets = [j["limits"][0] for j in joints]
+    jid = model.joint(control["joint"]).id
+    q, v = model.jnt_qposadr[jid], model.jnt_dofadr[jid]
+    travel = model.jnt_range[jid, 1]
+    pressed = control["state"]["pressedAt"] * travel
+    spring = control["state"]["spring"]
+    force = min(limits[control["joint"]]["effort"],
+                1.25 * spring["stiffness"] * (travel - spring["restPosition"]) + 0.05)
+    for _ in range(round(0.5 / model.opt.timestep)):
+        controller(model, data, joints, targets, limits, released=[control["joint"]])
+        data.qfrc_applied[v] = force
+        mj.mj_step(model, data)
+        if data.qpos[q] >= pressed:
+            break
+    require(data.qpos[q] >= pressed, control["name"] + ": button failed to press")
+    for _ in range(round(0.5 / model.opt.timestep)):
+        controller(model, data, joints, targets, limits, released=[control["joint"]])
+        mj.mj_step(model, data)
+    require(abs(data.qpos[q]) < 0.1 * travel, control["name"] + ": button failed to return within 0.5 s")
+    print(f"PASS button {control['name']}, pressed and returned to {data.qpos[q]:.6f} m")
+
+
+def detent_index(positions, value):
+    # The lower index wins an exact midpoint tie.
+    return int(np.argmin(np.abs(np.asarray(positions) - value)))
+
+
+def knob_check(model, record, control, limits):
+    joints = record["joints"]
+    data = initial(model, joints)
+    targets = [j["limits"][0] for j in joints]
+    index = next(i for i, j in enumerate(joints) if j["name"] == control["joint"])
+    jid = model.joint(control["joint"]).id
+    q = model.jnt_qposadr[jid]
+    positions = control["state"]["positions"]
+    tolerance = min(0.02, 0.1 * min(np.diff(positions)))
+    require(model.dof_frictionloss[model.jnt_dofadr[jid]] > 0,
+            control["name"] + ": knob needs positive joint frictionloss")
+    for expected, target in enumerate(positions):
+        targets[index] = target
+        for _ in range(round(1.0 / model.opt.timestep)):
+            controller(model, data, joints, targets, limits)
+            mj.mj_step(model, data)
+        require(detent_index(positions, data.qpos[q]) == expected,
+                control["name"] + ": failed to reach detent " + str(expected))
+        require(abs(data.qpos[q] - target) <= tolerance,
+                control["name"] + ": detent target position error exceeds tolerance")
+        for _ in range(round(0.5 / model.opt.timestep)):
+            controller(model, data, joints, targets, limits, released=[control["joint"]])
+            mj.mj_step(model, data)
+            require(detent_index(positions, data.qpos[q]) == expected,
+                    control["name"] + ": detent state changed after release")
+    print(f"PASS knob {control['name']}, all {len(positions)} detents held their values for 0.5 s")
+
+
+def controls_reachable(path, xml, record):
+    controls = record.get("controls", [])
+    if not controls:
+        return
+    spec = load(path)
+    radius = 1e-6
+    spec.worldbody.add_geom(name="test_region_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
+                           size=[radius, 0, 0], pos=[0, 0, 10])
+    model = spec.compile()
+    apply_springs(model, controls)
+    data = initial(model, record["joints"])
+    probe = model.geom("test_region_probe").id
+    for control in controls:
+        region = control["region"]
+        point, _, _ = affordance_frame(model, data, xml, region)
+        own = model.geom(region["part"]).id
+        model.geom_pos[probe] = point
+        mj.mj_forward(model, data)
+        for geom in range(model.ngeom):
+            if geom == probe:
+                continue
+            distance = mj.mj_geomDistance(model, data, probe, geom, 1.0, None) + radius
+            if geom == own:
+                require(abs(distance) <= 0.001, control["name"] + ": region does not touch its own part")
+            else:
+                require(distance > 0.002 + 1e-9,
+                        control["name"] + ": region obstructed by " + model.geom(geom).name)
+        print(f"PASS region {control['name']}, on its part with more than 2 mm clearance")
 
 
 def passive(model, joints):
@@ -124,13 +224,12 @@ def affordance_frame(model, data, xml, affordance):
 
 
 def grasp(path, xml, record):
-    style = record["params"]["handleStyle"]
-    require(style in ("recessed", "bar", "knob"), "unsupported grasp handleStyle " + str(style))
     spec = load(path)
     radius = 1e-6
     spec.worldbody.add_geom(name="test_grasp_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
                            size=[radius, 0, 0], pos=[0, 0, 10])
     model = spec.compile()
+    apply_springs(model, record.get("controls", []))
     data = initial(model, record["joints"])
     probe = model.geom("test_grasp_probe").id
     for affordance in record["affordances"]:
@@ -144,7 +243,8 @@ def grasp(path, xml, record):
             for geom in range(model.ngeom) if geom != probe
         ]
         # Adding the probe radius gives the signed point-to-solid distance.
-        if style in ("bar", "knob"):
+        require(affordance.get("grip") in ("raised", "recessed"), "invalid grasp grip")
+        if affordance["grip"] == "raised":
             own = model.geom(affordance["part"]).id
             require(model.geom_type[own] == mj.mjtGeom.mjGEOM_BOX,
                     affordance["part"] + ": raised grasp requires its own collision box")
@@ -179,6 +279,7 @@ def drop(path, xml, record, limits):
         cube.add_geom(name="test_cube_geom", type=mj.mjtGeom.mjGEOM_BOX,
                       size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
         model = spec.compile()
+        apply_springs(model, record.get("controls", []))
         data = initial(model, joints, upper=True)
         point, frame, support_body = affordance_frame(model, data, xml, affordance)
         normal = frame @ affordance["normal"]
@@ -218,6 +319,7 @@ def check(path):
     xml = ET.parse(path).getroot()
     joints = record["joints"]
     model = load(path).compile()
+    apply_springs(model, record.get("controls", []))
     names = [j["name"] for j in joints]
     require(model.njnt == len(joints), "joint count differs from record")
     require(model.nbody == len(joints) + 2, "body count differs from record plus root and world")
@@ -238,6 +340,12 @@ def check(path):
     driven(model, joints, limits)
     drop(path, xml, record, limits)
     grasp(path, xml, record)
+    controls_reachable(path, xml, record)
+    for control in record.get("controls", []):
+        if control["type"] == "button":
+            button_check(model, record, control, limits)
+        elif control["type"] == "knob":
+            knob_check(model, record, control, limits)
 
 
 if __name__ == "__main__":

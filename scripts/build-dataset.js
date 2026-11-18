@@ -60,7 +60,7 @@ async function generate(stage, samples, assets, renders, urdf) {
             prompt,
             code: 'createAsset(' + JSON.stringify(params) + ', { seed: ' + seed + ' })',
             glb_path: 'glb/' + id + '.glb', triangles, bounding_box: meta.boundingBox,
-            joints: meta.joints, affordances: meta.affordances, split: splitFor(assetId, seed),
+            joints: meta.joints, affordances: meta.affordances, controls: meta.controls ?? [], split: splitFor(assetId, seed),
             provenance, license: meta.license
           };
           await writeFile(join(stage, record.glb_path), await exportGLB(root), { flag: 'wx' });

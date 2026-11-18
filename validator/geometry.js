@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { Box3, Group, Vector3 } from 'three';
+import { checkControls } from './controls.js';
 import { checkClearance } from './clearance.js';
 import { isText } from './schema.js';
 
@@ -39,6 +40,7 @@ function checkMetadata(data, parts, id) {
   for (const a of data.affordances) {
     assert(parts.has(a.part) && finiteVector(a.point, 3), 'invalid affordance target or point');
     assert(['grasp', 'placeable'].includes(a.type), 'unknown affordance type');
+    if (a.type === 'grasp') assert(['raised', 'recessed'].includes(a.grip), 'invalid grasp grip');
     if (a.type === 'placeable') {
       assert(finiteVector(a.normal, 3) && Math.abs(Math.hypot(...a.normal) - 1) < 1e-6, 'invalid surface normal');
       assert(finiteVector(a.size, 2) && a.size.every(v => v > 0), 'invalid surface size');
@@ -100,6 +102,7 @@ export function inspect(root, id, triangleLimit) {
 
   assert(triangles > 0 && triangles <= triangleLimit, 'triangle count ' + triangles + ' outside budget 1..' + triangleLimit);
   checkMetadata(root.userData, parts, id);
+  checkControls(root);
   for (const joint of root.userData.joints) {
     if (joint.clearance !== undefined) checkClearance(root, joint);
   }

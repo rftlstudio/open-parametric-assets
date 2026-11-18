@@ -1,4 +1,4 @@
-# Asset specification v0.1
+# Asset specification v0.2
 
 An asset is an ESM module at `assets/<category>/<asset-name>/index.js`. It exports a JSON-compatible `schema` object and a synchronous `createAsset(params = {}, { seed = 0 } = {})` factory. Each call returns a fresh three.js Group in its rest pose, with identity root transform. Lengths are meters. The coordinate system is right-handed, +Y up.
 
@@ -33,12 +33,13 @@ All fields below belong to `root.userData` and contain JSON values.
 | physics | Positive finite `massKg`, finite nonnegative dimensionless `friction`, and `collision` equal to `box` or `compound`. Document estimates and how to interpret collision parts. |
 | affordances | Array of named-part interaction annotations, possibly empty. |
 | joints | Array of joint definitions, possibly empty. |
+| controls | Optional array of named buttons, knobs and touch controls. Omission is equivalent to an empty array. |
 
 Use ordinary triangle meshes with BufferGeometry, valid indices and finite XYZ positions. Assign each mesh a unique, descriptive name. Named groups must also be unambiguous. Put a moving part's origin at its pivot. Its child meshes and interaction annotations then follow the part during motion.
 
 A joint has a unique `name`, a `type` of `revolute` or `prismatic`, a unit XYZ `axis` in the child's rest frame, ordered inclusive `limits` and a `childPart` naming the affected node. Starting at the rest pose, rotate around the axis using the right-hand rule (radians) or translate along it (meters).
 
-A grasp is `{ type: 'grasp', part, point: [x,y,z] }`. A rectangular placeable surface also has `normal` (unit XYZ) and `size` (two positive edge lengths in meters). Its `point` is the rectangle center. All coordinates are local to the named part. Document the two surface directions in the asset README.
+A grasp is `{ type: 'grasp', grip: 'raised' | 'recessed', part, point: [x,y,z] }`. The required `grip` describes the individual affordance independently of asset parameters. A raised grip lies inside its own collision box and needs more than 10 mm clearance to every other collision geometry. A recessed grip must clear every collision geometry by more than 2 mm. A rectangular placeable surface also has `normal` (unit XYZ) and `size` (two positive edge lengths in meters). Its `point` is the rectangle center. All coordinates are local to the named part. Document the two surface directions in the asset README.
 
 A joint may declare `clearance: { moving, stationary, minRetainedRatio }`. The moving part must belong to `childPart`; stationary names must refer to separate parts outside that subtree. Both revolute and prismatic joints are checked at five equally spaced positions, including both limits. Each mesh contributes an oriented box around its local geometry. Separating-axis tests permit up to 0.001 m penetration. This is a conservative box approximation, including for curved or hollow meshes. Validation restores the rest pose even on failure.
 
@@ -47,6 +48,31 @@ Optional `minRetainedRatio` lies in [0,1]. At each sampled position, it measures
 Optional `dynamics: { damping, friction }` contains finite nonnegative joint damping and Coulomb friction. URDF export defaults to 1 and 0.05, respectively. Units are N·s/m and N for slides, N·m·s/rad and N·m for hinges. Optional positive `effort` and `velocity` default to 150 N or N·m and 0.5 m/s or 2 rad/s.
 
 URDF export reads `material.userData.densityKgM3` for every mesh. Furniture uses 650 kg/m³ wood and 2700 kg/m³ metal, matching `physics.massKg`. Box integrals and closed-mesh volume integrals determine per-link center of mass and inertia. See [URDF and simulation](URDF.md) for the axis conversion and checks.
+
+## Controls
+
+Every control contains a unique nonempty `name`, `type` (`button`, `knob` or `touch`), `function`, `label` (nonempty printed text or null), `icon` (enum ID or null), `region` and `state`. Labels and icons declare intended markings. Rendering those markings is deferred.
+
+The function vocabulary defines appliance-level effects.
+
+| Function | Meaning |
+| --- | --- |
+| start | Begin or resume operation subject to the appliance's interlocks. |
+| stop | Cancel the active operation. The appliance README defines reset behavior. |
+| add_30s | Add thirty seconds to the remaining timer. |
+| door_release | Request release of the door latch. |
+| power_level | Select the operating power level. |
+| timer | Select the operation duration in the declared unit. |
+
+The icon vocabulary is `play`, `stop`, `plus_30`, `power` and `clock`. Labels and icons may independently be null. Appliance READMEs describe effects and interlocks; the metadata does not execute an appliance state machine.
+
+A region is `{ part, point, normal, size }`, using a named mesh's local coordinates. The unit normal points outward and `size` contains the rectangle's two edge lengths in meters. Its first tangent is local +X projected onto the face, or local +Y when the normal is nearly parallel to X. The second tangent is normal × first tangent. This gives local X/Y rectangles on front faces and X/Z rectangles on horizontal surfaces. The validator clips outward-facing triangles against the rectangle and requires full area coverage within a 1 mm plane tolerance.
+
+A button names a prismatic `joint` whose `childPart` contains `region.part`. Its lower limit is zero, upper limit is 0.002–0.004 m and its axis points into the panel. The state is `{ kind: 'momentary', pressedAt, spring: { stiffness, restPosition } }`. `pressedAt` is a finite fraction in [0,1], and a press means q ≥ pressedAt × upper limit. Spring stiffness is positive in N/m; its rest position is finite, in meters and within the joint limits.
+
+A knob names a revolute `joint` whose `childPart` contains `region.part`. Its state is `{ kind: 'detent', positions, values, unit }`. There are at least two finite, strictly increasing positions in radians within the joint limits. Values have the same length and contain finite numbers or nonempty strings. The nonempty unit string describes those values. Choose the nearest position to obtain the state value, breaking midpoint ties toward the lower index.
+
+A touch control has no `joint` field. Its state is `{ kind: 'touch', minForceN }` with a positive finite force threshold in newtons. The structure is validated with a synthetic asset. Touch interaction and touch-equipped assets are reserved for a later version.
 
 ## Validation
 

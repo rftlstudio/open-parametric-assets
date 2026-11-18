@@ -1,6 +1,12 @@
 # Open Parametric Assets
 
-Build a three.js object from parameters and inspect how to interact with it through its named parts, joints and affordances. Choose a [hinged cabinet](assets/furniture/cabinet/README.md) with adjustable shelves or a [drawer cabinet](assets/furniture/drawer_cabinet/README.md) with sliding trays.
+Build a three.js object from parameters and inspect how to interact with its named parts, joints, affordances and controls.
+
+| Asset | Version | Interactions |
+| --- | --- | --- |
+| [Hinged cabinet](assets/furniture/cabinet/README.md) | 0.2.2 | Swinging doors, handles and shelves |
+| [Drawer cabinet](assets/furniture/drawer_cabinet/README.md) | 0.2.2 | Sliding trays, raised or recessed pulls |
+| [Microwave](assets/appliances/microwave/README.md) | 0.1.0 | Door, spring-return buttons, timer and power knobs |
 
 ## Try the cabinet
 

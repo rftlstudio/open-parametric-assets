@@ -1,5 +1,11 @@
 # Changelog
 
+## Microwave + controls v0.1
+
+Adds appliances/microwave v0.1.0 with a hollow cavity, hinged windowed door, raised or recessed opening, and physical button or dial layouts. Asset spec v0.2 defines controls, function/icon vocabularies, regions, momentary springs, detents and the reserved touch contract. Dataset records include controls. MuJoCo checks button return, detent stability and region access, with button springs applied in memory.
+
+Cabinet and drawer_cabinet advance to 0.2.2. Every grasp now requires an explicit raised/recessed grip, and the simulator reads this affordance field. Record IDs and example paths change with these asset versions. Examples include a rendered microwave.
+
 ## Asset versions 0.2.1
 
 Both cabinet assets advance to 0.2.1. Recessed drawer faces use four collision boxes around the aperture and retain their separate cup back, keeping the cavity open in MuJoCo. Visual faces remain OBJ meshes.
