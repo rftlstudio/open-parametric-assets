@@ -17,6 +17,10 @@ export function fitControlPanel(camera, asset, regions) {
     const mark = asset.getObjectByName(control.name + '_mark');
     if (mark) meshes.add(mark);
   }
+  const names = new Set(asset.userData.controls.map(c => c.name));
+  asset.traverse(part => {
+    if (part.isMesh && names.has(part.userData.scaleFor)) meshes.add(part);
+  });
   asset.updateWorldMatrix(true, true);
   const point = new Vector3();
   for (const mesh of meshes) {

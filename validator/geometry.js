@@ -20,6 +20,12 @@ function checkMetadata(data, parts, id) {
   assert(Array.isArray(data.joints) && Array.isArray(data.affordances), 'expected joints and affordances arrays');
   const jointNames = new Set();
   for (const joint of data.joints) {
+    const spring = joint.dynamics?.spring;
+    if (spring !== undefined) {
+      assert(spring && Number.isFinite(spring.stiffness) && spring.stiffness > 0 &&
+        Number.isFinite(spring.restPosition) && spring.restPosition >= joint.limits[0] &&
+        spring.restPosition <= joint.limits[1], joint.name + ': invalid spring');
+    }
     assert(isText(joint.name) && !jointNames.has(joint.name), 'invalid or duplicate joint name');
     jointNames.add(joint.name);
     assert(['prismatic', 'revolute'].includes(joint.type), 'invalid joint type');

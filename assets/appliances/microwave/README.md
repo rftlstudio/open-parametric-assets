@@ -1,4 +1,4 @@
-# Microwave v0.2.0
+# Microwave v0.2.1
 
 A countertop appliance with a hollow chamber, an opaque left-hinged door in the shell finish and a right-hand control panel occupying 27% of the width. A centered, inset glass window spans 60% of the door width and 55% of its height, surrounded by solid panels. +Y is up and +Z faces the user. The origin is the case footprint center at floor level.
 

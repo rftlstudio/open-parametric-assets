@@ -16,10 +16,12 @@ class ControlTests(unittest.TestCase):
         joint_type = "prismatic" if button else "revolute"
         upper = 0.003 if button else 1
         damping = 1.5 if button else 0.02
-        state = ({"kind": "momentary", "pressedAt": 0.6, "spring": {"stiffness": 300, "restPosition": 0}}
+        state = ({"kind": "momentary", "pressedAt": 0.6}
                  if button else {"kind": "detent", "positions": [0, 0.5, 1], "values": [0, 5, 10], "unit": "min"})
         control = {"name": "test_control", "type": kind, "joint": "control_joint", "state": state}
         record = {"joints": [{"name": "control_joint", "limits": [0, upper]}], "controls": [control]}
+        if button:
+            record["joints"][0]["dynamics"] = {"spring": {"stiffness": 300, "restPosition": 0}}
         limits = {"control_joint": {"effort": 3 if button else 0.3, "velocity": 1}}
         xml = f"""<robot name="base">
           <mujoco><compiler fusestatic="false"/></mujoco>
@@ -40,7 +42,7 @@ class ControlTests(unittest.TestCase):
             path = Path(directory) / "model.urdf"
             path.write_text(xml, encoding="utf-8")
             model = load(path).compile()
-            apply_springs(model, record["controls"])
+            apply_springs(model, record["joints"])
             if broken == "spring":
                 model.jnt_stiffness[:] = 0
             if broken == "friction":

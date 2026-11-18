@@ -145,7 +145,7 @@ it.each([
   ['region off outer surface', (r, c) => { c.region.point[2] += 0.002; }],
   ['region off outer surface', (r, c) => { c.region.size = [1, 1]; }],
   ['invalid momentary', (r, c) => { c.state.pressedAt = 1.01; }],
-  ['invalid spring', (r, c) => { c.state.spring.stiffness = -1; }],
+  ['invalid spring', (r, c) => { r.userData.joints.find(j => j.name === c.joint).dynamics.spring.stiffness = -1; }],
   ['axis must point into', (r, c) => { r.userData.joints.find(j => j.name === c.joint).axis = [0, 0, 1]; }],
   ['travel', (r, c) => { r.userData.joints.find(j => j.name === c.joint).limits[1] = 0.005; }],
   ['contain region.part', (r, c) => { r.userData.joints.find(j => j.name === c.joint).childPart = 'door'; }]

@@ -1,4 +1,4 @@
-# Asset specification v0.2
+# Asset specification v0.3
 
 An asset is an ESM module at `assets/<category>/<asset-name>/index.js`. It exports a JSON-compatible `schema` object and a synchronous `createAsset(params = {}, { seed = 0 } = {})` factory. Each call returns a fresh three.js Group in its rest pose, with identity root transform. Lengths are meters. The coordinate system is right-handed, +Y up.
 
@@ -45,7 +45,7 @@ A grasp is `{ type: 'grasp', grip: 'raised' | 'recessed', part, point: [x,y,z] }
 
 A joint may declare `clearance: { moving, stationary, minRetainedRatio }`. The moving part must belong to `childPart`; stationary names must refer to separate parts outside that subtree. Both revolute and prismatic joints are checked at five equally spaced positions, including both limits. Each mesh contributes an oriented box around its local geometry. Separating-axis tests permit up to 0.001 m penetration. This is a conservative box approximation, including for curved or hollow meshes. Validation restores the rest pose even on failure.
 
-Optional `minRetainedRatio` lies in [0,1]. At each sampled position, it measures the moving part's projected depth overlapping the common stationary span along the joint's rest-world axis and requires its transverse bounds to stay within the stationary envelope. Drawer trays declare 0.2 and travel by 0.75 of their depth, leaving a 5% retention margin. Drawer metadata v0.2.0 replaces `drawerBox` and `caseSides` with `clearance`.
+Optional `minRetainedRatio` lies in [0,1]. At each sampled position, it measures the moving part's projected depth overlapping the common stationary span along the joint's rest-world axis and requires its transverse bounds to stay within the stationary envelope. Drawer trays declare 0.2 and travel by 0.75 of their depth, leaving a 5% retention margin. Drawer metadata v0.3.0 replaces `drawerBox` and `caseSides` with `clearance`.
 
 Optional `dynamics: { damping, friction }` contains finite nonnegative joint damping and Coulomb friction. URDF export defaults to 1 and 0.05, respectively. Units are N·s/m and N for slides, N·m·s/rad and N·m for hinges. Optional positive `effort` and `velocity` default to 150 N or N·m and 0.5 m/s or 2 rad/s.
 
@@ -70,7 +70,7 @@ The function `digit` enters a keypad digit and requires an integer `value` from 
 
 A region is `{ part, point, normal, size }`, using a named mesh's local coordinates. The unit normal points outward and `size` contains the rectangle's two edge lengths in meters. Its first tangent is local +X projected onto the face, or local +Y when the normal is nearly parallel to X. The second tangent is normal × first tangent. This gives local X/Y rectangles on front faces and X/Z rectangles on horizontal surfaces. The validator clips outward-facing triangles against the rectangle and requires full area coverage within a 1 mm plane tolerance.
 
-A button names a prismatic `joint` whose `childPart` contains `region.part`. Its lower limit is zero, upper limit is 0.002–0.004 m and its axis points into the panel. The state is `{ kind: 'momentary', pressedAt, spring: { stiffness, restPosition } }`. `pressedAt` is a finite fraction in [0,1], and a press means q ≥ pressedAt × upper limit. Spring stiffness is positive in N/m; its rest position is finite, in meters and within the joint limits.
+A button names a prismatic `joint` whose `childPart` contains `region.part`. Its lower limit is zero, upper limit is 0.002–0.004 m and its axis points into the panel. The state is `{ kind: 'momentary', pressedAt }`. `pressedAt` is a finite fraction in [0,1], and a press means q ≥ pressedAt × upper limit. Momentary buttons require a spring on their joint. Any joint can declare dynamics.spring = { stiffness, restPosition }. Stiffness is positive in N/m for slides or N·m/rad for hinges; its rest position is finite, in meters and within the joint limits.
 
 A knob names a revolute `joint` whose `childPart` contains `region.part`. Its state is `{ kind: 'detent', positions, values, unit }`. There are at least two finite, strictly increasing positions in radians within the joint limits. Values have the same length and contain finite numbers or nonempty strings. The nonempty unit string describes those values. Choose the nearest position to obtain the state value, breaking midpoint ties toward the lower index.
 

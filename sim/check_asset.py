@@ -69,13 +69,13 @@ def check_contacts(model, data, moving):
                 f"{model.body(moving).name} and {model.body(other).name}")
 
 
-def apply_springs(model, controls):
-    for control in controls:
-        if control["type"] == "button":
-            joint = model.joint(control["joint"]).id
-            spring = control["state"]["spring"]
-            model.jnt_stiffness[joint] = spring["stiffness"]
-            model.qpos_spring[model.jnt_qposadr[joint]] = spring["restPosition"]
+def apply_springs(model, joints):
+    for joint in joints:
+        spring = joint.get("dynamics", {}).get("spring")
+        if spring:
+            jid = model.joint(joint["name"]).id
+            model.jnt_stiffness[jid] = spring["stiffness"]
+            model.qpos_spring[model.jnt_qposadr[jid]] = spring["restPosition"]
 
 
 def button_check(model, record, control, limits):
@@ -86,7 +86,7 @@ def button_check(model, record, control, limits):
     q, v = model.jnt_qposadr[jid], model.jnt_dofadr[jid]
     travel = model.jnt_range[jid, 1]
     pressed = control["state"]["pressedAt"] * travel
-    spring = control["state"]["spring"]
+    spring = next(j["dynamics"]["spring"] for j in joints if j["name"] == control["joint"])
     force = min(limits[control["joint"]]["effort"],
                 1.25 * spring["stiffness"] * (travel - spring["restPosition"]) + 0.05)
     for _ in range(round(0.5 / model.opt.timestep)):
@@ -145,7 +145,7 @@ def controls_reachable(path, xml, record):
     spec.worldbody.add_geom(name="test_region_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
                            size=[radius, 0, 0], pos=[0, 0, 10])
     model = spec.compile()
-    apply_springs(model, controls)
+    apply_springs(model, record["joints"])
     data = initial(model, record["joints"])
     probe = model.geom("test_region_probe").id
     for control in controls:
@@ -200,7 +200,7 @@ def touch_check(path, xml, record):
     probe.add_freejoint(name="touch_probe_free")
     probe.add_geom(type=mj.mjtGeom.mjGEOM_SPHERE, size=[radius,0,0], mass=0.02)
     model = spec.compile()
-    apply_springs(model, record.get("controls", []))
+    apply_springs(model, record["joints"])
     q = model.jnt_qposadr[model.joint("touch_probe_free").id]
     for i, control in enumerate(controls):
         data = initial(model, record["joints"])
@@ -283,7 +283,7 @@ def grasp(path, xml, record):
     spec.worldbody.add_geom(name="test_grasp_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
                            size=[radius, 0, 0], pos=[0, 0, 10])
     model = spec.compile()
-    apply_springs(model, record.get("controls", []))
+    apply_springs(model, record["joints"])
     data = initial(model, record["joints"])
     probe = model.geom("test_grasp_probe").id
     for affordance in record["affordances"]:
@@ -333,7 +333,7 @@ def drop(path, xml, record, limits):
         cube.add_geom(name="test_cube_geom", type=mj.mjtGeom.mjGEOM_BOX,
                       size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
         model = spec.compile()
-        apply_springs(model, record.get("controls", []))
+        apply_springs(model, record["joints"])
         data = initial(model, joints, upper=True)
         point, frame, support_body = affordance_frame(model, data, xml, affordance)
         normal = frame @ affordance["normal"]
@@ -373,7 +373,7 @@ def check(path):
     xml = ET.parse(path).getroot()
     joints = record["joints"]
     model = load(path).compile()
-    apply_springs(model, record.get("controls", []))
+    apply_springs(model, record["joints"])
     names = [j["name"] for j in joints]
     require(model.njnt == len(joints), "joint count differs from record")
     require(model.nbody == len(joints) + 2, "body count differs from record plus root and world")

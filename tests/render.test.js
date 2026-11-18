@@ -99,6 +99,7 @@ it.each(['physical', 'mixed', 'touch'])('keeps %s control parts and marks within
   const bounds = new Box3().setFromPoints(regions.flat().map(p => p.project(camera)));
   for (const control of controls) {
     const targets = [asset.getObjectByName(control.name + '_mark')];
+    asset.traverse(part => { if (part.userData.scaleFor === control.name) targets.push(part); });
     if (control.joint) {
       const joint = asset.userData.joints.find(j => j.name === control.joint);
       targets.push(asset.getObjectByName(joint.childPart));

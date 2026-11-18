@@ -1,5 +1,9 @@
 # Changelog
 
+## Microwave 0.2.1 and asset spec v0.3
+
+Breaking metadata change: button springs move from control.state.spring to joint.dynamics.spring. Record IDs change. Fixed panel scales show dial detents and their values.
+
 ## Microwave 0.2.0
 
 Physical controls gain vector icons and uppercase labels. Touch and mixed panels add force-tested, separated control regions and a control-panel close-up. Updated button caps, recessed panel and electronics mass change microwave sample IDs. The triangle budget remains 1,800.

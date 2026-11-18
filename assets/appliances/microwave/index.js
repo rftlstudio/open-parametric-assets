@@ -2,7 +2,7 @@ import { Box3, BoxGeometry, Color, CylinderGeometry, Group, Mesh, MeshStandardMa
 import { resolveParams, seededRandom } from '../../../lib/parameters.js';
 import { wearParameter, wearBand } from '../../../lib/furniture-finish.js';
 
-import { markControl } from '../../../lib/control-marks.js';
+import { markControl, dialScale } from '../../../lib/control-marks.js';
 
 export const schema = {
   triangleLimit: 1800,
@@ -119,10 +119,10 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     const moving = group(root, name, [controlX, y, panelFront + 0.0035]);
     box(moving, part, [size[0], size[1], 0.001], [0, 0, 0], shell);
     joints.push({ name: joint, type: 'prismatic', axis: [0, 0, -1], limits: [0, 0.003],
-      childPart: name, dynamics: { damping: 1.5, friction: 0.005 }, effort: 3, velocity: 0.04 });
+      childPart: name, dynamics: { damping: 1.5, friction: 0.005, spring: { stiffness: 300, restPosition: 0 } }, effort: 3, velocity: 0.04 });
     controls.push({ name, type: 'button', function: fn, label, icon, joint,
       region: { part, point: [0, 0, 0.0005], normal: [0, 0, 1], size: [size[0] * 0.7, size[1] * 0.7] },
-      state: { kind: 'momentary', pressedAt: 0.6, spring: { stiffness: 300, restPosition: 0 } } });
+      state: { kind: 'momentary', pressedAt: 0.6 } });
   }
   function knob(fn, y, values, unit) {
     const name = fn + '_knob', part = name + '_dial', joint = name + '_rotation';
@@ -141,6 +141,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
       icon: fn === 'timer' ? 'clock' : 'power', joint,
       region: { part, point: [0, 0, length / 2], normal: [0, 0, 1], size: [0.012, 0.012] },
       state: { kind: 'detent', positions: values.map((_, i) => upper * i / (values.length - 1)), values, unit } });
+    dialScale(panel, controls.at(-1), joints.at(-1), [0,y-panel.position.y,wall/2],radius);
   }
   function touch(fn, label, icon, x, y, size, value) {
     const name = value === undefined ? fn : 'digit_' + value;
@@ -178,7 +179,7 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   box(body,'electronics',equipment,[controlX,height/2,0],material('#34383c',density));
   root.updateMatrixWorld(true);
   const bounds = new Box3().setFromObject(root, true);
-  root.userData = { id: 'appliances/microwave', category: 'appliances', version: '0.2.0',
+  root.userData = { id: 'appliances/microwave', category: 'appliances', version: '0.2.1',
     license: 'CC-BY-4.0', units: 'm', boundingBox: { min: bounds.min.toArray(), max: bounds.max.toArray() },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances, controls };
   return root;

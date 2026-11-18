@@ -44,7 +44,7 @@ Clearance validation samples five joint positions and uses conservative per-mesh
 
 ## Physical controls
 
-Dataset records carry `controls` with the same definitions as root metadata. Button and knob links and joints use the ordinary URDF representation. URDF carries joint damping and friction. The checker reads each button's spring stiffness and rest position from the record and assigns MuJoCo's in-memory joint stiffness and spring reference. A future MJCF exporter can encode those properties natively.
+Dataset records carry `controls` with the same definitions as root metadata. Button and knob links and joints use the ordinary URDF representation. URDF carries joint damping and friction. The checker reads each joint's spring stiffness and rest position from the record and assigns MuJoCo's in-memory joint stiffness and spring reference. A future MJCF exporter can encode those properties natively.
 
 Actuated position checks compensate spring force while holding a target. The button check applies force along its slide until the press threshold is reached, releases the force and requires return to within 10% of travel in 0.5 seconds. The spring acts during release, while other joints hold their lower limits.
 

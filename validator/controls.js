@@ -97,6 +97,7 @@ export function checkControls(root) {
     rectangles.push(corners);
     const state = control.state;
     assert(state && typeof state === 'object', name + ': missing state');
+    assert(!Object.hasOwn(state,'spring'), name + ': spring belongs on joint.dynamics');
     if (control.type === 'touch') {
       assert(!Object.hasOwn(control, 'joint'), name + ': touch must not have a joint');
       assert(!root.userData.joints.some(j => root.getObjectByName(j.childPart)?.getObjectById(part.id)), name + ': touch panel must be fixed');
@@ -118,7 +119,7 @@ export function checkControls(root) {
       assert(axis.dot(normal) < -0.999, name + ': button axis must point into the panel');
       assert(state.kind === 'momentary' && Number.isFinite(state.pressedAt) && state.pressedAt >= 0 && state.pressedAt <= 1,
         name + ': invalid momentary state');
-      const spring = state.spring;
+      const spring = joint.dynamics?.spring;
       assert(spring && Number.isFinite(spring.stiffness) && spring.stiffness > 0 &&
         Number.isFinite(spring.restPosition) && spring.restPosition >= lower && spring.restPosition <= upper,
         name + ': invalid spring');
