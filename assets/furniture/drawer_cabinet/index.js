@@ -120,13 +120,13 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
         box(front, handle, [0.028, 0.028, reach], [0, 0, face + reach / 2], metal);
       }
     }
-    affordances.push({ type: 'grasp', part: handle, point });
+    affordances.push({ type: 'grasp', grip: handleStyle === 'recessed' ? 'recessed' : 'raised', part: handle, point });
     joints.push({ name: 'slide_' + i, type: 'prismatic', axis: [0, 0, 1], limits: [0, 0.75 * trayDepth],
       childPart: drawer.name, clearance: { moving: tray.name, stationary: [...sideNames], minRetainedRatio: 0.2 } });
   }
 
   root.userData = {
-    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.2.1', license: 'CC-BY-4.0', units: 'm',
+    id: 'furniture/drawer_cabinet', category: 'furniture', version: '0.2.2', license: 'CC-BY-4.0', units: 'm',
     boundingBox: { min: [-width / 2, 0, -depth / 2], max: [width / 2, height, depth / 2 + face + reach] },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances
   };

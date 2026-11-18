@@ -28,9 +28,9 @@ class GraspTests(unittest.TestCase):
           </joint>
         </robot>"""
         record = {
-            "params": {"handleStyle": style},
+            "params": {},
             "joints": [{"name": "slide", "limits": [lower, 0.1]}],
-            "affordances": [{"type": "grasp", "part": "grip", "point": point}],
+            "affordances": [{"type": "grasp", "grip": "recessed" if style == "recessed" else "raised", "part": "grip", "point": point}],
         }
         with tempfile.TemporaryDirectory(prefix="opa-grasp-") as directory:
             path = Path(directory) / "model.urdf"

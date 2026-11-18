@@ -6,6 +6,7 @@ import { Box3 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { afterEach, expect, it, vi } from 'vitest';
 import * as cabinet from '../assets/furniture/cabinet/index.js';
+import * as microwave from '../assets/appliances/microwave/index.js';
 import { describe } from '../lib/prompt.js';
 import { resolveParams } from '../lib/parameters.js';
 import { checkSchema, sampleParams } from '../validator/schema.js';
@@ -127,6 +128,14 @@ it('writes five replayable records per asset and reproduces their IDs and GLBs',
   expect(rows).toHaveLength(5);
   expect(new Set(records.map(r => r.id)).size).toBe(records.length);
   expect((await readdir(join(first, 'glb'))).length).toBe(records.length);
+  const applianceRows = records.filter(r => r.asset_id === 'appliances/microwave');
+  expect(applianceRows).toHaveLength(5);
+  for (const row of applianceRows) {
+    const root = microwave.createAsset(row.params, { seed: row.seed });
+    expect(row.controls).toEqual(root.userData.controls);
+    const glb = await loadGLB(await readFile(join(first, row.glb_path)));
+    expect(glb.getObjectByName('microwave').userData.controls).toEqual(row.controls);
+  }
 
   for (const r of rows) {
     expect(r).not.toHaveProperty('renders');
@@ -151,6 +160,7 @@ it('writes five replayable records per asset and reproduces their IDs and GLBs',
   }
   const card = await readFile(join(first, 'README.md'), 'utf8');
   expect(card).toContain('license: cc-by-4.0');
+  expect(card).toContain('| controls |');
   expect(card).toContain('size: ' + records.length + '\n');
 });
 

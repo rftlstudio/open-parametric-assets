@@ -34,10 +34,20 @@ The CLI loads the URDF directly through `MjSpec.from_file`, uses gravity and a 2
 - Each joint is driven independently for three seconds. A critically damped proportional-derivative position controller ramps its target at the URDF velocity limit and caps applied effort at the URDF effort limit. It must finish within 95–102% of the declared range. Other joints hold their lower limits. Contacts between the driven link and other bodies, excluding its parent, may penetrate by at most 1 mm.
 - Each placeable surface receives a separate 5 cm, 50 g cube, with all asset joints held at their upper limits. The cube bottom starts 5 mm above the surface to fit the smallest supported shelf gaps. It must rest on the named collision geometry within two seconds and remain stable for the final 0.2 seconds. Position, footprint, speed and contact penetration are checked. Current surfaces are horizontal and use local X/Z rectangle axes.
 
-- With all joints at their lower limits, recessed grasp points must be more than 2 mm outside every asset collision geometry. Bar and knob grasps use the grip center `[0, 0, 0]`, which must lie inside their own collision box (signed distance ≤ 0) and more than 10 mm from every other collision geometry for finger room. The checker reads `params.handleStyle` and queries MuJoCo signed distances using a 1 µm sphere, adding its radius back to recover point distance.
+- With all joints at their lower limits, recessed grasp points must be more than 2 mm outside every asset collision geometry. Bar and knob grasps use the grip center `[0, 0, 0]`, which must lie inside their own collision box (signed distance ≤ 0) and more than 10 mm from every other collision geometry for finger room. The checker reads the required `affordance.grip` and queries MuJoCo signed distances using a 1 µm sphere, adding its radius back to recover point distance.
 
 Test cubes, grasp probes and controllers are added in memory to the imported model. The asset URDF remains the simulation source. CI runs these checks on every model in a three-samples-per-asset dataset.
 
 Clearance validation samples five joint positions and uses conservative per-mesh boxes. Simulation adds time-stepped contacts for each independently driven joint. These finite checks do not prove collision freedom for every combination of multiple moving joints.
 
 [MuJoCo URDF import documentation](https://mujoco.readthedocs.io/en/3.3.7/modeling.html#urdf-extensions)
+
+## Physical controls
+
+Dataset records carry `controls` with the same definitions as root metadata. Button and knob links and joints use the ordinary URDF representation. URDF carries joint damping and friction. The checker reads each button's spring stiffness and rest position from the record and assigns MuJoCo's in-memory joint stiffness and spring reference. A future MJCF exporter can encode those properties natively.
+
+Actuated position checks compensate spring force while holding a target. The button check applies force along its slide until the press threshold is reached, releases the force and requires return to within 10% of travel in 0.5 seconds. The spring acts during release, while other joints hold their lower limits.
+
+The knob check drives to each declared detent, removes actuation on that knob and requires the nearest-detent value to remain unchanged for 0.5 seconds. URDF joint frictionloss holds the knob. Each control region point must touch its own collision geometry within 1 mm and clear every other collision geometry by more than 2 mm with the joints at their lower limits.
+
+Run `python -m unittest discover -s sim -p "test_*.py"` for the grasp, button-return and detent regression tests. Touch sensor simulation and appliance runtime state are reserved for later work.
