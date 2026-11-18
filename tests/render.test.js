@@ -104,15 +104,17 @@ it('frames the default cabinet in six views, distinguishes panels and visibly op
 it('reproduces the published sample within 1% normalized mean absolute RGB difference', async () => {
   const rows = (await readFile(join(sample, 'data.jsonl'), 'utf8')).trim().split('\n').map(line => JSON.parse(line));
   const renderedRows = rows.filter(row => row.renders);
-  expect(renderedRows.map(row => row.asset_id).sort()).toEqual(['appliances/microwave', 'furniture/cabinet', 'furniture/drawer_cabinet']);
+  expect([...new Set(renderedRows.map(row => row.asset_id))].sort()).toEqual(['appliances/microwave', 'furniture/cabinet', 'furniture/drawer_cabinet']);
   const output = join(directory, 'dataset');
-  await buildDataset({ samples: 1, renders: true, out: output });
+  await buildDataset({ samples: 3, renders: true, out: output });
   const manifest = await readFile(join(output, 'data.jsonl'), 'utf8');
   const records = manifest.trim().split('\n').map(line => JSON.parse(line));
   for (const row of renderedRows) {
     const actual = records.find(record => record.id === row.id);
     expect(actual).toEqual(row);
-    for (const view of views) {
+    const expectedViews = row.controls.length ? [...views, 'control_panel'] : views;
+    expect(Object.keys(actual.renders).sort()).toEqual([...expectedViews].sort());
+    for (const view of expectedViews) {
       const reference = await readImage(sample, row.renders[view]);
       const result = await readImage(output, actual.renders[view]);
       expect(rgbDifference(reference, result), row.asset_id + ' ' + view).toBeLessThan(0.01);

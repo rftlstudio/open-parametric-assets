@@ -9,7 +9,7 @@ const tolerance = 0.001 + 1e-8;
 function boxes(group) {
   const result = [];
   group.traverse(mesh => {
-    if (!mesh.isMesh) return;
+    if (!mesh.isMesh || mesh.userData.visualOnly) return;
     const geometry = mesh.geometry;
     geometry.computeBoundingBox();
     const bounds = geometry.boundingBox;

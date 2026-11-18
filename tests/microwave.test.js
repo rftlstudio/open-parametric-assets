@@ -10,7 +10,7 @@ import { exportURDF } from '../scripts/export-urdf.js';
 it('validates the microwave default and 20 seeded samples and rejects invalid inputs', () => {
   expect(validateAsset(microwave, 'appliances/microwave').cases).toBe(21);
   for (const params of [{ width: 0.451 }, { height: 0.25 }, { depth: 0.46 }, { wear: 0.03 },
-    { controlStyle: 'touch' }, { controlStyle: 'mixed' }, { doorOpening: 'hinge' }, { unexpected: 1 }]) {
+    { controlStyle: 'touch', controlLayout:'buttons' }, { controlStyle: 'mixed', controlLayout:'buttons' }, { doorOpening: 'hinge' }, { unexpected: 1 }]) {
     expect(() => microwave.createAsset(params)).toThrow();
   }
 });
@@ -32,7 +32,8 @@ it.each(['dials', 'buttons'])('exports functional %s controls for both opening s
     const urdf = exportURDF(root);
     expect(urdf.urdf).toContain('type="prismatic"');
     expect(urdf.urdf).toContain('name="door_hinge"');
-    if (controlLayout === 'dials') expect(urdf.meshes.size).toBe(2);
+    expect(urdf.urdf).toContain('visual_start_button_mark');
+    expect(urdf.urdf).not.toContain('collision name="start_button_mark"');
     for (const button of root.userData.controls.filter(c => c.type === 'button')) {
       const joint = root.userData.joints.find(j => j.name === button.joint);
       const part = root.getObjectByName(button.region.part);
@@ -185,4 +186,53 @@ it('requires explicit grip semantics on every grasp affordance', () => {
   const root = microwave.createAsset();
   delete root.userData.affordances.find(a => a.type === 'grasp').grip;
   expect(() => inspect(root, 'appliances/microwave', 1800)).toThrow(/grasp grip/);
+});
+
+it('keeps total and exported mass in range across dimension extremes and panel styles', () => {
+  for (const width of [0.45,0.60]) for (const height of [0.26,0.35]) for (const depth of [0.33,0.45]) {
+    for (const controlStyle of ['physical','touch','mixed']) {
+      const root = microwave.createAsset({ width, height, depth, controlStyle });
+      const doc = new DOMParser().parseFromString(exportURDF(root).urdf,'text/xml');
+      const mass = [...doc.getElementsByTagName('mass')].reduce((m,el) => m+Number(el.getAttribute('value')),0);
+      expect(mass).toBeGreaterThanOrEqual(11);
+      expect(mass).toBeLessThanOrEqual(14);
+      expect(mass).toBeCloseTo(root.userData.physics.massKg,4);
+      expect(root.getObjectByName('electronics').material.userData.densityKgM3).toBeGreaterThan(0);
+    }
+  }
+});
+
+it('maps keypad digits, rejects overlapping regions and enforces physical interaction targets', () => {
+  const root = microwave.createAsset({ controlStyle:'touch' });
+  const digits = root.userData.controls.filter(c => c.function === 'digit');
+  expect(digits.map(c => c.value).sort()).toEqual([0,1,2,3,4,5,6,7,8,9]);
+  for (const c of root.userData.controls) {
+    const mark = root.getObjectByName(c.name+'_mark');
+    expect(mark.userData.visualOnly).toBe(true);
+    expect(mark.position.z-c.region.point[2]).toBeCloseTo(0.0003,9);
+  }
+  digits[0].value = 10;
+  expect(() => checkControls(root)).toThrow(/digit value/);
+  digits[0].value = 1;
+  const panel = root.getObjectByName('touch_panel');
+  panel.userData.visualOnly = true;
+  expect(() => checkControls(root)).toThrow(/visualOnly/);
+  panel.userData.visualOnly = false;
+  digits[1].region.point[0] = digits[0].region.point[0]+digits[0].region.size[0]+0.0019;
+  expect(() => checkControls(root)).toThrow(/2 mm gap/);
+  digits[1].region.point[0] += 0.0001;
+  expect(() => checkControls(root)).not.toThrow();
+  root.userData.affordances[0].part = digits[0].name+'_mark';
+  expect(() => inspect(root,'appliances/microwave',1800)).toThrow(/visualOnly/);
+});
+
+it('recesses the panel 1 mm and leaves 1 mm of cap clearance at full travel', () => {
+  const root = microwave.createAsset();
+  const frontFace = mesh => mesh.getWorldPosition(new Vector3()).z + mesh.geometry.parameters.depth/2;
+  const panel = frontFace(root.getObjectByName('control_panel'));
+  expect(frontFace(root.getObjectByName('case_right'))-panel).toBeCloseTo(0.001,9);
+  const cap = root.getObjectByName('start_button_cap');
+  expect(frontFace(cap)-panel).toBeCloseTo(0.004,9);
+  root.getObjectByName('start_button').translateZ(-0.003);
+  expect(frontFace(cap)-panel).toBeCloseTo(0.001,9);
 });

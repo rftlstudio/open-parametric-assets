@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 const origin = 'http://renderer.localhost';
 const three = import.meta.resolve('three');
 const modules = new Map([
+  ['/lib/control-region.js', new URL('../lib/control-region.js', import.meta.url)],
   ['/views.js', new URL('./render-views.js', import.meta.url)],
   ['/three.module.js', three],
   ['/three.core.js', new URL('./three.core.js', three)],

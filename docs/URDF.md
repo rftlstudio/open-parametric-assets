@@ -51,3 +51,5 @@ Actuated position checks compensate spring force while holding a target. The but
 The knob check drives to each declared detent, removes actuation on that knob and requires the nearest-detent value to remain unchanged for 0.5 seconds. URDF joint frictionloss holds the knob. Each control region point must touch its own collision geometry within 1 mm and clear every other collision geometry by more than 2 mm with the joints at their lower limits.
 
 Run `python -m unittest discover -s sim -p "test_*.py"` for the grasp, button-return and detent regression tests. Touch sensor simulation and appliance runtime state are reserved for later work.
+
+Visual-only control markings export as OBJ visuals without collision geometry or inertial contribution. The touch check creates a box site on the panel body for each rectangular region. A 4 mm radius free sphere presses each center at 1.25 times its declared threshold. The checker requires the settled sensor reading to reach the threshold, every other sensor to read zero throughout the press, and the region to stay fixed.

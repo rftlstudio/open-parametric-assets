@@ -75,6 +75,10 @@ export function inspect(root, id, triangleLimit) {
     }
     hash.update(JSON.stringify([node.type, node.name, node.children.length, node.matrix.elements]));
     if (!node.isMesh) return;
+    if (node.userData.visualOnly) {
+      assert(!root.userData.affordances.some(a => a.part === node.name), 'visualOnly affordance target');
+      hash.update('visualOnly');
+    }
     const geo = node.geometry;
     const pos = geo.getAttribute('position');
     assert(pos?.count > 0 && pos.itemSize === 3, node.name + ': expected xyz positions');
