@@ -1,0 +1,15 @@
+{
+  "id": "microwave/press_start",
+  "asset_id": "appliances/microwave",
+  "instruction": "Press the START button.",
+  "applies_when": {
+    "controlStyle": [
+      "physical"
+    ]
+  },
+  "init": {},
+  "goal": {
+    "state": "start_pressed"
+  },
+  "horizon_s": 8
+}

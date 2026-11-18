@@ -1,3 +1,4 @@
+import { openingStates } from '../../../lib/state-predicates.js';
 import { BoxGeometry, Color, ExtrudeGeometry, Group, Mesh, MeshStandardMaterial, Path, Shape } from 'three';
 import { resolveParams, seededRandom } from '../../../lib/parameters.js';
 import { colorParameter, wearParameter, wearBand } from '../../../lib/furniture-finish.js';
@@ -130,5 +131,6 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
     boundingBox: { min: [-width / 2, 0, -depth / 2], max: [width / 2, height, depth / 2 + face + reach] },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances
   };
+  root.userData.states = openingStates(joints, 'drawer_open');
   return root;
 }

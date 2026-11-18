@@ -1,0 +1,11 @@
+{
+  "id": "drawer_cabinet/pull_drawer",
+  "asset_id": "furniture/drawer_cabinet",
+  "instruction": "Pull out a drawer.",
+  "applies_when": {},
+  "init": {},
+  "goal": {
+    "state": "drawer_open"
+  },
+  "horizon_s": 8
+}

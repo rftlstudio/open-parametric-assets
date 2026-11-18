@@ -1,3 +1,4 @@
+import { jointAt, controlAt, pressed } from '../../../lib/state-predicates.js';
 import { Box3, BoxGeometry, Color, CylinderGeometry, Group, Mesh, MeshStandardMaterial } from 'three';
 import { resolveParams, seededRandom } from '../../../lib/parameters.js';
 import { wearParameter, wearBand } from '../../../lib/furniture-finish.js';
@@ -182,5 +183,14 @@ export function createAsset(params = {}, { seed = 0 } = {}) {
   root.userData = { id: 'appliances/microwave', category: 'appliances', version: '0.2.1',
     license: 'CC-BY-4.0', units: 'm', boundingBox: { min: bounds.min.toArray(), max: bounds.max.toArray() },
     physics: { massKg, friction: 0.5, collision: 'compound' }, joints, affordances, controls };
+  const doorJoint = joints.find(j => j.name === 'door_hinge');
+  const timer = controls.find(c => c.function === 'timer');
+  const hasTime = timer ? controlAt(timer, '>', 0) : { any: controls
+    .filter(c => c.function === 'add_30s' || (c.function === 'digit' && c.value > 0)).map(pressed) };
+  root.userData.states = {
+    door_open: jointAt(doorJoint, '>', 0.8),
+    start_pressed: pressed(controls.find(c => c.function === 'start')),
+    running: { all: [jointAt(doorJoint, '<', 0.05), hasTime, { state: 'start_pressed' }] }
+  };
   return root;
 }

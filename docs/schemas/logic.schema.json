@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Asset logic v0.4",
+  "$ref": "#/$defs/node",
+  "$defs": {
+    "node": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "all": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/node"
+              }
+            }
+          },
+          "required": [
+            "all"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "any": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/node"
+              }
+            }
+          },
+          "required": [
+            "any"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "not": {
+              "$ref": "#/$defs/node"
+            }
+          },
+          "required": [
+            "not"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "joint": {
+              "type": "string",
+              "minLength": 1
+            },
+            "op": {
+              "enum": [
+                "<",
+                "<=",
+                ">",
+                ">="
+              ]
+            },
+            "val": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "joint",
+            "op",
+            "val"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "control": {
+              "type": "string",
+              "minLength": 1
+            },
+            "op": {
+              "enum": [
+                "<",
+                "<=",
+                ">",
+                ">=",
+                "=="
+              ]
+            },
+            "val": {
+              "type": [
+                "number",
+                "boolean",
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "control",
+            "op",
+            "val"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

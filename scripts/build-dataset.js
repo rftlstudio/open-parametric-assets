@@ -57,7 +57,7 @@ async function generate(stage, samples, assets, renders, urdf, corners) {
           // Domain-separate parameter draws from the asset's own random stream.
           const paramSeed = digest(['parameters', assetId, seed]).readUInt32BE(0);
           const params = fixture?.params ? resolveParams(asset.schema, fixture.params) : sampleParams(asset.schema, seededRandom(paramSeed));
-          const { root, triangles, prompt } = validateAsset(asset, assetId, { params, seed });
+          const { root, triangles, prompt, tasks } = validateAsset(asset, assetId, { params, seed });
           const meta = root.userData;
           const id = recordId(assetId, meta.version, seed, params);
           const record = {
@@ -65,7 +65,7 @@ async function generate(stage, samples, assets, renders, urdf, corners) {
             prompt,
             code: 'createAsset(' + JSON.stringify(params) + ', { seed: ' + seed + ' })',
             glb_path: 'glb/' + id + '.glb', triangles, bounding_box: meta.boundingBox,
-            joints: meta.joints, affordances: meta.affordances, controls: meta.controls ?? [], split: splitFor(assetId, seed),
+            states: meta.states, tasks, joints: meta.joints, affordances: meta.affordances, controls: meta.controls ?? [], split: splitFor(assetId, seed),
             provenance, license: meta.license
           };
           await writeFile(join(stage, record.glb_path), await exportGLB(root), { flag: 'wx' });

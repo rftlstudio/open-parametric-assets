@@ -1,0 +1,16 @@
+{
+  "id": "microwave/press_start_touch",
+  "asset_id": "appliances/microwave",
+  "instruction": "Touch START.",
+  "applies_when": {
+    "controlStyle": [
+      "mixed",
+      "touch"
+    ]
+  },
+  "init": {},
+  "goal": {
+    "state": "start_pressed"
+  },
+  "horizon_s": 8
+}

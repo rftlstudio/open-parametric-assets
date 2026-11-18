@@ -169,11 +169,7 @@ def controls_reachable(path, xml, record):
         print(f"PASS region {control['name']}, on its part with more than 2 mm clearance")
 
 
-def touch_check(path, xml, record):
-    controls = [c for c in record.get("controls", []) if c["type"] == "touch"]
-    if not controls:
-        return
-    spec = load(path)
+def add_touch_sites(spec, xml, record, controls):
     base = spec.compile()
     rest = initial(base, record["joints"])
     centers, normals = [], []
@@ -198,6 +194,15 @@ def touch_check(path, xml, record):
                         objtype=mj.mjtObj.mjOBJ_SITE, objname=name)
         centers.append(center)
         normals.append(frame @ n)
+    return centers, normals
+
+
+def touch_check(path, xml, record):
+    controls = [c for c in record.get("controls", []) if c["type"] == "touch"]
+    if not controls:
+        return
+    spec = load(path)
+    centers, normals = add_touch_sites(spec, xml, record, controls)
     radius = 0.004
     probe = spec.worldbody.add_body(name="touch_probe", gravcomp=1)
     probe.add_freejoint(name="touch_probe_free")

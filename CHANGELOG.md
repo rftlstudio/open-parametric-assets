@@ -1,5 +1,9 @@
 # Changelog
 
+## Asset spec v0.4
+
+Named state predicates, five variant-filtered tasks and a floating-hand MuJoCo oracle now ship with the four asset families.
+
 ## Built-in oven 0.1.0
 
 Adds 60/75/90 cm wall ovens, installation cutouts, a bottom-hinged door, seeded wire racks and physical or touch controls. MuJoCo checks door release, rebound and cube transport on sliding surfaces, including drawer trays.

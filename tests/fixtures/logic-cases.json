@@ -1,0 +1,95 @@
+{
+  "states": {
+    "open": {
+      "joint": "hinge",
+      "op": ">",
+      "val": 0.8
+    },
+    "idle": {
+      "not": {
+        "control": "start",
+        "op": "==",
+        "val": true
+      }
+    }
+  },
+  "snapshot": {
+    "joints": {
+      "hinge": 0.8
+    },
+    "controls": {
+      "start": false,
+      "mode": "bake",
+      "temperature": 175
+    }
+  },
+  "cases": [
+    [
+      {
+        "state": "open"
+      },
+      false
+    ],
+    [
+      {
+        "all": [
+          {
+            "state": "idle"
+          },
+          {
+            "control": "mode",
+            "op": "==",
+            "val": "bake"
+          }
+        ]
+      },
+      true
+    ],
+    [
+      {
+        "any": [
+          {
+            "state": "open"
+          },
+          {
+            "control": "temperature",
+            "op": ">=",
+            "val": 175
+          }
+        ]
+      },
+      true
+    ],
+    [
+      {
+        "joint": "hinge",
+        "op": "<=",
+        "val": 0.8
+      },
+      true
+    ],
+    [
+      {
+        "joint": "hinge",
+        "op": "<",
+        "val": 0.8
+      },
+      false
+    ],
+    [
+      {
+        "not": {
+          "any": [
+            {
+              "state": "idle"
+            },
+            {
+              "state": "open"
+            }
+          ]
+        }
+      },
+      false
+    ]
+  ]
+}

@@ -1,4 +1,4 @@
-# Asset specification v0.3
+# Asset specification v0.4
 
 An asset is an ESM module at `assets/<category>/<asset-name>/index.js`. It exports a JSON-compatible `schema` object and a synchronous `createAsset(params = {}, { seed = 0 } = {})` factory. Each call returns a fresh three.js Group in its rest pose, with identity root transform. Lengths are meters. The coordinate system is right-handed, +Y up.
 
@@ -83,3 +83,13 @@ A touch control has no `joint` field. Its state is `{ kind: 'touch', minForceN }
 ## Validation
 
 Run `npm run validate`. The validator discovers asset modules from their category directories, checks schemas and probes invalid inputs. It builds defaults and 20 pseudo-random parameter sets twice each. For each pair it checks metadata and named references, compares declared bounds with transformed vertices, enforces the triangle budget and compares SHA-256 digests over the hierarchy, transforms, indices, vertex attributes, geometry groups, basic material properties and userData. It reports the asset ID and exits with status 1 if an asset fails. Sampling covers reproducible cases within the declared domain. Asset-specific tests check intended physical behavior such as the direction of door motion.
+
+## Observable states
+
+`root.userData.states` maps names to predicates conforming to [the logic schema](schemas/logic.schema.json).
+Use nonempty `all` and `any` arrays, unary `not`, named `state` references, or comparisons.
+Joint values are fractions of the declared range. Buttons compare against the fractional
+pressedAt threshold, touch compares measured Newtons against minForceN, and knobs return
+the nearest detent value (lower index wins a tie). Ordered comparisons accept numeric values;
+equality also accepts strings and booleans. References must resolve and state cycles are invalid.
+See [task execution](TASKS.md) for the observable appliance states and the oracle.
