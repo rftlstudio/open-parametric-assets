@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Furniture URDFs preserve recessed drawer pulls as open cavities. MuJoCo checks finger clearance for recessed pulls and grip centers for raised handles. URDF numeric values are rounded to nine decimal places. [#7](https://github.com/rftlstudio/open-parametric-assets/pull/7)
+- The microwave adds a hinged door with a viewing window and physical, touch and mixed control panels. Vector icons and labels identify controls in the exported models. MuJoCo checks button return, dial detents and touch-region separation. [#8](https://github.com/rftlstudio/open-parametric-assets/pull/8), [#9](https://github.com/rftlstudio/open-parametric-assets/pull/9)
+- The built-in oven adds a balanced door and sliding racks with motion prerequisites. Joint metadata now carries spring settings, including microwave button springs previously stored under `control.state.spring`. Dial scales show detent values, and simulation covers loaded slides and parameter corners. [#10](https://github.com/rftlstudio/open-parametric-assets/pull/10)
+- Asset spec v0.4 defines observable states and five tasks across four asset families. A floating-hand MuJoCo oracle tests each applicable task. Dataset records include source provenance and per-view control boxes, with measured reports for simulated URDFs and Croissant metadata for each build. The Python quickstart presses START on two prebuilt microwaves. [#11](https://github.com/rftlstudio/open-parametric-assets/pull/11)
+
 ## Dataset provenance and quickstart
 
 Records identify the source commit and checks. URDF simulation writes a measured report per record. Render annotations locate control regions in pixels, and Croissant metadata accompanies each dataset build. The Python quickstart exercises two published START controls.

@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use Open Parametric Assets, please cite this software."
+type: software
+title: Open Parametric Assets
+authors:
+  - name: rftlstudio
+version: "0.3.0"
+# Generated datasets and renders are licensed separately under CC-BY-4.0.
+license: Apache-2.0
+repository-code: "https://github.com/rftlstudio/open-parametric-assets"
