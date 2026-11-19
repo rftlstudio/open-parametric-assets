@@ -4,7 +4,7 @@ const sizes = [
   [1e9, '100M<n<1B'], [1e10, '1B<n<10B'], [Infinity, 'n>10B']
 ];
 
-export function datasetCard(count, testCount, samples, version, renders = false, urdf = false, corners = false) {
+export function datasetCard(count, testCount, samples, version, renders = false, urdf = false, corners = false, mjcf = false) {
   const category = sizes.find(([limit]) => count < limit)[1];
   return `---
 license: cc-by-4.0
@@ -34,7 +34,7 @@ Machine-readable dataset metadata and responsible AI information are in [croissa
 | seed, params | Unsigned 32-bit seed and complete, typed generator inputs. |
 | prompt, code | English request and its constructor call. Import createAsset from the module named by asset_id to replay the call. |
 | glb_path, triangles | Relative path to the binary glTF and validated mesh triangle count. |${renders ? '\n| renders | Paths to 512 × 512 front, three-quarter, side, top, open three-quarter and 35° perspective three-quarter PNGs. Assets with controls also include control_panel, a front-facing close-up of their combined regions, moving parts and markings with 15% added framing space. Its pixel dimensions follow the panel aspect (up to 4:1 in either direction), with at least 24 pixels across each region’s shorter side. GPU and driver changes may cause small pixel differences. |' : ''}
-${urdf ? '| urdf_path | Relative path to the Z-up URDF; mesh references resolve alongside the model. |\n' : ''}| bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
+${mjcf ? '| mjcf_path | Native Z-up MuJoCo XML with embedded tasks, sites, sensors and relative mesh files. Its report path is provenance.mjcf_sim_report. |\n' : ''}${urdf ? '| urdf_path | Relative path to the Z-up URDF; mesh references resolve alongside the model. |\n' : ''}| bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
 | joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians and prismatic limits are meters. |
 | installation | Built-in assets include the cabinet cutout dimensions in meters (width, height, depth). |\n| controls | Button, knob and touch definitions, interaction regions, joint references and state semantics. Empty for assets without controls. |
 | states, tasks | Named observable predicates and the applicable task definitions. |
@@ -45,7 +45,7 @@ ${urdf ? '| urdf_path | Relative path to the Z-up URDF; mesh references resolve 
 
 ## How it was generated
 
-From the source repository, run \`npm ci\`${renders ? ', then install the browser with \`npx playwright install --with-deps --only-shell chromium\`' : ''} and \`npm run dataset -- --samples ${samples}${renders ? ' --renders' : ''}${urdf ? ' --urdf' : ''}${corners ? ' --corners' : ''}\` with Node 24. For each asset, the builder permutes a 32-bit counter into unique record seeds, samples its schema with hash-seeded Mulberry32 and describes the result using English templates. When enabled, --corners also emits fixed schema-boundary seeds and explicit regression inputs. Each sample passes geometry, bounds, metadata and repeat-build hash checks before its validated group is exported. Root metadata is stored in the asset node's glTF extras.
+From the source repository, run \`npm ci\`${renders ? ', then install the browser with \`npx playwright install --with-deps --only-shell chromium\`' : ''} and \`npm run dataset -- --samples ${samples}${renders ? ' --renders' : ''}${urdf ? ' --urdf' : ''}${mjcf ? ' --mjcf' : ''}${corners ? ' --corners' : ''}\` with Node 24. For each asset, the builder permutes a 32-bit counter into unique record seeds, samples its schema with hash-seeded Mulberry32 and describes the result using English templates. When enabled, --corners also emits fixed schema-boundary seeds and explicit regression inputs. Each sample passes geometry, bounds, metadata and repeat-build hash checks before its validated group is exported. Root metadata is stored in the asset node's glTF extras.
 
 Record IDs are SHA-256 digests of the asset ID, version, seed and sorted parameter entries. The split uses the first 32 bits of SHA-256 over the JSON pair [asset_id, seed], assigning the lowest tenth to test. Adding samples preserves earlier IDs and assignments.
 
