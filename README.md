@@ -2,6 +2,8 @@
 
 [Press START on two prebuilt microwaves with Python and MuJoCo](examples/quickstart/README.md). Each example includes the model, labeled views and its measured task report.
 
+[Export a self-contained MuJoCo model](docs/MJCF.md) with `npm run dataset -- --samples 3 --mjcf`.
+
 
 Build a three.js object from parameters and inspect how to interact with its named parts, joints, affordances and controls.
 

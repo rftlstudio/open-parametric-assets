@@ -14,6 +14,7 @@ import { mixSeed, seededRandom, resolveParams } from '../lib/parameters.js';
 import { sampleParams } from '../validator/schema.js';
 import { validateAsset } from '../validator/validate.js';
 import { datasetCard } from './dataset-card.js';
+import { exportMJCF } from './export-mjcf.js';
 import { exportURDF } from './export-urdf.js';
 import { exportGLB } from './export-glb.js';
 
@@ -31,7 +32,7 @@ function recordId(assetId, version, seed, params) {
   return digest([assetId, version, seed, entries]).toString('hex');
 }
 
-async function generate(stage, samples, assets, renders, urdf, corners) {
+async function generate(stage, samples, assets, renders, urdf, mjcf, corners) {
   const threePackage = JSON.parse(await readFile(findPackageJSON('three', import.meta.url), 'utf8'));
   const repo = resolve(fileURLToPath(new URL('../', import.meta.url)));
   const gitCommit = execFileSync('git',['-c','safe.directory='+repo.replaceAll('\\','/'),'rev-parse','HEAD'],
@@ -79,13 +80,19 @@ async function generate(stage, samples, assets, renders, urdf, corners) {
           };
           await writeFile(join(stage, record.glb_path), await exportGLB(root), { flag: 'wx' });
           if (meta.installation) record.installation = meta.installation;
-          if (urdf) {
-            record.urdf_path = 'urdf/' + id + '/model.urdf';
-            const directory = join(stage, 'urdf', id);
-            const model = exportURDF(root);
-            await mkdir(join(directory, 'meshes'), { recursive: true });
-            for (const [filename, bytes] of model.meshes) await writeFile(join(directory, filename), bytes);
-            await writeFile(join(stage, record.urdf_path), model.urdf);
+          for (const [format,enabled,filename] of [['urdf',urdf,'model.urdf'], ['mjcf',mjcf,'model.xml']]) {
+            if (!enabled) continue;
+            const relative = format + '/' + id + '/' + filename;
+            record[format+'_path'] = relative;
+            const model = format === 'urdf' ? exportURDF(root) : exportMJCF(root,record);
+            const directory = join(stage,format,id);
+            await mkdir(join(directory,'meshes'), {recursive:true});
+            for (const [name,bytes] of model.meshes) await writeFile(join(directory,name),bytes);
+            await writeFile(join(stage,relative),model[format]);
+          }
+          if (mjcf) {
+            record.provenance.mjcf_sim_report = 'sim/' + id + '.mjcf.json';
+            if (!urdf) record.provenance.sim_report = record.provenance.mjcf_sim_report;
           }
           if (renderer) record.renders = await renderer.renderRecord(record, stage);
           await manifest.writeFile(JSON.stringify(record) + '\n');
@@ -99,13 +106,13 @@ async function generate(stage, samples, assets, renders, urdf, corners) {
   } finally {
     await Promise.all([manifest.close(), renderer?.close()]);
   }
-  const metadata = await croissant(join(stage,'data.jsonl'),project.version);
+  const metadata = await croissant(join(stage,'data.jsonl'),project.version,mjcf);
   await writeFile(join(stage,'croissant.json'), JSON.stringify(metadata,null,2)+'\n');
-  await writeFile(join(stage, 'README.md'), datasetCard(count, testCount, samples, project.version, renders, urdf, corners));
+  await writeFile(join(stage, 'README.md'), datasetCard(count, testCount, samples, project.version, renders, urdf, corners, mjcf));
   return count;
 }
 
-export async function buildDataset({ samples = 200, out = 'dist/dataset', renders = false, urdf = false, corners = false } = {}) {
+export async function buildDataset({ samples = 200, out = 'dist/dataset', renders = false, urdf = false, mjcf = false, corners = false } = {}) {
   if (!Number.isSafeInteger(samples) || samples < 1 || samples > 0x100000000) {
     throw new RangeError('samples must be a positive integer within the uint32 seed space');
   }
@@ -114,7 +121,7 @@ export async function buildDataset({ samples = 200, out = 'dist/dataset', render
   const stage = await mkdtemp(join(out, '.build-'));
   try {
     await mkdir(join(stage, 'glb'));
-    const count = await generate(stage, samples, assets, renders, urdf, corners);
+    const count = await generate(stage, samples, assets, renders, urdf, mjcf, corners);
     // Publish the manifest last, after every referenced model is in place.
     const models = join(out, 'glb');
     await mkdir(models, { recursive: true });
@@ -131,14 +138,15 @@ export async function buildDataset({ samples = 200, out = 'dist/dataset', render
         }
       }
     }
-    if (urdf) {
-      for (const id of await readdir(join(stage, 'urdf'))) {
-        const src = join(stage, 'urdf', id), dest = join(out, 'urdf', id);
+    for (const [format, enabled, filename] of [['urdf',urdf,'model.urdf'], ['mjcf',mjcf,'model.xml']]) {
+      if (!enabled) continue;
+      for (const id of await readdir(join(stage,format))) {
+        const src = join(stage, format, id), dest = join(out, format, id);
         await mkdir(join(dest, 'meshes'), { recursive: true });
         for (const file of await readdir(join(src, 'meshes'))) {
           await rename(join(src, 'meshes', file), join(dest, 'meshes', file));
         }
-        await rename(join(src, 'model.urdf'), join(dest, 'model.urdf'));
+        await rename(join(src, filename), join(dest, filename));
       }
     }
     await rename(join(stage,'croissant.json'),join(out,'croissant.json'));
@@ -154,9 +162,9 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
   try {
     const { values } = parseArgs({ options: {
       samples: { type: 'string', default: '200' }, out: { type: 'string', default: 'dist/dataset' },
-      renders: { type: 'boolean', default: false }, urdf: { type: 'boolean', default: false }, corners: { type: 'boolean', default: false }
+      renders: { type: 'boolean', default: false }, urdf: { type: 'boolean', default: false }, mjcf: { type: 'boolean', default: false }, corners: { type: 'boolean', default: false }
     } });
-    const count = await buildDataset({ samples: Number(values.samples), out: values.out, renders: values.renders, urdf: values.urdf, corners: values.corners });
+    const count = await buildDataset({ samples: Number(values.samples), out: values.out, renders: values.renders, urdf: values.urdf, mjcf: values.mjcf, corners: values.corners });
     console.log('Wrote ' + count + ' validated records to ' + resolve(values.out));
   } catch (error) {
     console.error(error.message);

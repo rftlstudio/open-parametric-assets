@@ -1,11 +1,12 @@
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 
-export async function croissant(manifest, version) {
+export async function croissant(manifest, version, mjcf = false) {
   const hash = createHash('sha256');
   for await (const bytes of createReadStream(manifest)) hash.update(bytes);
   const url = 'https://github.com/rftlstudio/open-parametric-assets';
   const fields = ['id','asset_id','seed','prompt','glb_path','split'];
+  if (mjcf) fields.push('mjcf_path');
   return {
     '@context': {
       '@language':'en', '@vocab':'https://schema.org/', sc:'https://schema.org/',

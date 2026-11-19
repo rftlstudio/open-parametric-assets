@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+The dataset builder accepts `--mjcf` to export native MuJoCo models with springs, interaction sites, control sensors and embedded task metadata. CI runs both physics formats and compares their compiled models and measured motion. See [Native MuJoCo models](docs/MJCF.md).
+
 ## 0.3.0
 
 - Furniture URDFs preserve recessed drawer pulls as open cavities. MuJoCo checks finger clearance for recessed pulls and grip centers for raised handles. URDF numeric values are rounded to nine decimal places. [#7](https://github.com/rftlstudio/open-parametric-assets/pull/7)
