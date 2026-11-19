@@ -35,8 +35,18 @@ jobs:
       - run: npm run dataset -- --samples 3 --corners --renders --urdf
       - name: Validate Croissant metadata
         run: |
-          python -m pip install mlcroissant
+          python -m pip install mlcroissant==1.1.1
           mlcroissant validate --jsonld dist/dataset/croissant.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import mlcroissant as mc
+          folder = Path("dist/dataset").resolve()
+          manifest = folder / "data.jsonl"
+          dataset = mc.Dataset(folder / "croissant.json", mapping={"manifest": manifest})
+          expected = [json.loads(line)["seed"] for line in manifest.read_text().splitlines()]
+          assert [row["assets/seed"] for row in dataset.records("assets")] == expected
+          PY
       - name: Run the two published samples in a fresh Python environment
         run: |
           python -m venv "$RUNNER_TEMP/opa-quickstart"

@@ -7,13 +7,22 @@ export async function croissant(manifest, version) {
   const url = 'https://github.com/rftlstudio/open-parametric-assets';
   const fields = ['id','asset_id','seed','prompt','glb_path','split'];
   return {
-    '@context': {'@language':'en','@vocab':'https://schema.org/',sc:'https://schema.org/',
-      cr:'http://mlcommons.org/croissant/',rai:'http://mlcommons.org/croissant/RAI/',
-      dct:'http://purl.org/dc/terms/',dataType:{'@id':'cr:dataType','@type':'@vocab'}},
+    '@context': {
+      '@language':'en', '@vocab':'https://schema.org/', sc:'https://schema.org/',
+      cr:'http://mlcommons.org/croissant/', rai:'http://mlcommons.org/croissant/RAI/',
+      dct:'http://purl.org/dc/terms/', conformsTo:'dct:conformsTo',
+      dataType:{'@id':'cr:dataType','@type':'@vocab'}, data:{'@id':'cr:data','@type':'@json'},
+      examples:{'@id':'cr:examples','@type':'@json'},
+      ...Object.fromEntries([
+        'citeAs','column','equivalentProperty','extract','field','fileProperty','fileObject','fileSet',
+        'format','includes','isLiveDataset','jsonPath','key','md5','parentField','path','recordSet',
+        'references','regex','repeated','replace','samplingRate','separator','source','subField','transform'
+      ].map(term => [term,'cr:'+term]))
+    },
     '@type':'Dataset', name:'Open Parametric Assets', version, url,
     description:'Seeded parametric furniture and appliance models with observable states and physical tasks.',
     creator:{'@type':'Organization',name:'Open Parametric Assets contributors',url},
-    license:'https://creativecommons.org/licenses/by/4.0/', 'dct:conformsTo':'http://mlcommons.org/croissant/1.0',
+    license:'https://creativecommons.org/licenses/by/4.0/', conformsTo:['http://mlcommons.org/croissant/1.0','http://mlcommons.org/croissant/RAI/1.0'],
     'cr:citeAs':'Open Parametric Assets contributors. Open Parametric Assets v'+version+'. '+url,
     'rai:dataCollection':'Fully synthetic, procedurally generated from original code and seeded parameters. No personal data.',
     'rai:personalSensitiveInformation':'No personal or sensitive information is collected.',
@@ -24,7 +33,7 @@ export async function croissant(manifest, version) {
     'cr:recordSet':[{'@type':'cr:RecordSet','@id':'assets',name:'assets','cr:key':{'@id':'assets/id'},
       'cr:field':fields.map(name => ({'@type':'cr:Field','@id':'assets/'+name,name,
         dataType:name === 'seed' ? 'sc:Integer' : 'sc:Text',
-        'cr:source':{'cr:fileObject':{'@id':'manifest'},'cr:extract':{'cr:jsonPath':'$.'+name}}}))}]
+        'cr:source':{'cr:fileObject':{'@id':'manifest'},'cr:extract':{'cr:column':name}}}))}]
   };
 }
 

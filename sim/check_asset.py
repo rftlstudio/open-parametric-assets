@@ -564,8 +564,14 @@ def check(path):
             if joint.get("behavior") == "balanced_door":
                 for fn in (door_behavior, door_bounce):
                     run_check(checks, fn.__name__, fn, model, joints, limits, joint)
-        for fn in (drop, carry):
-            run_check(checks, fn.__name__, fn, path, xml, record, limits)
+        surfaces = {a["part"] for a in record["affordances"] if a["type"] == "placeable"}
+        if surfaces:
+            run_check(checks, "drop", drop, path, xml, record, limits)
+        slides = {j["childPart"] for j in joints if j["type"] == "prismatic"}
+        sliding_visuals = {v.get("name") for link in xml.findall("link") if link.get("name") in slides
+                           for v in link.findall("visual")}
+        if any("visual_"+part in sliding_visuals for part in surfaces):
+            run_check(checks, "carry", carry, path, xml, record, limits)
         if any(a["type"] == "grasp" for a in record["affordances"]):
             run_check(checks, "grasp", grasp, path, xml, record)
         controls = record.get("controls", [])

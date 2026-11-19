@@ -45,11 +45,6 @@
       ]
     },
     {
-      "name": "carry",
-      "passed": true,
-      "measurements": []
-    },
-    {
       "name": "grasp",
       "passed": true,
       "measurements": [
