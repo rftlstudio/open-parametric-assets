@@ -1,0 +1,1842 @@
+{
+  "id": "885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a",
+  "asset_id": "appliances/microwave",
+  "asset_version": "0.2.1",
+  "seed": 1286021196,
+  "params": {
+    "width": 0.47,
+    "height": 0.32,
+    "depth": 0.36,
+    "controlStyle": "touch",
+    "controlLayout": "dials",
+    "doorOpening": "handle",
+    "finish": "white",
+    "wear": 0.8
+  },
+  "prompt": "Build a countertop microwave with a white finish, a touch keypad and a raised door handle. The case is 0.47 m wide, 0.32 m tall and 0.36 m deep. It looks heavily worn.",
+  "code": "createAsset({\"width\":0.47,\"height\":0.32,\"depth\":0.36,\"controlStyle\":\"touch\",\"controlLayout\":\"dials\",\"doorOpening\":\"handle\",\"finish\":\"white\",\"wear\":0.8}, { seed: 1286021196 })",
+  "glb_path": "glb/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a.glb",
+  "triangles": 570,
+  "bounding_box": {
+    "min": [
+      -0.23500000005215405,
+      -5.2154064053566707e-11,
+      -0.18000000715255737
+    ],
+    "max": [
+      0.23500000005215405,
+      0.32000000005215407,
+      0.23800000005215405
+    ]
+  },
+  "states": {
+    "door_open": {
+      "joint": "door_hinge",
+      "op": ">",
+      "val": 0.8
+    },
+    "start_pressed": {
+      "control": "start_touch",
+      "op": "==",
+      "val": true
+    },
+    "running": {
+      "all": [
+        {
+          "joint": "door_hinge",
+          "op": "<",
+          "val": 0.05
+        },
+        {
+          "any": [
+            {
+              "control": "digit_1_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_2_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_3_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_4_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_5_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_6_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_7_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_8_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "digit_9_touch",
+              "op": "==",
+              "val": true
+            },
+            {
+              "control": "add_30s_touch",
+              "op": "==",
+              "val": true
+            }
+          ]
+        },
+        {
+          "state": "start_pressed"
+        }
+      ]
+    }
+  },
+  "tasks": [
+    {
+      "id": "microwave/press_start_touch",
+      "asset_id": "appliances/microwave",
+      "instruction": "Touch START.",
+      "applies_when": {
+        "controlStyle": [
+          "mixed",
+          "touch"
+        ]
+      },
+      "init": {},
+      "goal": {
+        "state": "start_pressed"
+      },
+      "horizon_s": 8
+    }
+  ],
+  "joints": [
+    {
+      "name": "door_hinge",
+      "type": "revolute",
+      "axis": [
+        0,
+        -1,
+        0
+      ],
+      "limits": [
+        0,
+        1.75
+      ],
+      "childPart": "door",
+      "clearance": {
+        "moving": "door",
+        "stationary": [
+          "body"
+        ]
+      }
+    }
+  ],
+  "affordances": [
+    {
+      "type": "placeable",
+      "part": "cavity_floor",
+      "point": [
+        -0.06345,
+        0.006,
+        0
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "size": [
+        0.31909999999999994,
+        0.33599999999999997
+      ]
+    },
+    {
+      "type": "grasp",
+      "grip": "raised",
+      "part": "door_handle",
+      "point": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "name": "digit_1_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "1",
+      "icon": "digit_1",
+      "value": 1,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          -0.036300000000000006,
+          0.10800000000000001,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_2_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "2",
+      "icon": "digit_2",
+      "value": 2,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0,
+          0.10800000000000001,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_3_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "3",
+      "icon": "digit_3",
+      "value": 3,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0.036300000000000006,
+          0.10800000000000001,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_4_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "4",
+      "icon": "digit_4",
+      "value": 4,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          -0.036300000000000006,
+          0.054000000000000006,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_5_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "5",
+      "icon": "digit_5",
+      "value": 5,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0,
+          0.054000000000000006,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_6_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "6",
+      "icon": "digit_6",
+      "value": 6,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0.036300000000000006,
+          0.054000000000000006,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_7_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "7",
+      "icon": "digit_7",
+      "value": 7,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          -0.036300000000000006,
+          0,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_8_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "8",
+      "icon": "digit_8",
+      "value": 8,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0,
+          0,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_9_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "9",
+      "icon": "digit_9",
+      "value": 9,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0.036300000000000006,
+          0,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "digit_0_touch",
+      "type": "touch",
+      "function": "digit",
+      "label": "0",
+      "icon": "digit_0",
+      "value": 0,
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          -0.036300000000000006,
+          -0.054000000000000006,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "start_touch",
+      "type": "touch",
+      "function": "start",
+      "label": "START",
+      "icon": "play",
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0,
+          -0.054000000000000006,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "stop_touch",
+      "type": "touch",
+      "function": "stop",
+      "label": "STOP",
+      "icon": "stop",
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0.036300000000000006,
+          -0.054000000000000006,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "add_30s_touch",
+      "type": "touch",
+      "function": "add_30s",
+      "label": "+30 S",
+      "icon": "plus_30",
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          -0.036300000000000006,
+          -0.10800000000000001,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    },
+    {
+      "name": "door_release_touch",
+      "type": "touch",
+      "function": "door_release",
+      "label": "OPEN",
+      "icon": "open",
+      "region": {
+        "part": "touch_panel",
+        "point": [
+          0,
+          -0.10800000000000001,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.03230000000000001,
+          0.05
+        ]
+      },
+      "state": {
+        "kind": "touch",
+        "minForceN": 1
+      }
+    }
+  ],
+  "split": "train",
+  "provenance": {
+    "git_commit": "8cfb80a128f0a6be19316341144f639dc3706877",
+    "spec_version": "0.4",
+    "mujoco_version": "3.3.7",
+    "generator_version": "0.2.0",
+    "validator_version": "0.2.0",
+    "three_version": "0.187.0",
+    "created_with": "open-parametric-assets",
+    "seed": 1286021196,
+    "checks": [
+      "schema",
+      "parameter_rejection",
+      "geometry",
+      "part_names",
+      "triangles",
+      "metadata",
+      "bounding_box",
+      "geometry_determinism",
+      "prompt_determinism",
+      "states",
+      "task_resolution",
+      "controls",
+      "clearance"
+    ],
+    "sim_report": "sim/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a.json"
+  },
+  "license": "CC-BY-4.0",
+  "urdf_path": "urdf/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/model.urdf",
+  "renders_meta": {
+    "control_panel": {
+      "width": 322,
+      "height": 816,
+      "controls": [
+        {
+          "name": "digit_1_touch",
+          "function": "digit",
+          "label": "1",
+          "bbox": [
+            21,
+            53,
+            108,
+            187
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_2_touch",
+          "function": "digit",
+          "label": "2",
+          "bbox": [
+            117,
+            53,
+            205,
+            187
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_3_touch",
+          "function": "digit",
+          "label": "3",
+          "bbox": [
+            214,
+            53,
+            301,
+            187
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_4_touch",
+          "function": "digit",
+          "label": "4",
+          "bbox": [
+            21,
+            197,
+            108,
+            331
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_5_touch",
+          "function": "digit",
+          "label": "5",
+          "bbox": [
+            117,
+            197,
+            205,
+            331
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_6_touch",
+          "function": "digit",
+          "label": "6",
+          "bbox": [
+            214,
+            197,
+            301,
+            331
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_7_touch",
+          "function": "digit",
+          "label": "7",
+          "bbox": [
+            21,
+            341,
+            108,
+            475
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_8_touch",
+          "function": "digit",
+          "label": "8",
+          "bbox": [
+            117,
+            341,
+            205,
+            475
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_9_touch",
+          "function": "digit",
+          "label": "9",
+          "bbox": [
+            214,
+            341,
+            301,
+            475
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_0_touch",
+          "function": "digit",
+          "label": "0",
+          "bbox": [
+            21,
+            485,
+            108,
+            619
+          ],
+          "visible": true
+        },
+        {
+          "name": "start_touch",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            117,
+            485,
+            205,
+            619
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_touch",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            214,
+            485,
+            301,
+            619
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_touch",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            21,
+            629,
+            108,
+            763
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_touch",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            117,
+            629,
+            205,
+            763
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "front": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "digit_1_touch",
+          "function": "digit",
+          "label": "1",
+          "bbox": [
+            366,
+            126,
+            398,
+            176
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_2_touch",
+          "function": "digit",
+          "label": "2",
+          "bbox": [
+            401,
+            126,
+            433,
+            176
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_3_touch",
+          "function": "digit",
+          "label": "3",
+          "bbox": [
+            436,
+            126,
+            469,
+            176
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_4_touch",
+          "function": "digit",
+          "label": "4",
+          "bbox": [
+            366,
+            179,
+            398,
+            228
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_5_touch",
+          "function": "digit",
+          "label": "5",
+          "bbox": [
+            401,
+            179,
+            433,
+            228
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_6_touch",
+          "function": "digit",
+          "label": "6",
+          "bbox": [
+            436,
+            179,
+            469,
+            228
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_7_touch",
+          "function": "digit",
+          "label": "7",
+          "bbox": [
+            366,
+            231,
+            398,
+            281
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_8_touch",
+          "function": "digit",
+          "label": "8",
+          "bbox": [
+            401,
+            231,
+            433,
+            281
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_9_touch",
+          "function": "digit",
+          "label": "9",
+          "bbox": [
+            436,
+            231,
+            469,
+            281
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_0_touch",
+          "function": "digit",
+          "label": "0",
+          "bbox": [
+            366,
+            284,
+            398,
+            333
+          ],
+          "visible": true
+        },
+        {
+          "name": "start_touch",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            401,
+            284,
+            433,
+            333
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_touch",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            436,
+            284,
+            469,
+            333
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_touch",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            366,
+            336,
+            398,
+            386
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_touch",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            401,
+            336,
+            433,
+            386
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "three_quarter": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "digit_1_touch",
+          "function": "digit",
+          "label": "1",
+          "bbox": [
+            237,
+            225,
+            254,
+            266
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_2_touch",
+          "function": "digit",
+          "label": "2",
+          "bbox": [
+            255,
+            233,
+            273,
+            274
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_3_touch",
+          "function": "digit",
+          "label": "3",
+          "bbox": [
+            274,
+            241,
+            292,
+            282
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_4_touch",
+          "function": "digit",
+          "label": "4",
+          "bbox": [
+            237,
+            261,
+            254,
+            302
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_5_touch",
+          "function": "digit",
+          "label": "5",
+          "bbox": [
+            255,
+            269,
+            273,
+            310
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_6_touch",
+          "function": "digit",
+          "label": "6",
+          "bbox": [
+            274,
+            276,
+            292,
+            317
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_7_touch",
+          "function": "digit",
+          "label": "7",
+          "bbox": [
+            237,
+            296,
+            254,
+            337
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_8_touch",
+          "function": "digit",
+          "label": "8",
+          "bbox": [
+            255,
+            304,
+            273,
+            345
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_9_touch",
+          "function": "digit",
+          "label": "9",
+          "bbox": [
+            274,
+            312,
+            292,
+            353
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_0_touch",
+          "function": "digit",
+          "label": "0",
+          "bbox": [
+            237,
+            332,
+            254,
+            373
+          ],
+          "visible": true
+        },
+        {
+          "name": "start_touch",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            255,
+            340,
+            273,
+            381
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_touch",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            274,
+            348,
+            292,
+            389
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_touch",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            237,
+            368,
+            254,
+            409
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_touch",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            255,
+            375,
+            273,
+            416
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "side": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "digit_1_touch",
+          "function": "digit",
+          "label": "1",
+          "bbox": [
+            91,
+            110,
+            92,
+            166
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_2_touch",
+          "function": "digit",
+          "label": "2",
+          "bbox": [
+            91,
+            110,
+            92,
+            166
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_3_touch",
+          "function": "digit",
+          "label": "3",
+          "bbox": [
+            91,
+            110,
+            92,
+            166
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_4_touch",
+          "function": "digit",
+          "label": "4",
+          "bbox": [
+            91,
+            169,
+            92,
+            225
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_5_touch",
+          "function": "digit",
+          "label": "5",
+          "bbox": [
+            91,
+            169,
+            92,
+            225
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_6_touch",
+          "function": "digit",
+          "label": "6",
+          "bbox": [
+            91,
+            169,
+            92,
+            225
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_7_touch",
+          "function": "digit",
+          "label": "7",
+          "bbox": [
+            91,
+            228,
+            92,
+            284
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_8_touch",
+          "function": "digit",
+          "label": "8",
+          "bbox": [
+            91,
+            228,
+            92,
+            284
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_9_touch",
+          "function": "digit",
+          "label": "9",
+          "bbox": [
+            91,
+            228,
+            92,
+            284
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_0_touch",
+          "function": "digit",
+          "label": "0",
+          "bbox": [
+            91,
+            287,
+            92,
+            343
+          ],
+          "visible": false
+        },
+        {
+          "name": "start_touch",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            91,
+            287,
+            92,
+            343
+          ],
+          "visible": false
+        },
+        {
+          "name": "stop_touch",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            91,
+            287,
+            92,
+            343
+          ],
+          "visible": false
+        },
+        {
+          "name": "add_30s_touch",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            91,
+            346,
+            92,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "door_release_touch",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            91,
+            346,
+            92,
+            402
+          ],
+          "visible": false
+        }
+      ]
+    },
+    "top": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "digit_1_touch",
+          "function": "digit",
+          "label": "1",
+          "bbox": [
+            366,
+            401,
+            398,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_2_touch",
+          "function": "digit",
+          "label": "2",
+          "bbox": [
+            401,
+            401,
+            433,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_3_touch",
+          "function": "digit",
+          "label": "3",
+          "bbox": [
+            436,
+            401,
+            469,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_4_touch",
+          "function": "digit",
+          "label": "4",
+          "bbox": [
+            366,
+            401,
+            398,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_5_touch",
+          "function": "digit",
+          "label": "5",
+          "bbox": [
+            401,
+            401,
+            433,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_6_touch",
+          "function": "digit",
+          "label": "6",
+          "bbox": [
+            436,
+            401,
+            469,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_7_touch",
+          "function": "digit",
+          "label": "7",
+          "bbox": [
+            366,
+            401,
+            398,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_8_touch",
+          "function": "digit",
+          "label": "8",
+          "bbox": [
+            401,
+            401,
+            433,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_9_touch",
+          "function": "digit",
+          "label": "9",
+          "bbox": [
+            436,
+            401,
+            469,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "digit_0_touch",
+          "function": "digit",
+          "label": "0",
+          "bbox": [
+            366,
+            401,
+            398,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "start_touch",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            401,
+            401,
+            433,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "stop_touch",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            436,
+            401,
+            469,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "add_30s_touch",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            366,
+            401,
+            398,
+            402
+          ],
+          "visible": false
+        },
+        {
+          "name": "door_release_touch",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            401,
+            401,
+            433,
+            402
+          ],
+          "visible": false
+        }
+      ]
+    },
+    "perspective_three_quarter": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "digit_1_touch",
+          "function": "digit",
+          "label": "1",
+          "bbox": [
+            218,
+            189,
+            238,
+            234
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_2_touch",
+          "function": "digit",
+          "label": "2",
+          "bbox": [
+            238,
+            197,
+            258,
+            242
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_3_touch",
+          "function": "digit",
+          "label": "3",
+          "bbox": [
+            259,
+            204,
+            280,
+            251
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_4_touch",
+          "function": "digit",
+          "label": "4",
+          "bbox": [
+            219,
+            229,
+            238,
+            273
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_5_touch",
+          "function": "digit",
+          "label": "5",
+          "bbox": [
+            239,
+            237,
+            258,
+            281
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_6_touch",
+          "function": "digit",
+          "label": "6",
+          "bbox": [
+            259,
+            245,
+            279,
+            291
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_7_touch",
+          "function": "digit",
+          "label": "7",
+          "bbox": [
+            220,
+            267,
+            238,
+            309
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_8_touch",
+          "function": "digit",
+          "label": "8",
+          "bbox": [
+            239,
+            275,
+            258,
+            319
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_9_touch",
+          "function": "digit",
+          "label": "9",
+          "bbox": [
+            259,
+            284,
+            279,
+            329
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_0_touch",
+          "function": "digit",
+          "label": "0",
+          "bbox": [
+            221,
+            303,
+            239,
+            345
+          ],
+          "visible": true
+        },
+        {
+          "name": "start_touch",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            240,
+            312,
+            258,
+            355
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_touch",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            259,
+            322,
+            278,
+            365
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_touch",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            221,
+            338,
+            239,
+            379
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_touch",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            240,
+            347,
+            258,
+            389
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "open_three_quarter": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "digit_1_touch",
+          "function": "digit",
+          "label": "1",
+          "bbox": [
+            308,
+            238,
+            320,
+            268
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_2_touch",
+          "function": "digit",
+          "label": "2",
+          "bbox": [
+            321,
+            244,
+            334,
+            273
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_3_touch",
+          "function": "digit",
+          "label": "3",
+          "bbox": [
+            334,
+            250,
+            347,
+            279
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_4_touch",
+          "function": "digit",
+          "label": "4",
+          "bbox": [
+            308,
+            264,
+            320,
+            293
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_5_touch",
+          "function": "digit",
+          "label": "5",
+          "bbox": [
+            321,
+            269,
+            334,
+            299
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_6_touch",
+          "function": "digit",
+          "label": "6",
+          "bbox": [
+            334,
+            275,
+            347,
+            304
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_7_touch",
+          "function": "digit",
+          "label": "7",
+          "bbox": [
+            308,
+            289,
+            320,
+            319
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_8_touch",
+          "function": "digit",
+          "label": "8",
+          "bbox": [
+            321,
+            295,
+            334,
+            324
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_9_touch",
+          "function": "digit",
+          "label": "9",
+          "bbox": [
+            334,
+            300,
+            347,
+            330
+          ],
+          "visible": true
+        },
+        {
+          "name": "digit_0_touch",
+          "function": "digit",
+          "label": "0",
+          "bbox": [
+            308,
+            314,
+            320,
+            344
+          ],
+          "visible": true
+        },
+        {
+          "name": "start_touch",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            321,
+            320,
+            334,
+            350
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_touch",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            334,
+            326,
+            347,
+            355
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_touch",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            308,
+            340,
+            320,
+            369
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_touch",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            321,
+            346,
+            334,
+            375
+          ],
+          "visible": true
+        }
+      ]
+    }
+  },
+  "renders": {
+    "control_panel": "renders/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/control_panel.png",
+    "front": "renders/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/front.png",
+    "three_quarter": "renders/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/three_quarter.png",
+    "side": "renders/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/side.png",
+    "top": "renders/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/top.png",
+    "perspective_three_quarter": "renders/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/perspective_three_quarter.png",
+    "open_three_quarter": "renders/885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a/open_three_quarter.png"
+  }
+}

@@ -1,0 +1,766 @@
+{
+  "id": "4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98",
+  "asset_id": "appliances/microwave",
+  "asset_version": "0.2.1",
+  "seed": 2321463991,
+  "params": {
+    "width": 0.51,
+    "height": 0.26,
+    "depth": 0.4,
+    "controlStyle": "physical",
+    "controlLayout": "buttons",
+    "doorOpening": "release_button",
+    "finish": "white",
+    "wear": 0.3
+  },
+  "prompt": "A countertop microwave with a white finish, a button panel, a door-release button and a recessed pull edge. The case is 0.51 m wide, 0.26 m tall and 0.40 m deep. It looks lightly worn.",
+  "code": "createAsset({\"width\":0.51,\"height\":0.26,\"depth\":0.4,\"controlStyle\":\"physical\",\"controlLayout\":\"buttons\",\"doorOpening\":\"release_button\",\"finish\":\"white\",\"wear\":0.3}, { seed: 2321463991 })",
+  "glb_path": "glb/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98.glb",
+  "triangles": 474,
+  "bounding_box": {
+    "min": [
+      -0.25500000005215406,
+      -5.2154064053566707e-11,
+      -0.20000000298023224
+    ],
+    "max": [
+      0.25500000005215406,
+      0.26000000005215407,
+      0.2220000000949949
+    ]
+  },
+  "states": {
+    "door_open": {
+      "joint": "door_hinge",
+      "op": ">",
+      "val": 0.8
+    },
+    "start_pressed": {
+      "control": "start_button",
+      "op": "==",
+      "val": true
+    },
+    "running": {
+      "all": [
+        {
+          "joint": "door_hinge",
+          "op": "<",
+          "val": 0.05
+        },
+        {
+          "any": [
+            {
+              "control": "add_30s_button",
+              "op": "==",
+              "val": true
+            }
+          ]
+        },
+        {
+          "state": "start_pressed"
+        }
+      ]
+    }
+  },
+  "tasks": [
+    {
+      "id": "microwave/press_start",
+      "asset_id": "appliances/microwave",
+      "instruction": "Press the START button.",
+      "applies_when": {
+        "controlStyle": [
+          "physical"
+        ]
+      },
+      "init": {},
+      "goal": {
+        "state": "start_pressed"
+      },
+      "horizon_s": 8
+    }
+  ],
+  "joints": [
+    {
+      "name": "door_hinge",
+      "type": "revolute",
+      "axis": [
+        0,
+        -1,
+        0
+      ],
+      "limits": [
+        0,
+        1.75
+      ],
+      "childPart": "door",
+      "clearance": {
+        "moving": "door",
+        "stationary": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "start_button_slide",
+      "type": "prismatic",
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "limits": [
+        0,
+        0.003
+      ],
+      "childPart": "start_button",
+      "dynamics": {
+        "damping": 1.5,
+        "friction": 0.005,
+        "spring": {
+          "stiffness": 300,
+          "restPosition": 0
+        }
+      },
+      "effort": 3,
+      "velocity": 0.04
+    },
+    {
+      "name": "stop_button_slide",
+      "type": "prismatic",
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "limits": [
+        0,
+        0.003
+      ],
+      "childPart": "stop_button",
+      "dynamics": {
+        "damping": 1.5,
+        "friction": 0.005,
+        "spring": {
+          "stiffness": 300,
+          "restPosition": 0
+        }
+      },
+      "effort": 3,
+      "velocity": 0.04
+    },
+    {
+      "name": "add_30s_button_slide",
+      "type": "prismatic",
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "limits": [
+        0,
+        0.003
+      ],
+      "childPart": "add_30s_button",
+      "dynamics": {
+        "damping": 1.5,
+        "friction": 0.005,
+        "spring": {
+          "stiffness": 300,
+          "restPosition": 0
+        }
+      },
+      "effort": 3,
+      "velocity": 0.04
+    },
+    {
+      "name": "door_release_button_slide",
+      "type": "prismatic",
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "limits": [
+        0,
+        0.003
+      ],
+      "childPart": "door_release_button",
+      "dynamics": {
+        "damping": 1.5,
+        "friction": 0.005,
+        "spring": {
+          "stiffness": 300,
+          "restPosition": 0
+        }
+      },
+      "effort": 3,
+      "velocity": 0.04
+    }
+  ],
+  "affordances": [
+    {
+      "type": "placeable",
+      "part": "cavity_floor",
+      "point": [
+        -0.06885000000000001,
+        0.006,
+        0
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "size": [
+        0.34829999999999994,
+        0.376
+      ]
+    },
+    {
+      "type": "grasp",
+      "grip": "recessed",
+      "part": "door_pull_edge",
+      "point": [
+        -0.009,
+        0,
+        -0.005
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "name": "start_button",
+      "type": "button",
+      "function": "start",
+      "label": "START",
+      "icon": "play",
+      "joint": "start_button_slide",
+      "region": {
+        "part": "start_button_cap",
+        "point": [
+          0,
+          0,
+          0.0005
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.041999999999999996,
+          0.015399999999999999
+        ]
+      },
+      "state": {
+        "kind": "momentary",
+        "pressedAt": 0.6
+      }
+    },
+    {
+      "name": "stop_button",
+      "type": "button",
+      "function": "stop",
+      "label": "STOP",
+      "icon": "stop",
+      "joint": "stop_button_slide",
+      "region": {
+        "part": "stop_button_cap",
+        "point": [
+          0,
+          0,
+          0.0005
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.041999999999999996,
+          0.015399999999999999
+        ]
+      },
+      "state": {
+        "kind": "momentary",
+        "pressedAt": 0.6
+      }
+    },
+    {
+      "name": "add_30s_button",
+      "type": "button",
+      "function": "add_30s",
+      "label": "+30 S",
+      "icon": "plus_30",
+      "joint": "add_30s_button_slide",
+      "region": {
+        "part": "add_30s_button_cap",
+        "point": [
+          0,
+          0,
+          0.0005
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.041999999999999996,
+          0.015399999999999999
+        ]
+      },
+      "state": {
+        "kind": "momentary",
+        "pressedAt": 0.6
+      }
+    },
+    {
+      "name": "door_release_button",
+      "type": "button",
+      "function": "door_release",
+      "label": "OPEN",
+      "icon": "open",
+      "joint": "door_release_button_slide",
+      "region": {
+        "part": "door_release_button_cap",
+        "point": [
+          0,
+          0,
+          0.0005
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "size": [
+          0.041999999999999996,
+          0.015399999999999999
+        ]
+      },
+      "state": {
+        "kind": "momentary",
+        "pressedAt": 0.6
+      }
+    }
+  ],
+  "split": "train",
+  "provenance": {
+    "git_commit": "8cfb80a128f0a6be19316341144f639dc3706877",
+    "spec_version": "0.4",
+    "mujoco_version": "3.3.7",
+    "generator_version": "0.2.0",
+    "validator_version": "0.2.0",
+    "three_version": "0.187.0",
+    "created_with": "open-parametric-assets",
+    "seed": 2321463991,
+    "checks": [
+      "schema",
+      "parameter_rejection",
+      "geometry",
+      "part_names",
+      "triangles",
+      "metadata",
+      "bounding_box",
+      "geometry_determinism",
+      "prompt_determinism",
+      "states",
+      "task_resolution",
+      "controls",
+      "clearance"
+    ],
+    "sim_report": "sim/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98.json"
+  },
+  "license": "CC-BY-4.0",
+  "urdf_path": "urdf/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/model.urdf",
+  "renders_meta": {
+    "control_panel": {
+      "width": 298,
+      "height": 882,
+      "controls": [
+        {
+          "name": "start_button",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            58,
+            71,
+            240,
+            139
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_button",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            58,
+            295,
+            240,
+            363
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_button",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            58,
+            519,
+            240,
+            587
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_button",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            58,
+            743,
+            240,
+            811
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "front": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "start_button",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            398,
+            179,
+            437,
+            193
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_button",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            398,
+            225,
+            437,
+            240
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_button",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            398,
+            272,
+            437,
+            287
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_button",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            398,
+            319,
+            437,
+            333
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "three_quarter": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "start_button",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            239,
+            274,
+            261,
+            294
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_button",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            239,
+            307,
+            261,
+            326
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_button",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            239,
+            340,
+            261,
+            359
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_button",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            239,
+            372,
+            261,
+            392
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "side": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "start_button",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            48,
+            163,
+            49,
+            180
+          ],
+          "visible": false
+        },
+        {
+          "name": "stop_button",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            48,
+            219,
+            49,
+            237
+          ],
+          "visible": false
+        },
+        {
+          "name": "add_30s_button",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            48,
+            275,
+            49,
+            293
+          ],
+          "visible": false
+        },
+        {
+          "name": "door_release_button",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            48,
+            332,
+            49,
+            349
+          ],
+          "visible": false
+        }
+      ]
+    },
+    "top": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "start_button",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            398,
+            428,
+            437,
+            429
+          ],
+          "visible": false
+        },
+        {
+          "name": "stop_button",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            398,
+            428,
+            437,
+            429
+          ],
+          "visible": false
+        },
+        {
+          "name": "add_30s_button",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            398,
+            428,
+            437,
+            429
+          ],
+          "visible": false
+        },
+        {
+          "name": "door_release_button",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            398,
+            428,
+            437,
+            429
+          ],
+          "visible": false
+        }
+      ]
+    },
+    "perspective_three_quarter": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "start_button",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            232,
+            234,
+            255,
+            255
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_button",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            233,
+            269,
+            255,
+            289
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_button",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            233,
+            302,
+            255,
+            323
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_button",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            234,
+            334,
+            256,
+            355
+          ],
+          "visible": true
+        }
+      ]
+    },
+    "open_three_quarter": {
+      "width": 512,
+      "height": 512,
+      "controls": [
+        {
+          "name": "start_button",
+          "function": "start",
+          "label": "START",
+          "bbox": [
+            317,
+            270,
+            332,
+            283
+          ],
+          "visible": true
+        },
+        {
+          "name": "stop_button",
+          "function": "stop",
+          "label": "STOP",
+          "bbox": [
+            317,
+            292,
+            332,
+            306
+          ],
+          "visible": true
+        },
+        {
+          "name": "add_30s_button",
+          "function": "add_30s",
+          "label": "+30 S",
+          "bbox": [
+            317,
+            314,
+            332,
+            328
+          ],
+          "visible": true
+        },
+        {
+          "name": "door_release_button",
+          "function": "door_release",
+          "label": "OPEN",
+          "bbox": [
+            317,
+            337,
+            332,
+            351
+          ],
+          "visible": true
+        }
+      ]
+    }
+  },
+  "renders": {
+    "control_panel": "renders/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/control_panel.png",
+    "front": "renders/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/front.png",
+    "three_quarter": "renders/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/three_quarter.png",
+    "side": "renders/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/side.png",
+    "top": "renders/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/top.png",
+    "perspective_three_quarter": "renders/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/perspective_three_quarter.png",
+    "open_three_quarter": "renders/4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98/open_three_quarter.png"
+  }
+}

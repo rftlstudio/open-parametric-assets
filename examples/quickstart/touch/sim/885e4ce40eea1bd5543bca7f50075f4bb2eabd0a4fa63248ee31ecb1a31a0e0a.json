@@ -1,0 +1,291 @@
+{
+  "id": "885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a",
+  "seed": 1286021196,
+  "mujoco_version": "3.3.7",
+  "checks": [
+    {
+      "name": "load",
+      "passed": true,
+      "measurements": [
+        {
+          "bodies": 2,
+          "joints": 1
+        }
+      ]
+    },
+    {
+      "name": "passive",
+      "passed": true,
+      "measurements": [
+        {
+          "max_drift_fraction": 0.0,
+          "duration_s": 2.0000000000000013
+        }
+      ]
+    },
+    {
+      "name": "driven",
+      "passed": true,
+      "measurements": [
+        {
+          "joint": "door_hinge",
+          "achieved_fraction": 0.9999999999990747
+        }
+      ]
+    },
+    {
+      "name": "drop",
+      "passed": true,
+      "measurements": [
+        {
+          "part": "cavity_floor",
+          "settled_s": 1.862,
+          "final_speed": 1.0495025954806216e-12
+        }
+      ]
+    },
+    {
+      "name": "carry",
+      "passed": true,
+      "measurements": []
+    },
+    {
+      "name": "grasp",
+      "passed": true,
+      "measurements": [
+        {
+          "part": "door_handle",
+          "own_distance_m": -0.006
+        },
+        {
+          "part": "door_handle",
+          "nearest_other_m": 0.030000000500000006
+        }
+      ]
+    },
+    {
+      "name": "controls_reachable",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "digit_1_touch",
+          "surface_error_m": 7.806255641895632e-18
+        },
+        {
+          "control": "digit_1_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "digit_2_touch",
+          "surface_error_m": 7.806255641895632e-18
+        },
+        {
+          "control": "digit_2_touch",
+          "nearest_other_m": 0.03999999996451708
+        },
+        {
+          "control": "digit_3_touch",
+          "surface_error_m": 7.806255641895632e-18
+        },
+        {
+          "control": "digit_3_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "digit_4_touch",
+          "surface_error_m": 1.734723475976807e-18
+        },
+        {
+          "control": "digit_4_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "digit_5_touch",
+          "surface_error_m": 1.734723475976807e-18
+        },
+        {
+          "control": "digit_5_touch",
+          "nearest_other_m": 0.05745000000000001
+        },
+        {
+          "control": "digit_6_touch",
+          "surface_error_m": 1.734723475976807e-18
+        },
+        {
+          "control": "digit_6_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "digit_7_touch",
+          "surface_error_m": 5.204170427930421e-18
+        },
+        {
+          "control": "digit_7_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "digit_8_touch",
+          "surface_error_m": 5.204170427930421e-18
+        },
+        {
+          "control": "digit_8_touch",
+          "nearest_other_m": 0.05745000000000001
+        },
+        {
+          "control": "digit_9_touch",
+          "surface_error_m": 5.204170427930421e-18
+        },
+        {
+          "control": "digit_9_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "digit_0_touch",
+          "surface_error_m": 1.214306433183765e-17
+        },
+        {
+          "control": "digit_0_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "start_touch",
+          "surface_error_m": 1.214306433183765e-17
+        },
+        {
+          "control": "start_touch",
+          "nearest_other_m": 0.05745000000000001
+        },
+        {
+          "control": "stop_touch",
+          "surface_error_m": 1.214306433183765e-17
+        },
+        {
+          "control": "stop_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "add_30s_touch",
+          "surface_error_m": 1.8214596497756474e-17
+        },
+        {
+          "control": "add_30s_touch",
+          "nearest_other_m": 0.02115000000000001
+        },
+        {
+          "control": "door_release_touch",
+          "surface_error_m": 1.8214596497756474e-17
+        },
+        {
+          "control": "door_release_touch",
+          "nearest_other_m": 0.0400000000354829
+        }
+      ]
+    },
+    {
+      "name": "touch",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "digit_1_touch",
+          "force_N": 1.249974539836267,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_2_touch",
+          "force_N": 1.249974539836267,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_3_touch",
+          "force_N": 1.249974539836267,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_4_touch",
+          "force_N": 1.2499745398362667,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_5_touch",
+          "force_N": 1.2499745398362667,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_6_touch",
+          "force_N": 1.2499745398362667,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_7_touch",
+          "force_N": 1.2499745398362667,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_8_touch",
+          "force_N": 1.2499745398362667,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_9_touch",
+          "force_N": 1.2499745398362667,
+          "threshold_N": 1
+        },
+        {
+          "control": "digit_0_touch",
+          "force_N": 1.2499745398362672,
+          "threshold_N": 1
+        },
+        {
+          "control": "start_touch",
+          "force_N": 1.2499745398362672,
+          "threshold_N": 1
+        },
+        {
+          "control": "stop_touch",
+          "force_N": 1.2499745398362672,
+          "threshold_N": 1
+        },
+        {
+          "control": "add_30s_touch",
+          "force_N": 1.249974539836267,
+          "threshold_N": 1
+        },
+        {
+          "control": "door_release_touch",
+          "force_N": 1.249974539836267,
+          "threshold_N": 1
+        }
+      ]
+    }
+  ],
+  "oracle": [
+    {
+      "task": "microwave/press_start_touch",
+      "passed": true,
+      "time_s": 0.06400000000000004,
+      "snapshot": {
+        "joints": {
+          "door_hinge": 0.0
+        },
+        "controls": {
+          "digit_1_touch": false,
+          "digit_2_touch": false,
+          "digit_3_touch": false,
+          "digit_4_touch": false,
+          "digit_5_touch": false,
+          "digit_6_touch": false,
+          "digit_7_touch": false,
+          "digit_8_touch": false,
+          "digit_9_touch": false,
+          "digit_0_touch": false,
+          "start_touch": true,
+          "stop_touch": false,
+          "add_30s_touch": false,
+          "door_release_touch": false
+        }
+      },
+      "max_penetration_m": 7.970014350562431e-05
+    }
+  ],
+  "passed": true
+}
