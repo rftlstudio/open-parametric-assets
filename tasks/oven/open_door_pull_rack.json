@@ -1,0 +1,18 @@
+{
+  "id": "oven/open_door_pull_rack",
+  "asset_id": "appliances/oven",
+  "instruction": "Open the oven door and pull a rack out.",
+  "applies_when": {},
+  "init": {},
+  "goal": {
+    "all": [
+      {
+        "state": "door_open"
+      },
+      {
+        "state": "rack_out"
+      }
+    ]
+  },
+  "horizon_s": 8
+}

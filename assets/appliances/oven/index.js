@@ -1,3 +1,4 @@
+import { jointAt, controlAt, pressed } from '../../../lib/state-predicates.js';
 import { Box3, BoxGeometry, CylinderGeometry, Group, Mesh, MeshStandardMaterial } from 'three';
 import { resolveParams, seededRandom } from '../../../lib/parameters.js';
 import { wearBand, wearParameter } from '../../../lib/furniture-finish.js';
@@ -150,5 +151,14 @@ export function createAsset(params={}, {seed=0}={}) {
   root.userData={id:'appliances/oven',category:'appliances',version:'0.1.0',units:'m',license:'CC-BY-4.0',
     boundingBox:{min:bounds.min.toArray(),max:bounds.max.toArray()},installation:{type:'built_in',cutout:[w,h,d]},
     physics:{massKg:mass,friction:0.5,collision:'compound'},joints,controls,affordances};
+  const modesOn = controls.filter(c => c.function === 'mode' && c.value !== 'off');
+  const modeOn = p.controlStyle === 'physical' ? { not: controlAt(modesOn[0], '==', 'off') }
+    : { any: modesOn.map(pressed) };
+  const temperature = controls.find(c => c.function === 'temperature' || c.function === 'temp_up');
+  root.userData.states = {
+    door_open: jointAt(joints.find(j => j.name === 'door_hinge'), '>', 0.9),
+    rack_out: { any: joints.filter(j => j.requires?.length).map(j => jointAt(j, '>', 0.8)) },
+    heating: { all: [modeOn, temperature.type === 'knob' ? controlAt(temperature, '>', 0) : pressed(temperature)] }
+  };
   return root;
 }

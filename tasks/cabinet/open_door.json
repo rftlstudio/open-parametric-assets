@@ -1,0 +1,11 @@
+{
+  "id": "cabinet/open_door",
+  "asset_id": "furniture/cabinet",
+  "instruction": "Open a cabinet door.",
+  "applies_when": {},
+  "init": {},
+  "goal": {
+    "state": "door_open"
+  },
+  "horizon_s": 8
+}

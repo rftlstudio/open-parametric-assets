@@ -8,6 +8,7 @@ const three = import.meta.resolve('three');
 const modules = new Map([
   ['/lib/control-region.js', new URL('../lib/control-region.js', import.meta.url)],
   ['/fit-control-panel.js', new URL('./fit-control-panel.js', import.meta.url)],
+  ['/control-pixels.js', new URL('./control-pixels.js', import.meta.url)],
   ['/views.js', new URL('./render-views.js', import.meta.url)],
   ['/three.module.js', three],
   ['/three.core.js', new URL('./three.core.js', three)],
@@ -39,7 +40,7 @@ export async function startRenderer() {
     return {
       async renderRecord(record, directory) {
         const bytes = await readFile(join(directory, record.glb_path));
-        const images = await page.evaluate(input => window.renderViews(input), {
+        const {images, metadata} = await page.evaluate(input => window.renderViews(input), {
           glb: bytes.toString('base64'), boundingBox: record.bounding_box
         });
         const folder = 'renders/' + record.id;
@@ -49,6 +50,7 @@ export async function startRenderer() {
           paths[view] = folder + '/' + view + '.png';
           await writeFile(join(directory, paths[view]), Buffer.from(png, 'base64'));
         }
+        record.renders_meta = metadata;
         return paths;
       },
       close: () => browser.close()

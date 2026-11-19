@@ -1,5 +1,13 @@
 # Changelog
 
+## Dataset provenance and quickstart
+
+Records identify the source commit and checks. URDF simulation writes a measured report per record. Render annotations locate control regions in pixels, and Croissant metadata accompanies each dataset build. The Python quickstart exercises two published START controls.
+
+## Asset spec v0.4
+
+Named state predicates, five variant-filtered tasks and a floating-hand MuJoCo oracle now ship with the four asset families.
+
 ## Built-in oven 0.1.0
 
 Adds 60/75/90 cm wall ovens, installation cutouts, a bottom-hinged door, seeded wire racks and physical or touch controls. MuJoCo checks door release, rebound and cube transport on sliding surfaces, including drawer trays.

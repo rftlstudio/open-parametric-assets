@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { discoverAssets } from '../lib/assets.js';
-import { seededRandom } from '../lib/parameters.js';
+import { validateTasks } from "../lib/tasks.js";
+import { resolveParams, seededRandom } from '../lib/parameters.js';
 import { describe } from '../lib/prompt.js';
 import { inspect } from './geometry.js';
 import { checkRejection, checkSchema, sampleParams } from './schema.js';
@@ -15,7 +16,13 @@ function validateCase(asset, id, params, seed) {
   assert.equal(first.hash, inspect(build(), id, limit).hash, 'non-deterministic geometry or metadata');
   const prompt = describe(id, params, seed, asset);
   assert.equal(prompt, describe(id, params, seed, asset), 'non-deterministic describe output');
-  return { root, triangles: first.triangles, prompt };
+  const tasks = validateTasks(root.userData, asset.schema, resolveParams(asset.schema, params));
+  const checks = ['schema', 'parameter_rejection', 'geometry', 'part_names', 'triangles', 'metadata',
+    'bounding_box', 'geometry_determinism', 'prompt_determinism', 'states', 'task_resolution'];
+  if (root.userData.controls?.length) checks.push('controls');
+  if (root.userData.joints.some(j => j.clearance)) checks.push('clearance');
+  if (root.userData.installation) checks.push('installation');
+  return { root, triangles: first.triangles, prompt, tasks, checks };
 }
 
 export function validateAsset(asset, id, sample) {

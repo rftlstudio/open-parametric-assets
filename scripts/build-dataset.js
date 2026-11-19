@@ -1,3 +1,6 @@
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { croissant } from './croissant.js';
 import { createHash } from 'node:crypto';
 import { findPackageJSON } from 'node:module';
 import { mkdir, mkdtemp, open, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
@@ -30,7 +33,13 @@ function recordId(assetId, version, seed, params) {
 
 async function generate(stage, samples, assets, renders, urdf, corners) {
   const threePackage = JSON.parse(await readFile(findPackageJSON('three', import.meta.url), 'utf8'));
+  const repo = resolve(fileURLToPath(new URL('../', import.meta.url)));
+  const gitCommit = execFileSync('git',['-c','safe.directory='+repo.replaceAll('\\','/'),'rev-parse','HEAD'],
+    { cwd: repo, encoding: 'utf8' }).trim();
+  const requirements = await readFile(new URL('../sim/requirements.txt', import.meta.url),'utf8');
+  const mujocoVersion = requirements.match(/^mujoco==([\d.]+)\s*$/m)[1];
   const provenance = {
+    git_commit: gitCommit, spec_version: '0.4', mujoco_version: mujocoVersion,
     generator_version: project.version, validator_version: project.version,
     three_version: threePackage.version, created_with: project.name
   };
@@ -57,7 +66,7 @@ async function generate(stage, samples, assets, renders, urdf, corners) {
           // Domain-separate parameter draws from the asset's own random stream.
           const paramSeed = digest(['parameters', assetId, seed]).readUInt32BE(0);
           const params = fixture?.params ? resolveParams(asset.schema, fixture.params) : sampleParams(asset.schema, seededRandom(paramSeed));
-          const { root, triangles, prompt } = validateAsset(asset, assetId, { params, seed });
+          const { root, triangles, prompt, tasks, checks } = validateAsset(asset, assetId, { params, seed });
           const meta = root.userData;
           const id = recordId(assetId, meta.version, seed, params);
           const record = {
@@ -65,8 +74,8 @@ async function generate(stage, samples, assets, renders, urdf, corners) {
             prompt,
             code: 'createAsset(' + JSON.stringify(params) + ', { seed: ' + seed + ' })',
             glb_path: 'glb/' + id + '.glb', triangles, bounding_box: meta.boundingBox,
-            joints: meta.joints, affordances: meta.affordances, controls: meta.controls ?? [], split: splitFor(assetId, seed),
-            provenance, license: meta.license
+            states: meta.states, tasks, joints: meta.joints, affordances: meta.affordances, controls: meta.controls ?? [], split: splitFor(assetId, seed),
+            provenance: { ...provenance, seed, checks, sim_report: urdf ? 'sim/'+id+'.json' : null }, license: meta.license
           };
           await writeFile(join(stage, record.glb_path), await exportGLB(root), { flag: 'wx' });
           if (meta.installation) record.installation = meta.installation;
@@ -90,6 +99,8 @@ async function generate(stage, samples, assets, renders, urdf, corners) {
   } finally {
     await Promise.all([manifest.close(), renderer?.close()]);
   }
+  const metadata = await croissant(join(stage,'data.jsonl'),project.version);
+  await writeFile(join(stage,'croissant.json'), JSON.stringify(metadata,null,2)+'\n');
   await writeFile(join(stage, 'README.md'), datasetCard(count, testCount, samples, project.version, renders, urdf, corners));
   return count;
 }
@@ -130,6 +141,7 @@ export async function buildDataset({ samples = 200, out = 'dist/dataset', render
         await rename(join(src, 'model.urdf'), join(dest, 'model.urdf'));
       }
     }
+    await rename(join(stage,'croissant.json'),join(out,'croissant.json'));
     await rename(join(stage, 'README.md'), join(out, 'README.md'));
     await rename(join(stage, 'data.jsonl'), join(out, 'data.jsonl'));
     return count;

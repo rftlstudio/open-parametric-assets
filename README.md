@@ -1,5 +1,8 @@
 # Open Parametric Assets
 
+[Press START on two prebuilt microwaves with Python and MuJoCo](examples/quickstart/README.md). Each example includes the model, labeled views and its measured task report.
+
+
 Build a three.js object from parameters and inspect how to interact with its named parts, joints, affordances and controls.
 
 | Asset | Version | Interactions |

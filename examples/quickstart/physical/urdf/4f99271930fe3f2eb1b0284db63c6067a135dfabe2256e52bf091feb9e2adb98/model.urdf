@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot name="microwave">
+  <mujoco><compiler fusestatic="false" strippath="true" meshdir="meshes" discardvisual="true"/></mujoco>
+  <link name="microwave">
+    <visual name="visual_case_left"><origin xyz="-0.249 0 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.012 0.236000001 0.400000006"/></geometry><material name="material_case_left"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="case_left"><origin xyz="-0.249 0 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.012 0.236000001 0.400000006"/></geometry></collision>
+    <visual name="visual_case_right"><origin xyz="0.249 0 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.012 0.236000001 0.400000006"/></geometry><material name="material_case_right"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="case_right"><origin xyz="0.249 0 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.012 0.236000001 0.400000006"/></geometry></collision>
+    <visual name="visual_case_top"><origin xyz="0 0 0.254" rpy="1.570796327 0 0"/><geometry><box size="0.50999999 0.012 0.400000006"/></geometry><material name="material_case_top"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="case_top"><origin xyz="0 0 0.254" rpy="1.570796327 0 0"/><geometry><box size="0.50999999 0.012 0.400000006"/></geometry></collision>
+    <visual name="visual_cavity_floor"><origin xyz="0 0 0.006" rpy="1.570796327 0 0"/><geometry><box size="0.50999999 0.012 0.400000006"/></geometry><material name="material_cavity_floor"><color rgba="0.456411023 0.479320183 0.496932995 1"/></material></visual>
+    <collision name="cavity_floor"><origin xyz="0 0 0.006" rpy="1.570796327 0 0"/><geometry><box size="0.50999999 0.012 0.400000006"/></geometry></collision>
+    <visual name="visual_case_back"><origin xyz="0 0.194 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.486000001 0.236000001 0.012"/></geometry><material name="material_case_back"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="case_back"><origin xyz="0 0.194 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.486000001 0.236000001 0.012"/></geometry></collision>
+    <visual name="visual_cavity_divider"><origin xyz="0.1113 -0.006 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.012 0.236000001 0.388000011"/></geometry><material name="material_cavity_divider"><color rgba="0.456411023 0.479320183 0.496932995 1"/></material></visual>
+    <collision name="cavity_divider"><origin xyz="0.1113 -0.006 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.012 0.236000001 0.388000011"/></geometry></collision>
+    <visual name="visual_control_panel"><origin xyz="0.18015 -0.193 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.125699997 0.236000001 0.012"/></geometry><material name="material_control_panel"><color rgba="0.015996293 0.019382361 0.024157632 1"/></material></visual>
+    <collision name="control_panel"><origin xyz="0.18015 -0.193 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.125699997 0.236000001 0.012"/></geometry></collision>
+    <visual name="visual_electronics"><origin xyz="0.18015 0 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.089505002 0.143000007 0.239999995"/></geometry><material name="material_electronics"><color rgba="0.034339807 0.039546235 0.045186204 1"/></material></visual>
+    <collision name="electronics"><origin xyz="0.18015 0 0.13" rpy="1.570796327 0 0"/><geometry><box size="0.089505002 0.143000007 0.239999995"/></geometry></collision>
+    <inertial><origin xyz="0.109610125 0.004776308 0.13"/><mass value="11.438676134"/><inertia ixx="0.185895554" ixy="0.019970251" ixz="0" iyy="0.286870218" iyz="0" izz="0.350559237"/></inertial>
+  </link>
+  <link name="door">
+    <visual name="visual_door_frame_left"><origin xyz="0.03683 0.009 0" rpy="1.570796327 0 0"/><geometry><box size="0.073660001 0.252000004 0.017999999"/></geometry><material name="material_door_frame_left"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_frame_left"><origin xyz="0.03683 0.009 0" rpy="1.570796327 0 0"/><geometry><box size="0.073660001 0.252000004 0.017999999"/></geometry></collision>
+    <visual name="visual_door_frame_top"><origin xyz="0.18415 0.009 0.09765" rpy="1.570796327 0 0"/><geometry><box size="0.220980003 0.056699999 0.017999999"/></geometry><material name="material_door_frame_top"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_frame_top"><origin xyz="0.18415 0.009 0.09765" rpy="1.570796327 0 0"/><geometry><box size="0.220980003 0.056699999 0.017999999"/></geometry></collision>
+    <visual name="visual_door_frame_bottom"><origin xyz="0.18415 0.009 -0.09765" rpy="1.570796327 0 0"/><geometry><box size="0.220980003 0.056699999 0.017999999"/></geometry><material name="material_door_frame_bottom"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_frame_bottom"><origin xyz="0.18415 0.009 -0.09765" rpy="1.570796327 0 0"/><geometry><box size="0.220980003 0.056699999 0.017999999"/></geometry></collision>
+    <visual name="visual_door_window"><origin xyz="0.18415 0.009 0" rpy="1.570796327 0 0"/><geometry><box size="0.220980003 0.138600007 0.004"/></geometry><material name="material_door_window"><color rgba="0.063010018 0.162029376 0.187820772 0.35"/></material></visual>
+    <collision name="door_window"><origin xyz="0.18415 0.009 0" rpy="1.570796327 0 0"/><geometry><box size="0.220980003 0.138600007 0.004"/></geometry></collision>
+    <visual name="visual_door_frame_right_inner"><origin xyz="0.32247 0.009 0" rpy="1.570796327 0 0"/><geometry><box size="0.055659998 0.252000004 0.017999999"/></geometry><material name="material_door_frame_right_inner"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_frame_right_inner"><origin xyz="0.32247 0.009 0" rpy="1.570796327 0 0"/><geometry><box size="0.055659998 0.252000004 0.017999999"/></geometry></collision>
+    <visual name="visual_door_edge_top"><origin xyz="0.3593 0.009 0.083" rpy="1.570796327 0 0"/><geometry><box size="0.017999999 0.086000003 0.017999999"/></geometry><material name="material_door_edge_top"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_edge_top"><origin xyz="0.3593 0.009 0.083" rpy="1.570796327 0 0"/><geometry><box size="0.017999999 0.086000003 0.017999999"/></geometry></collision>
+    <visual name="visual_door_edge_bottom"><origin xyz="0.3593 0.009 -0.083" rpy="1.570796327 0 0"/><geometry><box size="0.017999999 0.086000003 0.017999999"/></geometry><material name="material_door_edge_bottom"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_edge_bottom"><origin xyz="0.3593 0.009 -0.083" rpy="1.570796327 0 0"/><geometry><box size="0.017999999 0.086000003 0.017999999"/></geometry></collision>
+    <visual name="visual_door_pull_back"><origin xyz="0.3593 0.0165 0" rpy="1.570796327 0 0"/><geometry><box size="0.017999999 0.079999998 0.003"/></geometry><material name="material_door_pull_back"><color rgba="0.015996293 0.019382361 0.024157632 1"/></material></visual>
+    <collision name="door_pull_back"><origin xyz="0.3593 0.0165 0" rpy="1.570796327 0 0"/><geometry><box size="0.017999999 0.079999998 0.003"/></geometry></collision>
+    <visual name="visual_door_pull_edge"><origin xyz="0.3653 0.002 0" rpy="1.570796327 0 0"/><geometry><box size="0.006 0.079999998 0.004"/></geometry><material name="material_door_pull_edge"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_pull_edge"><origin xyz="0.3653 0.002 0" rpy="1.570796327 0 0"/><geometry><box size="0.006 0.079999998 0.004"/></geometry></collision>
+    <inertial><origin xyz="0.182678297 0.009033679 0"/><mass value="0.85868424"/><inertia ixx="0.004481083" ixy="-0.000005068" ixz="0" iyy="0.013809918" iyz="0" izz="0.00935981"/></inertial>
+  </link>
+  <link name="start_button">
+    <visual name="visual_start_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry><material name="material_start_button_cap"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="start_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry></collision>
+    <visual name="visual_start_button_mark"><origin xyz="0 -0.0008 0" rpy="1.570796327 0 0"/><geometry><mesh filename="meshes/part-1.obj"/></geometry><material name="material_start_button_mark"><color rgba="0.005181517 0.00699541 0.009134059 1"/></material></visual>
+    <inertial><origin xyz="0 0 0"/><mass value="0.00066"/><inertia ixx="2.7e-8" ixy="0" ixz="0" iyy="2.25e-7" iyz="0" izz="1.98e-7"/></inertial>
+  </link>
+  <link name="stop_button">
+    <visual name="visual_stop_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry><material name="material_stop_button_cap"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="stop_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry></collision>
+    <visual name="visual_stop_button_mark"><origin xyz="0 -0.0008 0" rpy="1.570796327 0 0"/><geometry><mesh filename="meshes/part-2.obj"/></geometry><material name="material_stop_button_mark"><color rgba="0.005181517 0.00699541 0.009134059 1"/></material></visual>
+    <inertial><origin xyz="0 0 0"/><mass value="0.00066"/><inertia ixx="2.7e-8" ixy="0" ixz="0" iyy="2.25e-7" iyz="0" izz="1.98e-7"/></inertial>
+  </link>
+  <link name="add_30s_button">
+    <visual name="visual_add_30s_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry><material name="material_add_30s_button_cap"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="add_30s_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry></collision>
+    <visual name="visual_add_30s_button_mark"><origin xyz="0 -0.0008 0" rpy="1.570796327 0 0"/><geometry><mesh filename="meshes/part-3.obj"/></geometry><material name="material_add_30s_button_mark"><color rgba="0.005181517 0.00699541 0.009134059 1"/></material></visual>
+    <inertial><origin xyz="0 0 0"/><mass value="0.00066"/><inertia ixx="2.7e-8" ixy="0" ixz="0" iyy="2.25e-7" iyz="0" izz="1.98e-7"/></inertial>
+  </link>
+  <link name="door_release_button">
+    <visual name="visual_door_release_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry><material name="material_door_release_button_cap"><color rgba="0.854911113 0.854905585 0.822692819 1"/></material></visual>
+    <collision name="door_release_button_cap"><origin xyz="0 0 0" rpy="1.570796327 0 0"/><geometry><box size="0.059999999 0.022 0.001"/></geometry></collision>
+    <visual name="visual_door_release_button_mark"><origin xyz="0 -0.0008 0" rpy="1.570796327 0 0"/><geometry><mesh filename="meshes/part-4.obj"/></geometry><material name="material_door_release_button_mark"><color rgba="0.005181517 0.00699541 0.009134059 1"/></material></visual>
+    <inertial><origin xyz="0 0 0"/><mass value="0.00066"/><inertia ixx="2.7e-8" ixy="0" ixz="0" iyy="2.25e-7" iyz="0" izz="1.98e-7"/></inertial>
+  </link>
+  <joint name="door_hinge" type="revolute">
+    <parent link="microwave"/><child link="door"/>
+    <origin xyz="-0.253 -0.222 0.13" rpy="0 0 0"/><axis xyz="0 0 -1"/>
+    <limit lower="0" upper="1.75" effort="150" velocity="2"/>
+    <dynamics damping="1" friction="0.05"/>
+  </joint>
+  <joint name="start_button_slide" type="prismatic">
+    <parent link="microwave"/><child link="start_button"/>
+    <origin xyz="0.18015 -0.2025 0.208" rpy="0 0 0"/><axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.003" effort="3" velocity="0.04"/>
+    <dynamics damping="1.5" friction="0.005"/>
+  </joint>
+  <joint name="stop_button_slide" type="prismatic">
+    <parent link="microwave"/><child link="stop_button"/>
+    <origin xyz="0.18015 -0.2025 0.156" rpy="0 0 0"/><axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.003" effort="3" velocity="0.04"/>
+    <dynamics damping="1.5" friction="0.005"/>
+  </joint>
+  <joint name="add_30s_button_slide" type="prismatic">
+    <parent link="microwave"/><child link="add_30s_button"/>
+    <origin xyz="0.18015 -0.2025 0.104" rpy="0 0 0"/><axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.003" effort="3" velocity="0.04"/>
+    <dynamics damping="1.5" friction="0.005"/>
+  </joint>
+  <joint name="door_release_button_slide" type="prismatic">
+    <parent link="microwave"/><child link="door_release_button"/>
+    <origin xyz="0.18015 -0.2025 0.052" rpy="0 0 0"/><axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.003" effort="3" velocity="0.04"/>
+    <dynamics damping="1.5" friction="0.005"/>
+  </joint>
+</robot>
