@@ -8,7 +8,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,12 +33,23 @@ jobs:
       - run: python -m pip install -r sim/requirements.txt
       - run: python -m unittest discover -s sim -p "test_*.py"
       - run: npm run dataset -- --samples 3 --corners --renders --urdf
-      - run: python sim/oracle.py dist/dataset/data.jsonl
+      - name: Validate Croissant metadata
+        run: |
+          python -m pip install mlcroissant
+          mlcroissant validate --jsonld dist/dataset/croissant.json
+      - name: Run the two published samples in a fresh Python environment
+        run: |
+          python -m venv "$RUNNER_TEMP/opa-quickstart"
+          "$RUNNER_TEMP/opa-quickstart/bin/pip" install mujoco==3.3.7
+          "$RUNNER_TEMP/opa-quickstart/bin/python" examples/quickstart/quickstart.py
       - name: Simulate every exported URDF
         run: |
+          status=0
           for model in dist/dataset/urdf/*/model.urdf; do
-            python sim/check_asset.py "$model" || exit 1
+            python sim/check_asset.py "$model" || status=1
           done
+          python sim/summarize_tasks.py dist/dataset/data.jsonl
+          exit "$status"
       - uses: actions/upload-artifact@v4
         with:
           name: rendered-dataset

@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 import mujoco as mj
 import numpy as np
 
+from sim_report import measure, run_check, save_report
+
 
 def require(condition, message):
     if not condition:
@@ -16,7 +18,10 @@ def require(condition, message):
 
 def record_for(path):
     manifest = path.parent.parent.parent / "data.jsonl"
-    for line in manifest.read_text(encoding="utf-8").splitlines():
+    standalone = manifest.parent / "record.json"
+    lines = (manifest.read_text(encoding="utf-8").splitlines() if manifest.exists()
+             else [standalone.read_text(encoding="utf-8")])
+    for line in lines:
         record = json.loads(line)
         if record.get("urdf_path") and (manifest.parent / record["urdf_path"]).resolve() == path:
             return record
@@ -98,10 +103,12 @@ def button_check(model, record, control, limits):
         mj.mj_step(model, data)
         if data.qpos[q] >= pressed:
             break
+    measure(control=control["name"], pressed_position_m=float(data.qpos[q]), threshold_m=float(pressed))
     require(data.qpos[q] >= pressed, control["name"] + ": button failed to press")
     for _ in range(round(0.5 / model.opt.timestep)):
         controller(model, data, joints, targets, limits, released=[control["joint"]])
         mj.mj_step(model, data)
+    measure(released_position_m=float(data.qpos[q]))
     require(abs(data.qpos[q]) < 0.1 * travel, control["name"] + ": button failed to return within 0.5 s")
     print(f"PASS button {control['name']}, pressed and returned to {data.qpos[q]:.6f} m")
 
@@ -127,6 +134,7 @@ def knob_check(model, record, control, limits):
         for _ in range(round(1.0 / model.opt.timestep)):
             controller(model, data, joints, targets, limits)
             mj.mj_step(model, data)
+        measure(control=control["name"], target=float(target), position=float(data.qpos[q]))
         require(detent_index(positions, data.qpos[q]) == expected,
                 control["name"] + ": failed to reach detent " + str(expected))
         require(abs(data.qpos[q] - target) <= tolerance,
@@ -157,15 +165,19 @@ def controls_reachable(path, xml, record):
         own = model.geom(region["part"]).id
         model.geom_pos[probe] = point
         mj.mj_forward(model, data)
+        min_clearance = 1.0
         for geom in range(model.ngeom):
             if geom == probe:
                 continue
             distance = mj.mj_geomDistance(model, data, probe, geom, 1.0, None) + radius
             if geom == own:
+                measure(control=control["name"], surface_error_m=float(abs(distance)))
                 require(abs(distance) <= 0.001, control["name"] + ": region does not touch its own part")
             else:
+                min_clearance = min(min_clearance, distance)
                 require(distance > 0.002 + 1e-9,
                         control["name"] + ": region obstructed by " + model.geom(geom).name)
+        measure(control=control["name"], nearest_other_m=float(min_clearance))
         print(f"PASS region {control['name']}, on its part with more than 2 mm clearance")
 
 
@@ -224,6 +236,7 @@ def touch_check(path, xml, record):
                 if j != i:
                     require(data.sensor(sensor).data[0] == 0, sensor + ": neighbouring region activated")
         measured = data.sensor(control["name"]).data[0]
+        measure(control=control["name"], force_N=float(measured), threshold_N=force)
         require(measured >= force, control["name"] + ": insufficient touch reading")
         print(f"PASS touch {control['name']}, {measured:.3f} N, neighbouring sensors silent")
 
@@ -239,6 +252,7 @@ def passive(model, joints):
             drift = abs(data.qpos[model.jnt_qposadr[jid]] - lo) / (hi - lo)
             max_drift = max(max_drift, drift)
             require(drift <= 0.02, f"{joint['name']}: passive drift {drift:.2%} exceeds 2%")
+    measure(max_drift_fraction=float(max_drift), duration_s=float(data.time))
     print(f"PASS passive, 2 s, maximum drift {max_drift:.3%}")
 
 
@@ -279,6 +293,7 @@ def driven(model, joints, limits):
         jid = model.joint(target_joint["name"]).id
         lo, hi = target_joint["limits"]
         progress = (data.qpos[model.jnt_qposadr[jid]] - lo) / (hi - lo)
+        measure(joint=target_joint["name"], achieved_fraction=float(progress))
         require(0.95 <= progress <= 1.02, f"{target_joint['name']}: reached {progress:.2%} of range")
         print(f"PASS drive {target_joint['name']}, 3 s, reached {progress:.2%}")
 
@@ -332,16 +347,19 @@ def grasp(path, xml, record):
             require(model.geom_type[own] == mj.mjtGeom.mjGEOM_BOX,
                     affordance["part"] + ": raised grasp requires its own collision box")
             own_distance = next(distance for distance, geom in distances if geom == own)
+            measure(part=affordance["part"], own_distance_m=float(own_distance))
             require(own_distance <= 0,
                     f"{affordance['part']}: raised grasp distance {own_distance:.6f} m "
                     "must be inside its own collision box (distance <= 0)")
             distance, nearest = min((distance, geom) for distance, geom in distances if geom != own)
+            measure(part=affordance["part"], nearest_other_m=float(distance))
             require(distance > 0.010 + 1e-9,
                     f"{affordance['part']}: finger room {distance:.6f} m to "
                     f"{model.geom(nearest).name} must exceed 0.010 m")
             print(f"PASS grasp {affordance['part']}, inside own box, finger room {distance:.6f} m")
             continue
         distance, nearest = min(distances)
+        measure(part=affordance["part"], nearest_solid_m=float(distance))
         require(distance > 0.002 + 1e-9,
                 f"{affordance['part']}: grasp distance {distance:.6f} m to "
                 f"{model.geom(nearest).name} must exceed 0.002 m")
@@ -397,6 +415,7 @@ def drop(path, xml, record, limits):
                 for c in data.contact)
             stable = on_surface and within and touching and np.linalg.norm(data.qvel[v:v+6]) < 0.01
             stable_steps = stable_steps + 1 if stable else 0
+        measure(part=affordance["part"], settled_s=stable_steps*model.opt.timestep, final_speed=float(np.linalg.norm(data.qvel[v:v+6])))
         require(stable_steps * model.opt.timestep >= 0.2,
                 affordance["part"] + ": cube did not settle on the named surface within 2 s")
         print(f"PASS drop {affordance['part']}, 5 cm cube stable for final 0.2 s")
@@ -417,6 +436,7 @@ def door_behavior(model, joints, limits, joint):
                 require(abs(hinge.qpos[0]-start) < np.deg2rad(1), "released door endpoint drift")
             else:
                 require(abs(hinge.qvel[0]) < 2, "door slam at 30 degrees")
+        measure(joint=name, start_rad=float(start), final_rad=float(hinge.qpos[0]), final_speed_rad_s=float(hinge.qvel[0]))
     print("PASS door release, endpoints held and peak speed below 2 rad/s at 30 degrees")
 
 
@@ -438,6 +458,7 @@ def door_bounce(model, joints, limits, joint):
         controller(model,data,joints,targets,limits,released=[name])
         mj.mj_step(model,data)
         require(hinge.qpos[0] >= hi - np.deg2rad(2) and hinge.qvel[0] >= -0.05, "door bounce after opening")
+    measure(joint=name, final_rad=float(hinge.qpos[0]), final_speed_rad_s=float(hinge.qvel[0]))
     print("PASS door bounce, 0.5 s after first approach")
 
 
@@ -497,17 +518,18 @@ def carry(path, xml, record, limits):
             require(np.linalg.norm(relative-local) <= 0.01, "carry cube slip on "+surface["part"])
             require(cube.xmat.reshape(3,3)[2,2] >= np.cos(np.deg2rad(5)), "carry cube tilt")
             require(supported(), "carry cube lost support")
+        measure(part=surface["part"], achieved_fraction=float((data.joint(name).qpos[0]-lo)/(hi-lo)), final_slip_m=float(np.linalg.norm(relative-local)))
         require(data.joint(name).qpos[0] >= lo+0.95*(hi-lo), "carry slide jam")
         print("PASS carry "+surface["part"]+", slide reached full travel with stable load")
 
 
-def check(path):
-    record = record_for(path)
+def load_checked(path, record):
     xml = ET.parse(path).getroot()
     joints = record["joints"]
     model = load(path).compile()
     apply_springs(model, record["joints"])
     names = [j["name"] for j in joints]
+    measure(bodies=model.nbody-1, joints=model.njnt)
     require(model.njnt == len(joints), "joint count differs from record")
     require(model.nbody == len(joints) + 2, "body count differs from record plus root and world")
     require({model.joint(i).name for i in range(model.njnt)} == set(names), "joint names differ from record")
@@ -523,22 +545,49 @@ def check(path):
     limits = {j.get("name"): {key: float(j.find("limit").get(key)) for key in ("effort", "velocity")}
               for j in xml.findall("joint")}
     print(f"PASS load {record['asset_id']}, {model.nbody - 1} bodies, {model.njnt} joints, fixed base")
-    passive(model, joints)
-    driven(model, joints, limits)
-    for joint in joints:
-        if joint.get("behavior") == "balanced_door":
-            door_behavior(model,joints,limits,joint)
-            door_bounce(model,joints,limits,joint)
-    drop(path, xml, record, limits)
-    carry(path, xml, record, limits)
-    grasp(path, xml, record)
-    controls_reachable(path, xml, record)
-    touch_check(path, xml, record)
-    for control in record.get("controls", []):
-        if control["type"] == "button":
-            button_check(model, record, control, limits)
-        elif control["type"] == "knob":
-            knob_check(model, record, control, limits)
+    return xml, model, limits
+
+
+def check(path):
+    from oracle import solve
+    record = record_for(path)
+    checks, results = [], []
+    report = {"id": record["id"], "seed": record["seed"], "mujoco_version": mj.__version__,
+              "checks": checks, "oracle": results}
+    loaded = run_check(checks, "load", load_checked, path, record)
+    if loaded:
+        xml, model, limits = loaded
+        joints = record["joints"]
+        run_check(checks, "passive", passive, model, joints)
+        run_check(checks, "driven", driven, model, joints, limits)
+        for joint in joints:
+            if joint.get("behavior") == "balanced_door":
+                for fn in (door_behavior, door_bounce):
+                    run_check(checks, fn.__name__, fn, model, joints, limits, joint)
+        for fn in (drop, carry):
+            run_check(checks, fn.__name__, fn, path, xml, record, limits)
+        if any(a["type"] == "grasp" for a in record["affordances"]):
+            run_check(checks, "grasp", grasp, path, xml, record)
+        controls = record.get("controls", [])
+        if controls:
+            run_check(checks, "controls_reachable", controls_reachable, path, xml, record)
+        if any(c["type"] == "touch" for c in controls):
+            run_check(checks, "touch", touch_check, path, xml, record)
+        for c in controls:
+            fn = {"button": button_check, "knob": knob_check}.get(c["type"])
+            if fn:
+                run_check(checks, c["name"], fn, model, record, c, limits)
+        for task in record.get("tasks", []):
+            try:
+                result = solve(path, record, task)
+                del result["steps"]
+                results.append(result)
+            except Exception as error:
+                results.append({"task": task["id"], "passed": False, "error": str(error)})
+    report["passed"] = all(r["passed"] for r in checks + results)
+    destination = path.parents[2] / (record["provenance"].get("sim_report") or f"sim/{record['id']}.json")
+    save_report(destination, report)
+    require(report["passed"], f"simulation failed; see {destination}")
 
 
 if __name__ == "__main__":

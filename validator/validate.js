@@ -17,7 +17,12 @@ function validateCase(asset, id, params, seed) {
   const prompt = describe(id, params, seed, asset);
   assert.equal(prompt, describe(id, params, seed, asset), 'non-deterministic describe output');
   const tasks = validateTasks(root.userData, asset.schema, resolveParams(asset.schema, params));
-  return { root, triangles: first.triangles, prompt, tasks };
+  const checks = ['schema', 'parameter_rejection', 'geometry', 'part_names', 'triangles', 'metadata',
+    'bounding_box', 'geometry_determinism', 'prompt_determinism', 'states', 'task_resolution'];
+  if (root.userData.controls?.length) checks.push('controls');
+  if (root.userData.joints.some(j => j.clearance)) checks.push('clearance');
+  if (root.userData.installation) checks.push('installation');
+  return { root, triangles: first.triangles, prompt, tasks, checks };
 }
 
 export function validateAsset(asset, id, sample) {

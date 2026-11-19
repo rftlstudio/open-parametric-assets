@@ -3,6 +3,7 @@ import {
   Box3, Color, DirectionalLight, EdgesGeometry, HemisphereLight, LineBasicMaterial,
   LineSegments, OrthographicCamera, PerspectiveCamera, Scene, Vector3, WebGLRenderer
 } from 'three';
+import { controlPixels } from './control-pixels.js';
 import { fitControlPanel } from './fit-control-panel.js';
 import { regionCorners } from '../lib/control-region.js';
 import { GLTFLoader } from './loaders/GLTFLoader.js';
@@ -140,7 +141,13 @@ export async function renderViews({ glb, boundingBox }) {
   const asset = model.children[0];
   scene.add(model);
   const rest = new Box3(new Vector3(...boundingBox.min), new Vector3(...boundingBox.max));
-  const images = {};
+  const images = {}, metadata = {};
+  function capture(view, camera) {
+    renderer.render(scene,camera);
+    const canvas = renderer.domElement;
+    images[view] = canvas.toDataURL('image/png').split(',')[1];
+    metadata[view] = controlPixels(renderer,scene,asset,camera,canvas.width,canvas.height);
+  }
   try {
     addEdgeAccents(model);
     if (asset.userData.controls?.length) {
@@ -150,8 +157,7 @@ export async function renderViews({ glb, boundingBox }) {
       const camera = cameraFor(rest,direction);
       const pixels = fitControlPanel(camera, asset, regions);
       renderer.setSize(pixels.width,pixels.height,false);
-      renderer.render(scene,camera);
-      images.control_panel = renderer.domElement.toDataURL('image/png').split(',')[1];
+      capture('control_panel',camera);
     }
     renderer.setSize(512,512,false);
     for (const [view, direction] of Object.entries(views)) {
@@ -160,10 +166,9 @@ export async function renderViews({ glb, boundingBox }) {
       const camera = view === 'perspective_three_quarter'
         ? perspectiveCamera(rest, direction, model)
         : cameraFor(bounds, direction, opened ? model : null);
-      renderer.render(scene, camera);
-      images[view] = renderer.domElement.toDataURL('image/png').split(',')[1];
+      capture(view,camera);
     }
-    return images;
+    return { images, metadata };
   } finally {
     scene.remove(model);
     const materials = new Set();

@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Box3, OrthographicCamera, Vector3 } from 'three';
+import { Box3, BoxGeometry, Mesh, MeshBasicMaterial, OrthographicCamera, Vector3 } from 'three';
 import { createAsset as microwave } from '../assets/appliances/microwave/index.js';
 import { createAsset as oven } from '../assets/appliances/oven/index.js';
 import { fitControlPanel } from '../scripts/fit-control-panel.js';
@@ -136,6 +136,25 @@ it.each([
   expect(Math.abs(max.x + min.x) + Math.abs(max.y + min.y)).toBeLessThan(1e-6);
 });
 
+it('marks a fully occluded control invisible in the depth pass', async () => {
+  const asset = microwave({controlStyle:'touch'});
+  const target = asset.userData.controls.find(c => c.function === 'start');
+  const part = asset.getObjectByName(target.region.part);
+  const [width,height] = target.region.size;
+  const blocker = new Mesh(new BoxGeometry(width*1.1,height*1.1,0.002),new MeshBasicMaterial());
+  blocker.name = 'obstruction';
+  blocker.position.fromArray(target.region.point);
+  blocker.position.z += 0.004;
+  part.add(blocker);
+  const record = {id:'occlusion',bounding_box:asset.userData.boundingBox,glb_path:'occlusion.glb'};
+  await writeFile(join(directory,record.glb_path),await exportGLB(asset));
+  await renderer.renderRecord(record,directory);
+  const controls = record.renders_meta.front.controls;
+  expect(controls.find(c => c.function === 'start').visible).toBe(false);
+  expect(controls.find(c => c.function === 'stop').visible).toBe(true);
+  expect(record.renders_meta.side.controls.every(c => !c.visible)).toBe(true);
+});
+
 it('frames the default cabinet in six views, distinguishes panels and visibly opens its doors', async () => {
   const cabinet = createAsset();
   const record = { id: 'default', bounding_box: cabinet.userData.boundingBox, glb_path: 'default.glb' };
@@ -169,7 +188,17 @@ it('reproduces the published sample within 1% normalized mean absolute RGB diffe
   const records = manifest.trim().split('\n').map(line => JSON.parse(line));
   for (const row of renderedRows) {
     const actual = records.find(record => record.id === row.id);
-    expect(actual).toEqual(row);
+    // Published rows retain their generator revision after subsequent commits.
+    expect(actual.provenance.git_commit).toMatch(/^[a-f0-9]{40}$/);
+    expect(row.provenance.git_commit).toMatch(/^[a-f0-9]{40}$/);
+    expect({...actual, provenance:{...actual.provenance, git_commit:row.provenance.git_commit}}).toEqual(row);
+    for (const [view, annotations] of Object.entries(actual.renders_meta)) {
+      expect(annotations.controls.map(c => c.name)).toEqual(row.controls.map(c => c.name));
+      if (view === 'control_panel') for (const {bbox:[x0,y0,x1,y1],visible} of annotations.controls) {
+        expect(visible).toBe(true);
+        expect(Math.min(x1-x0,y1-y0)).toBeGreaterThanOrEqual(24);
+      }
+    }
     const expectedViews = row.controls.length ? [...views, 'control_panel'] : views;
     expect(Object.keys(actual.renders).sort()).toEqual([...expectedViews].sort());
     for (const view of expectedViews) {

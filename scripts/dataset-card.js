@@ -24,6 +24,8 @@ configs:
 
 ${count} English prompts paired with executable three.js constructor calls and binary glTF models. The split column assigns ${count - testCount} records to training and ${testCount} to testing. Paths are relative to this card.
 
+Machine-readable dataset metadata and responsible AI information are in [croissant.json](croissant.json).
+
 ## Fields
 
 | Field | Meaning |
@@ -35,8 +37,10 @@ ${count} English prompts paired with executable three.js constructor calls and b
 ${urdf ? '| urdf_path | Relative path to the Z-up URDF; mesh references resolve alongside the model. |\n' : ''}| bounding_box | Rest-pose XYZ minimum and maximum in meters, +Y up. |
 | joints, affordances | Named moving parts with axes and limits, and part-local interaction points. Revolute limits are radians and prismatic limits are meters. |
 | installation | Built-in assets include the cabinet cutout dimensions in meters (width, height, depth). |\n| controls | Button, knob and touch definitions, interaction regions, joint references and state semantics. Empty for assets without controls. |
+| states, tasks | Named observable predicates and the applicable task definitions. |
+| renders_meta | Image dimensions and control labels, visibility and top-left pixel boxes for each rendered view. |
 | split | Deterministic train or test label. Filter this column when loading data.jsonl. |
-| provenance | Generator and validator release versions, installed three.js version and creating project. |
+| provenance | Seed, generator and validator versions, source commit, spec version, three.js and pinned MuJoCo versions, checks passed on this record, and the report path written by the simulation CLI for URDF builds. |
 | license | CC-BY-4.0 for generated outputs. |
 
 ## How it was generated
