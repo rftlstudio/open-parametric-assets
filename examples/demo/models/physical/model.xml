@@ -1,0 +1,94 @@
+<mujoco model="microwave">
+<compiler angle="radian" eulerseq="XYZ" inertiafromgeom="auto" fusestatic="false"/>
+<option timestep="0.002" integrator="implicitfast"/>
+<custom><text name="opa_metadata" data="{&quot;id&quot;:&quot;4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98&quot;,&quot;asset_id&quot;:&quot;appliances/microwave&quot;,&quot;asset_version&quot;:&quot;0.2.1&quot;,&quot;seed&quot;:2321463991,&quot;joints&quot;:[{&quot;name&quot;:&quot;door_hinge&quot;,&quot;type&quot;:&quot;revolute&quot;,&quot;axis&quot;:[0,-1,0],&quot;limits&quot;:[0,1.75],&quot;childPart&quot;:&quot;door&quot;,&quot;clearance&quot;:{&quot;moving&quot;:&quot;door&quot;,&quot;stationary&quot;:[&quot;body&quot;]}},{&quot;name&quot;:&quot;start_button_slide&quot;,&quot;type&quot;:&quot;prismatic&quot;,&quot;axis&quot;:[0,0,-1],&quot;limits&quot;:[0,0.003],&quot;childPart&quot;:&quot;start_button&quot;,&quot;dynamics&quot;:{&quot;damping&quot;:1.5,&quot;friction&quot;:0.005,&quot;spring&quot;:{&quot;stiffness&quot;:300,&quot;restPosition&quot;:0}},&quot;effort&quot;:3,&quot;velocity&quot;:0.04},{&quot;name&quot;:&quot;stop_button_slide&quot;,&quot;type&quot;:&quot;prismatic&quot;,&quot;axis&quot;:[0,0,-1],&quot;limits&quot;:[0,0.003],&quot;childPart&quot;:&quot;stop_button&quot;,&quot;dynamics&quot;:{&quot;damping&quot;:1.5,&quot;friction&quot;:0.005,&quot;spring&quot;:{&quot;stiffness&quot;:300,&quot;restPosition&quot;:0}},&quot;effort&quot;:3,&quot;velocity&quot;:0.04},{&quot;name&quot;:&quot;add_30s_button_slide&quot;,&quot;type&quot;:&quot;prismatic&quot;,&quot;axis&quot;:[0,0,-1],&quot;limits&quot;:[0,0.003],&quot;childPart&quot;:&quot;add_30s_button&quot;,&quot;dynamics&quot;:{&quot;damping&quot;:1.5,&quot;friction&quot;:0.005,&quot;spring&quot;:{&quot;stiffness&quot;:300,&quot;restPosition&quot;:0}},&quot;effort&quot;:3,&quot;velocity&quot;:0.04},{&quot;name&quot;:&quot;door_release_button_slide&quot;,&quot;type&quot;:&quot;prismatic&quot;,&quot;axis&quot;:[0,0,-1],&quot;limits&quot;:[0,0.003],&quot;childPart&quot;:&quot;door_release_button&quot;,&quot;dynamics&quot;:{&quot;damping&quot;:1.5,&quot;friction&quot;:0.005,&quot;spring&quot;:{&quot;stiffness&quot;:300,&quot;restPosition&quot;:0}},&quot;effort&quot;:3,&quot;velocity&quot;:0.04}],&quot;affordances&quot;:[{&quot;type&quot;:&quot;placeable&quot;,&quot;part&quot;:&quot;cavity_floor&quot;,&quot;point&quot;:[-0.06885000000000001,0.006,0],&quot;normal&quot;:[0,1,0],&quot;size&quot;:[0.34829999999999994,0.376]},{&quot;type&quot;:&quot;grasp&quot;,&quot;grip&quot;:&quot;recessed&quot;,&quot;part&quot;:&quot;door_pull_edge&quot;,&quot;point&quot;:[-0.009,0,-0.005]}],&quot;controls&quot;:[{&quot;name&quot;:&quot;start_button&quot;,&quot;type&quot;:&quot;button&quot;,&quot;function&quot;:&quot;start&quot;,&quot;label&quot;:&quot;START&quot;,&quot;icon&quot;:&quot;play&quot;,&quot;joint&quot;:&quot;start_button_slide&quot;,&quot;region&quot;:{&quot;part&quot;:&quot;start_button_cap&quot;,&quot;point&quot;:[0,0,0.0005],&quot;normal&quot;:[0,0,1],&quot;size&quot;:[0.041999999999999996,0.015399999999999999]},&quot;state&quot;:{&quot;kind&quot;:&quot;momentary&quot;,&quot;pressedAt&quot;:0.6}},{&quot;name&quot;:&quot;stop_button&quot;,&quot;type&quot;:&quot;button&quot;,&quot;function&quot;:&quot;stop&quot;,&quot;label&quot;:&quot;STOP&quot;,&quot;icon&quot;:&quot;stop&quot;,&quot;joint&quot;:&quot;stop_button_slide&quot;,&quot;region&quot;:{&quot;part&quot;:&quot;stop_button_cap&quot;,&quot;point&quot;:[0,0,0.0005],&quot;normal&quot;:[0,0,1],&quot;size&quot;:[0.041999999999999996,0.015399999999999999]},&quot;state&quot;:{&quot;kind&quot;:&quot;momentary&quot;,&quot;pressedAt&quot;:0.6}},{&quot;name&quot;:&quot;add_30s_button&quot;,&quot;type&quot;:&quot;button&quot;,&quot;function&quot;:&quot;add_30s&quot;,&quot;label&quot;:&quot;+30 S&quot;,&quot;icon&quot;:&quot;plus_30&quot;,&quot;joint&quot;:&quot;add_30s_button_slide&quot;,&quot;region&quot;:{&quot;part&quot;:&quot;add_30s_button_cap&quot;,&quot;point&quot;:[0,0,0.0005],&quot;normal&quot;:[0,0,1],&quot;size&quot;:[0.041999999999999996,0.015399999999999999]},&quot;state&quot;:{&quot;kind&quot;:&quot;momentary&quot;,&quot;pressedAt&quot;:0.6}},{&quot;name&quot;:&quot;door_release_button&quot;,&quot;type&quot;:&quot;button&quot;,&quot;function&quot;:&quot;door_release&quot;,&quot;label&quot;:&quot;OPEN&quot;,&quot;icon&quot;:&quot;open&quot;,&quot;joint&quot;:&quot;door_release_button_slide&quot;,&quot;region&quot;:{&quot;part&quot;:&quot;door_release_button_cap&quot;,&quot;point&quot;:[0,0,0.0005],&quot;normal&quot;:[0,0,1],&quot;size&quot;:[0.041999999999999996,0.015399999999999999]},&quot;state&quot;:{&quot;kind&quot;:&quot;momentary&quot;,&quot;pressedAt&quot;:0.6}}],&quot;states&quot;:{&quot;door_open&quot;:{&quot;joint&quot;:&quot;door_hinge&quot;,&quot;op&quot;:&quot;&gt;&quot;,&quot;val&quot;:0.8},&quot;start_pressed&quot;:{&quot;control&quot;:&quot;start_button&quot;,&quot;op&quot;:&quot;==&quot;,&quot;val&quot;:true},&quot;running&quot;:{&quot;all&quot;:[{&quot;joint&quot;:&quot;door_hinge&quot;,&quot;op&quot;:&quot;&lt;&quot;,&quot;val&quot;:0.05},{&quot;any&quot;:[{&quot;control&quot;:&quot;add_30s_button&quot;,&quot;op&quot;:&quot;==&quot;,&quot;val&quot;:true}]},{&quot;state&quot;:&quot;start_pressed&quot;}]}},&quot;tasks&quot;:[{&quot;id&quot;:&quot;microwave/press_start&quot;,&quot;asset_id&quot;:&quot;appliances/microwave&quot;,&quot;instruction&quot;:&quot;Press the START button.&quot;,&quot;applies_when&quot;:{&quot;controlStyle&quot;:[&quot;physical&quot;]},&quot;init&quot;:{},&quot;goal&quot;:{&quot;state&quot;:&quot;start_pressed&quot;},&quot;horizon_s&quot;:8}]}"/></custom>
+<asset>
+<mesh name="meshes/part-1.obj" file="meshes/part-1.obj" inertia="shell"/>
+<mesh name="meshes/part-2.obj" file="meshes/part-2.obj" inertia="shell"/>
+<mesh name="meshes/part-3.obj" file="meshes/part-3.obj" inertia="shell"/>
+<mesh name="meshes/part-4.obj" file="meshes/part-4.obj" inertia="shell"/>
+</asset>
+<worldbody>
+<body name="microwave">
+<inertial pos="0.109610125 0.004776308 0.13" mass="11.438676134" fullinertia="0.185895554 0.286870218 0.350559237 0.019970251 0 0"/>
+<geom name="case_left" type="box" size="0.006 0.1180000005 0.200000003" pos="-0.249 0 0.13" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_left" type="box" size="0.006 0.1180000005 0.200000003" pos="-0.249 0 0.13" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="case_right" type="box" size="0.006 0.1180000005 0.200000003" pos="0.249 0 0.13" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_right" type="box" size="0.006 0.1180000005 0.200000003" pos="0.249 0 0.13" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="case_top" type="box" size="0.254999995 0.006 0.200000003" pos="0 0 0.254" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_top" type="box" size="0.254999995 0.006 0.200000003" pos="0 0 0.254" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="cavity_floor" type="box" size="0.254999995 0.006 0.200000003" pos="0 0 0.006" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_cavity_floor" type="box" size="0.254999995 0.006 0.200000003" pos="0 0 0.006" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.456411023 0.479320183 0.496932995 1"/>
+<site name="place_cavity_floor" pos="-0.06885 0 0.012" quat="1 0 0 0" type="box" size="0.17415 0.188 0.001" group="4"/>
+<geom name="case_back" type="box" size="0.2430000005 0.1180000005 0.006" pos="0 0.194 0.13" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_back" type="box" size="0.2430000005 0.1180000005 0.006" pos="0 0.194 0.13" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="cavity_divider" type="box" size="0.006 0.1180000005 0.1940000055" pos="0.1113 -0.006 0.13" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_cavity_divider" type="box" size="0.006 0.1180000005 0.1940000055" pos="0.1113 -0.006 0.13" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.456411023 0.479320183 0.496932995 1"/>
+<geom name="control_panel" type="box" size="0.0628499985 0.1180000005 0.006" pos="0.18015 -0.193 0.13" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_control_panel" type="box" size="0.0628499985 0.1180000005 0.006" pos="0.18015 -0.193 0.13" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.015996293 0.019382361 0.024157632 1"/>
+<geom name="electronics" type="box" size="0.044752501 0.0715000035 0.1199999975" pos="0.18015 0 0.13" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_electronics" type="box" size="0.044752501 0.0715000035 0.1199999975" pos="0.18015 0 0.13" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.034339807 0.039546235 0.045186204 1"/>
+<body name="door" pos="-0.253 -0.222 0.13" euler="0 0 0">
+<inertial pos="0.182678297 0.009033679 0" mass="0.85868424" fullinertia="0.004481083 0.013809918 0.00935981 -0.000005068 0 0"/>
+<joint name="door_hinge" type="hinge" axis="0 0 -1" range="0 1.75" limited="true" damping="1" frictionloss="0.05" stiffness="0" springref="0" armature="0"/>
+<geom name="door_frame_left" type="box" size="0.0368300005 0.126000002 0.0089999995" pos="0.03683 0.009 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_frame_left" type="box" size="0.0368300005 0.126000002 0.0089999995" pos="0.03683 0.009 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="door_frame_top" type="box" size="0.1104900015 0.0283499995 0.0089999995" pos="0.18415 0.009 0.09765" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_frame_top" type="box" size="0.1104900015 0.0283499995 0.0089999995" pos="0.18415 0.009 0.09765" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="door_frame_bottom" type="box" size="0.1104900015 0.0283499995 0.0089999995" pos="0.18415 0.009 -0.09765" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_frame_bottom" type="box" size="0.1104900015 0.0283499995 0.0089999995" pos="0.18415 0.009 -0.09765" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="door_window" type="box" size="0.1104900015 0.0693000035 0.002" pos="0.18415 0.009 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_window" type="box" size="0.1104900015 0.0693000035 0.002" pos="0.18415 0.009 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.063010018 0.162029376 0.187820772 0.35"/>
+<geom name="door_frame_right_inner" type="box" size="0.027829999 0.126000002 0.0089999995" pos="0.32247 0.009 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_frame_right_inner" type="box" size="0.027829999 0.126000002 0.0089999995" pos="0.32247 0.009 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="door_edge_top" type="box" size="0.0089999995 0.0430000015 0.0089999995" pos="0.3593 0.009 0.083" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_edge_top" type="box" size="0.0089999995 0.0430000015 0.0089999995" pos="0.3593 0.009 0.083" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="door_edge_bottom" type="box" size="0.0089999995 0.0430000015 0.0089999995" pos="0.3593 0.009 -0.083" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_edge_bottom" type="box" size="0.0089999995 0.0430000015 0.0089999995" pos="0.3593 0.009 -0.083" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<geom name="door_pull_back" type="box" size="0.0089999995 0.039999999 0.0015" pos="0.3593 0.0165 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_pull_back" type="box" size="0.0089999995 0.039999999 0.0015" pos="0.3593 0.0165 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.015996293 0.019382361 0.024157632 1"/>
+<geom name="door_pull_edge" type="box" size="0.003 0.039999999 0.002" pos="0.3653 0.002 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_pull_edge" type="box" size="0.003 0.039999999 0.002" pos="0.3653 0.002 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<site name="grasp_door_pull_edge" pos="0.3563 0.007 0" type="sphere" size="0.001" group="4"/>
+</body>
+<body name="start_button" pos="0.18015 -0.2025 0.208" euler="0 0 0">
+<inertial pos="0 0 0" mass="0.00066" fullinertia="2.7e-8 2.25e-7 1.98e-7 0 0 0"/>
+<joint name="start_button_slide" type="slide" axis="0 1 0" range="0 0.003" limited="true" damping="1.5" frictionloss="0.005" stiffness="300" springref="0" armature="0"/>
+<geom name="start_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_start_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<site name="control_start_button" pos="0 -0.0005 0" quat="0.707106781 0.707106781 0 0" type="box" size="0.021 0.0077 0.001" group="4"/>
+<geom name="visual_start_button_mark" type="mesh" mesh="meshes/part-1.obj" pos="0 -0.0008 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.005181517 0.00699541 0.009134059 1"/>
+</body>
+<body name="stop_button" pos="0.18015 -0.2025 0.156" euler="0 0 0">
+<inertial pos="0 0 0" mass="0.00066" fullinertia="2.7e-8 2.25e-7 1.98e-7 0 0 0"/>
+<joint name="stop_button_slide" type="slide" axis="0 1 0" range="0 0.003" limited="true" damping="1.5" frictionloss="0.005" stiffness="300" springref="0" armature="0"/>
+<geom name="stop_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_stop_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<site name="control_stop_button" pos="0 -0.0005 0" quat="0.707106781 0.707106781 0 0" type="box" size="0.021 0.0077 0.001" group="4"/>
+<geom name="visual_stop_button_mark" type="mesh" mesh="meshes/part-2.obj" pos="0 -0.0008 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.005181517 0.00699541 0.009134059 1"/>
+</body>
+<body name="add_30s_button" pos="0.18015 -0.2025 0.104" euler="0 0 0">
+<inertial pos="0 0 0" mass="0.00066" fullinertia="2.7e-8 2.25e-7 1.98e-7 0 0 0"/>
+<joint name="add_30s_button_slide" type="slide" axis="0 1 0" range="0 0.003" limited="true" damping="1.5" frictionloss="0.005" stiffness="300" springref="0" armature="0"/>
+<geom name="add_30s_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_add_30s_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<site name="control_add_30s_button" pos="0 -0.0005 0" quat="0.707106781 0.707106781 0 0" type="box" size="0.021 0.0077 0.001" group="4"/>
+<geom name="visual_add_30s_button_mark" type="mesh" mesh="meshes/part-3.obj" pos="0 -0.0008 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.005181517 0.00699541 0.009134059 1"/>
+</body>
+<body name="door_release_button" pos="0.18015 -0.2025 0.052" euler="0 0 0">
+<inertial pos="0 0 0" mass="0.00066" fullinertia="2.7e-8 2.25e-7 1.98e-7 0 0 0"/>
+<joint name="door_release_button_slide" type="slide" axis="0 1 0" range="0 0.003" limited="true" damping="1.5" frictionloss="0.005" stiffness="300" springref="0" armature="0"/>
+<geom name="door_release_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_release_button_cap" type="box" size="0.0299999995 0.011 0.0005" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.854911113 0.854905585 0.822692819 1"/>
+<site name="control_door_release_button" pos="0 -0.0005 0" quat="0.707106781 0.707106781 0 0" type="box" size="0.021 0.0077 0.001" group="4"/>
+<geom name="visual_door_release_button_mark" type="mesh" mesh="meshes/part-4.obj" pos="0 -0.0008 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.005181517 0.00699541 0.009134059 1"/>
+</body>
+</body>
+</worldbody>
+<sensor>
+<jointpos name="start_button" joint="start_button_slide"/>
+<jointpos name="stop_button" joint="stop_button_slide"/>
+<jointpos name="add_30s_button" joint="add_30s_button_slide"/>
+<jointpos name="door_release_button" joint="door_release_button_slide"/>
+</sensor>
+</mujoco>

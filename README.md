@@ -16,6 +16,8 @@ MuJoCo checks and a scripted oracle that solves its tasks.
 - **Verify your own assets:** articulation linter (coming in the next release)
 - **Generate new variants:** Node.js generator, see [Build a dataset](#build-a-dataset)
 
+Run the commands from a repository checkout. Add `--task open_door_pull_rack --view` to watch the oven, or `--hf` to load models from the pinned Hugging Face release after publication. [Build and publish the verified release](docs/RELEASE.md).
+
 [Press START on two prebuilt microwaves with Python and MuJoCo](examples/quickstart/README.md). Each example includes the model, labeled views and its measured task report.
 
 ## Generate your own variants (Node.js)
