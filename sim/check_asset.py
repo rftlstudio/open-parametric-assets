@@ -1,4 +1,4 @@
-"""Load dataset URDFs directly and run headless physical acceptance checks."""
+"""Run physical acceptance checks and tasks on URDF or native MJCF assets."""
 import argparse
 import json
 from pathlib import Path
@@ -17,21 +17,34 @@ def require(condition, message):
 
 
 def record_for(path):
+    native = path.suffix == ".xml"
+    embedded = None
+    if native:
+        text = ET.parse(path).find("custom/text[@name='opa_metadata']")
+        require(text is not None, "MJCF missing opa_metadata")
+        embedded = json.loads(text.attrib["data"])
+    field = "mjcf_path" if native else "urdf_path"
     manifest = path.parent.parent.parent / "data.jsonl"
     standalone = manifest.parent / "record.json"
+    if native and not manifest.exists() and not standalone.exists():
+        return embedded
     lines = (manifest.read_text(encoding="utf-8").splitlines() if manifest.exists()
              else [standalone.read_text(encoding="utf-8")])
     for line in lines:
         record = json.loads(line)
-        if record.get("urdf_path") and (manifest.parent / record["urdf_path"]).resolve() == path:
+        if record.get(field) and (manifest.parent / record[field]).resolve() == path:
+            if native:
+                for key in ("id","asset_id","asset_version","seed","joints","affordances","controls","states","tasks"):
+                    require(record[key] == embedded[key], "MJCF metadata differs from record: " + key)
             return record
-    raise ValueError("URDF has no matching record in " + str(manifest))
+    raise ValueError("Model has no matching record in " + str(manifest))
 
 
 def load(path):
     spec = mj.MjSpec.from_file(str(path))
-    spec.option.timestep = 0.002
-    spec.option.integrator = mj.mjtIntegrator.mjINT_IMPLICITFAST
+    if path.suffix == ".urdf":
+        spec.option.timestep = 0.002
+        spec.option.integrator = mj.mjtIntegrator.mjINT_IMPLICITFAST
     return spec
 
 
@@ -84,6 +97,32 @@ def apply_springs(model, joints):
             jid = model.joint(joint["name"]).id
             model.jnt_stiffness[jid] = spring["stiffness"]
             model.qpos_spring[model.jnt_qposadr[jid]] = spring["restPosition"]
+
+
+def compile_asset(spec, path, record):
+    model = spec.compile()
+    if path.suffix == ".urdf":
+        apply_springs(model, record["joints"])
+    return model
+
+
+def collision_geoms(model):
+    return np.flatnonzero(model.geom_contype | model.geom_conaffinity)
+
+
+def visual_owners(xml):
+    if xml.tag == "mujoco":
+        return {g.attrib["name"]: b.attrib["name"] for b in xml.iter("body") for g in b.findall("geom")
+                if g.attrib["name"].startswith("visual_")}
+    return {v.attrib["name"]: link.attrib["name"] for link in xml.findall("link") for v in link.findall("visual")}
+
+
+def region_axes(normal):
+    n = np.asarray(normal)
+    u = np.array([1., 0., 0.] if abs(n[0]) < 0.9 else [0., 1., 0.])
+    u -= n * (u @ n)
+    u /= np.linalg.norm(u)
+    return np.column_stack([u, np.cross(n, u), n])
 
 
 def button_check(model, record, control, limits):
@@ -155,18 +194,17 @@ def controls_reachable(path, xml, record):
     radius = 1e-6
     spec.worldbody.add_geom(name="test_region_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
                            size=[radius, 0, 0], pos=[0, 0, 10])
-    model = spec.compile()
-    apply_springs(model, record["joints"])
+    model = compile_asset(spec, path, record)
     data = initial(model, record["joints"])
     probe = model.geom("test_region_probe").id
     for control in controls:
         region = control["region"]
-        point, _, _ = affordance_frame(model, data, xml, region)
+        point, _, _ = affordance_frame(model, data, xml, region, "control_"+control["name"])
         own = model.geom(region["part"]).id
         model.geom_pos[probe] = point
         mj.mj_forward(model, data)
         min_clearance = 1.0
-        for geom in range(model.ngeom):
+        for geom in collision_geoms(model):
             if geom == probe:
                 continue
             distance = mj.mj_geomDistance(model, data, probe, geom, 1.0, None) + radius
@@ -181,20 +219,21 @@ def controls_reachable(path, xml, record):
         print(f"PASS region {control['name']}, on its part with more than 2 mm clearance")
 
 
-def add_touch_sites(spec, xml, record, controls):
+def prepare_touch_sites(spec, xml, record, controls):
     base = spec.compile()
     rest = initial(base, record["joints"])
     centers, normals = [], []
     for control in controls:
         region = control["region"]
-        center, frame, body = affordance_frame(base, rest, xml, region)
+        center, frame, body = affordance_frame(base, rest, xml, region, "control_"+control["name"])
         require("joint" not in control and base.body_weldid[body] == 0,
                 control["name"] + ": touch region must be fixed")
         n = np.array(region["normal"])
-        u = np.array([1., 0., 0.] if abs(n[0]) < 0.9 else [0., 1., 0.])
-        u -= n * (u @ n)
-        u /= np.linalg.norm(u)
-        axes = np.column_stack([u, np.cross(n, u), n])
+        centers.append(center)
+        normals.append(frame @ n)
+        if xml.tag == "mujoco":
+            continue
+        axes = region_axes(n)
         local = rest.xmat[body].reshape(3, 3).T
         quat = np.zeros(4)
         mj.mju_mat2Quat(quat, (local @ frame @ axes).ravel())
@@ -204,8 +243,6 @@ def add_touch_sites(spec, xml, record, controls):
                 size=[region["size"][0]/2, region["size"][1]/2, 0.001])
         spec.add_sensor(name=name, type=mj.mjtSensor.mjSENS_TOUCH,
                         objtype=mj.mjtObj.mjOBJ_SITE, objname=name)
-        centers.append(center)
-        normals.append(frame @ n)
     return centers, normals
 
 
@@ -214,13 +251,12 @@ def touch_check(path, xml, record):
     if not controls:
         return
     spec = load(path)
-    centers, normals = add_touch_sites(spec, xml, record, controls)
+    centers, normals = prepare_touch_sites(spec, xml, record, controls)
     radius = 0.004
     probe = spec.worldbody.add_body(name="touch_probe", gravcomp=1)
     probe.add_freejoint(name="touch_probe_free")
     probe.add_geom(type=mj.mjtGeom.mjGEOM_SPHERE, size=[radius,0,0], mass=0.02)
-    model = spec.compile()
-    apply_springs(model, record["joints"])
+    model = compile_asset(spec, path, record)
     q = model.jnt_qposadr[model.joint("touch_probe_free").id]
     for i, control in enumerate(controls):
         data = initial(model, record["joints"])
@@ -232,7 +268,7 @@ def touch_check(path, xml, record):
             mj.mj_step(model, data)
             for j, other in enumerate(controls):
                 sensor = other["name"]
-                require(np.linalg.norm(data.site(sensor).xpos-centers[j]) < 1e-12, sensor + ": touch region drift")
+                require(np.linalg.norm(data.site("control_"+sensor if xml.tag == "mujoco" else sensor).xpos-centers[j]) < 1e-12, sensor + ": touch region drift")
                 if j != i:
                     require(data.sensor(sensor).data[0] == 0, sensor + ": neighbouring region activated")
         measured = data.sensor(control["name"]).data[0]
@@ -306,7 +342,16 @@ def rotation(rpy):
                      [-sy, cy*sx, cy*cx]])
 
 
-def affordance_frame(model, data, xml, affordance):
+def affordance_frame(model, data, xml, affordance, site_name=None):
+    if xml.tag == "mujoco":
+        if site_name is None:
+            prefix = "grasp_" if affordance["type"] == "grasp" else "place_"
+            site_name = prefix + affordance["part"]
+        site = data.site(site_name)
+        frame = site.xmat.reshape(3, 3)
+        if "normal" in affordance:
+            frame = frame @ region_axes(affordance["normal"]).T
+        return site.xpos.copy(), frame, model.site_bodyid[site.id]
     for link in xml.findall("link"):
         for visual in link.findall("visual"):
             if visual.get("name") != "visual_" + affordance["part"]:
@@ -326,8 +371,7 @@ def grasp(path, xml, record):
     radius = 1e-6
     spec.worldbody.add_geom(name="test_grasp_probe", type=mj.mjtGeom.mjGEOM_SPHERE,
                            size=[radius, 0, 0], pos=[0, 0, 10])
-    model = spec.compile()
-    apply_springs(model, record["joints"])
+    model = compile_asset(spec, path, record)
     data = initial(model, record["joints"])
     probe = model.geom("test_grasp_probe").id
     for affordance in record["affordances"]:
@@ -338,7 +382,7 @@ def grasp(path, xml, record):
         mj.mj_forward(model, data)
         distances = [
             (mj.mj_geomDistance(model, data, probe, geom, 1.0, None) + radius, geom)
-            for geom in range(model.ngeom) if geom != probe
+            for geom in collision_geoms(model) if geom != probe
         ]
         # Adding the probe radius gives the signed point-to-solid distance.
         require(affordance.get("grip") in ("raised", "recessed"), "invalid grasp grip")
@@ -373,8 +417,7 @@ def cube_model(path, record):
     cube.add_freejoint(name="test_cube_free")
     cube.add_geom(name="test_cube_geom", type=mj.mjtGeom.mjGEOM_BOX,
                   size=[0.025]*3, mass=0.05, friction=[0.5, 0.005, 0.0001])
-    model = spec.compile()
-    apply_springs(model, record["joints"])
+    model = compile_asset(spec, path, record)
     return model
 
 
@@ -467,10 +510,9 @@ def carry(path, xml, record, limits):
     for surface in record["affordances"]:
         if surface["type"] != "placeable":
             continue
-        link = next(link for link in xml.findall("link") if
-                    any(v.get("name") == "visual_"+surface["part"] for v in link.findall("visual")))
+        owner = visual_owners(xml)["visual_"+surface["part"]]
         index = next((i for i,j in enumerate(joints) if j["type"] == "prismatic" and
-                      j["childPart"] == link.get("name")), None)
+                      j["childPart"] == owner), None)
         if index is None:
             continue
         model = cube_model(path, record)
@@ -526,15 +568,14 @@ def carry(path, xml, record, limits):
 def load_checked(path, record):
     xml = ET.parse(path).getroot()
     joints = record["joints"]
-    model = load(path).compile()
-    apply_springs(model, record["joints"])
+    model = compile_asset(load(path), path, record)
     names = [j["name"] for j in joints]
     measure(bodies=model.nbody-1, joints=model.njnt)
     require(model.njnt == len(joints), "joint count differs from record")
     require(model.nbody == len(joints) + 2, "body count differs from record plus root and world")
     require({model.joint(i).name for i in range(model.njnt)} == set(names), "joint names differ from record")
     require({model.body(i).name for i in range(1, model.nbody)} ==
-            {xml.get("name"), *(j["childPart"] for j in joints)}, "body names differ from record")
+            {xml.get("model",xml.get("name")), *(j["childPart"] for j in joints)}, "body names differ from record")
     require(not any(model.jnt_type == mj.mjtJoint.mjJNT_FREE), "base must be fixed")
     for joint in joints:
         jid = model.joint(joint["name"]).id
@@ -542,8 +583,18 @@ def load_checked(path, record):
         require(model.jnt_type[jid] == expected and np.allclose(model.jnt_range[jid], joint["limits"]),
                 joint["name"] + ": type or range differs from record")
         require(joint["limits"][1] > joint["limits"][0], joint["name"] + ": zero joint range")
-    limits = {j.get("name"): {key: float(j.find("limit").get(key)) for key in ("effort", "velocity")}
-              for j in xml.findall("joint")}
+    if xml.tag == "mujoco":
+        limits = {j["name"]: {"effort": j.get("effort",150),
+                  "velocity": j.get("velocity",0.5 if j["type"] == "prismatic" else 2)} for j in joints}
+        for c in record["controls"]:
+            sensor = model.sensor(c["name"])
+            touch = c["type"] == "touch"
+            kind = mj.mjtSensor.mjSENS_TOUCH if touch else mj.mjtSensor.mjSENS_JOINTPOS
+            target = model.site("control_"+c["name"]).id if touch else model.joint(c["joint"]).id
+            require(sensor.type[0] == kind and sensor.objid[0] == target, "invalid control sensor: "+c["name"])
+    else:
+        limits = {j.get("name"): {key: float(j.find("limit").get(key)) for key in ("effort", "velocity")}
+                  for j in xml.findall("joint")}
     print(f"PASS load {record['asset_id']}, {model.nbody - 1} bodies, {model.njnt} joints, fixed base")
     return xml, model, limits
 
@@ -568,8 +619,7 @@ def check(path):
         if surfaces:
             run_check(checks, "drop", drop, path, xml, record, limits)
         slides = {j["childPart"] for j in joints if j["type"] == "prismatic"}
-        sliding_visuals = {v.get("name") for link in xml.findall("link") if link.get("name") in slides
-                           for v in link.findall("visual")}
+        sliding_visuals = {name for name,owner in visual_owners(xml).items() if owner in slides}
         if any("visual_"+part in sliding_visuals for part in surfaces):
             run_check(checks, "carry", carry, path, xml, record, limits)
         if any(a["type"] == "grasp" for a in record["affordances"]):
@@ -591,17 +641,21 @@ def check(path):
             except Exception as error:
                 results.append({"task": task["id"], "passed": False, "error": str(error)})
     report["passed"] = all(r["passed"] for r in checks + results)
-    destination = path.parents[2] / (record["provenance"].get("sim_report") or f"sim/{record['id']}.json")
+    if path.suffix == ".xml":
+        report_path = record.get("provenance", {}).get("mjcf_sim_report")
+        destination = path.parents[2] / report_path if report_path else path.with_suffix(".report.json")
+    else:
+        destination = path.parents[2] / (record["provenance"].get("sim_report") or f"sim/{record['id']}.json")
     save_report(destination, report)
     require(report["passed"], f"simulation failed; see {destination}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("urdf", type=Path)
+    parser.add_argument("model", type=Path)
     args = parser.parse_args()
     try:
-        check(args.urdf.resolve())
+        check(args.model.resolve())
     except Exception as error:
-        print(f"FAIL {args.urdf}: {error}", file=sys.stderr)
+        print(f"FAIL {args.model}: {error}", file=sys.stderr)
         sys.exit(1)
