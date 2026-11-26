@@ -13,7 +13,7 @@ from logic import evaluate, snapshot
 
 
 class Hand:
-    def __init__(self, path, record, task):
+    def __init__(self, path, record, task, visible=False):
         self.record, self.task = record, task
         self.xml = ET.parse(path).getroot()
         spec = load(path)
@@ -24,6 +24,10 @@ class Hand:
         hand = spec.worldbody.add_body(name="oracle_hand", mocap=True, pos=[0, 0, 10])
         if self.xml.tag != "mujoco":
             hand.add_site(name="hand_site", size=[0.001, 0, 0])
+        self.on_step = None
+        if visible:
+            spec.worldbody.add_light(pos=[1, -2, 2], dir=[-1, 2, -1], diffuse=[0.8, 0.8, 0.8])
+            hand.add_site(name="hand_marker", size=[0.013, 0, 0], group=1, rgba=[1, 0.45, 0.05, 1])
         self.grips = {}
         for a in record["affordances"]:
             if a["type"] != "grasp":
@@ -46,7 +50,8 @@ class Hand:
         probe = spec.worldbody.add_body(name="oracle_probe", gravcomp=1, pos=[0, 0, 10])
         probe.add_freejoint(name="probe_free")
         probe.add_geom(name="probe_tip", type=mj.mjtGeom.mjGEOM_SPHERE, size=[0.004,0,0],
-                       mass=0.02, priority=1, solref=[0.004, 1])
+                       mass=0.02, priority=1, solref=[0.004, 1],
+                       rgba=[1, 0.45, 0.05, 1])
         self.model = m = compile_asset(spec,path,record)
         self.data = d = initial(m, record["joints"])
         self.joints = {j["name"]: j for j in record["joints"]}
@@ -79,6 +84,8 @@ class Hand:
         values = self.snapshot()
         if self.success_snapshot is None and evaluate(self.task["goal"], self.record["states"], values):
             self.success_snapshot, self.success_time = values, d.time
+        if self.on_step is not None:
+            self.on_step()
         return values
 
     def pull(self, name, upper):
@@ -133,6 +140,8 @@ class Hand:
         force = control["state"].get("minForceN", 1)
         for step in range(round(0.6/m.opt.timestep)):
             d.xfrc_applied[probe.id,:3] = -normal*1.25*force*min(1, (step+1)*m.opt.timestep/0.08)
+            # Dampen approach velocity so a light button cap follows the probe without impact overshoot.
+            d.xfrc_applied[probe.id,:3] -= 5.0 * d.joint('probe_free').qvel[:3]
             values = self.step(probing=True)
             if values["controls"][control["name"]]:
                 break

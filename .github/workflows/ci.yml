@@ -52,6 +52,13 @@ jobs:
           python -m venv "$RUNNER_TEMP/opa-quickstart"
           "$RUNNER_TEMP/opa-quickstart/bin/pip" install mujoco==3.3.7
           "$RUNNER_TEMP/opa-quickstart/bin/python" examples/quickstart/quickstart.py
+      - name: Run the offline MJCF demo in a clean environment
+        run: |
+          python -m venv "$RUNNER_TEMP/opa-demo"
+          "$RUNNER_TEMP/opa-demo/bin/python" -m pip install mujoco==3.3.7
+          "$RUNNER_TEMP/opa-demo/bin/python" -m unittest discover -s examples/demo
+          "$RUNNER_TEMP/opa-demo/bin/python" examples/demo/demo.py
+          "$RUNNER_TEMP/opa-demo/bin/python" examples/demo/demo.py --task open_door_pull_rack
       - name: Simulate URDF and MJCF models and run their tasks
         run: |
           status=0
