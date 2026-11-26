@@ -1,0 +1,189 @@
+<mujoco model="oven">
+<compiler angle="radian" eulerseq="XYZ" inertiafromgeom="auto" fusestatic="false"/>
+<option timestep="0.002" integrator="implicitfast"/>
+<custom><text name="opa_metadata" data="{&quot;id&quot;:&quot;692e29ceb4cf582c44dec8a8fbf075ccc5320ed4605407f7b9f1d118fae0ed07&quot;,&quot;asset_id&quot;:&quot;appliances/oven&quot;,&quot;asset_version&quot;:&quot;0.1.0&quot;,&quot;seed&quot;:3635476355,&quot;joints&quot;:[{&quot;name&quot;:&quot;door_hinge&quot;,&quot;behavior&quot;:&quot;balanced_door&quot;,&quot;type&quot;:&quot;revolute&quot;,&quot;childPart&quot;:&quot;door&quot;,&quot;axis&quot;:[1,0,0],&quot;limits&quot;:[0,1.57],&quot;dynamics&quot;:{&quot;spring&quot;:{&quot;stiffness&quot;:8.290454881114092,&quot;restPosition&quot;:0},&quot;friction&quot;:1.561921699601895,&quot;damping&quot;:10.4128113306793},&quot;effort&quot;:100,&quot;velocity&quot;:1},{&quot;name&quot;:&quot;rack_1_slide&quot;,&quot;type&quot;:&quot;prismatic&quot;,&quot;childPart&quot;:&quot;rack_1&quot;,&quot;axis&quot;:[0,0,1],&quot;limits&quot;:[0,0.23],&quot;requires&quot;:[{&quot;joint&quot;:&quot;door_hinge&quot;,&quot;at&quot;:&quot;upper&quot;}],&quot;velocity&quot;:0.2,&quot;effort&quot;:100,&quot;dynamics&quot;:{&quot;damping&quot;:1,&quot;friction&quot;:0.1},&quot;clearance&quot;:{&quot;moving&quot;:&quot;rack_1&quot;,&quot;stationary&quot;:[&quot;case_left&quot;,&quot;case_right&quot;],&quot;minRetainedRatio&quot;:0.3}},{&quot;name&quot;:&quot;rack_2_slide&quot;,&quot;type&quot;:&quot;prismatic&quot;,&quot;childPart&quot;:&quot;rack_2&quot;,&quot;axis&quot;:[0,0,1],&quot;limits&quot;:[0,0.23],&quot;requires&quot;:[{&quot;joint&quot;:&quot;door_hinge&quot;,&quot;at&quot;:&quot;upper&quot;}],&quot;velocity&quot;:0.2,&quot;effort&quot;:100,&quot;dynamics&quot;:{&quot;damping&quot;:1,&quot;friction&quot;:0.1},&quot;clearance&quot;:{&quot;moving&quot;:&quot;rack_2&quot;,&quot;stationary&quot;:[&quot;case_left&quot;,&quot;case_right&quot;],&quot;minRetainedRatio&quot;:0.3}},{&quot;name&quot;:&quot;mode_knob_rotation&quot;,&quot;type&quot;:&quot;revolute&quot;,&quot;childPart&quot;:&quot;mode_knob&quot;,&quot;axis&quot;:[0,0,-1],&quot;limits&quot;:[0,4.71238898038469],&quot;effort&quot;:0.3,&quot;velocity&quot;:5,&quot;dynamics&quot;:{&quot;damping&quot;:0.04,&quot;friction&quot;:0.02}},{&quot;name&quot;:&quot;temperature_knob_rotation&quot;,&quot;type&quot;:&quot;revolute&quot;,&quot;childPart&quot;:&quot;temperature_knob&quot;,&quot;axis&quot;:[0,0,-1],&quot;limits&quot;:[0,4.71238898038469],&quot;effort&quot;:0.3,&quot;velocity&quot;:5,&quot;dynamics&quot;:{&quot;damping&quot;:0.04,&quot;friction&quot;:0.02}}],&quot;affordances&quot;:[{&quot;type&quot;:&quot;placeable&quot;,&quot;part&quot;:&quot;cavity_floor&quot;,&quot;point&quot;:[0,0.006,-0.19],&quot;normal&quot;:[0,1,0],&quot;size&quot;:[0.85,0.13]},{&quot;type&quot;:&quot;placeable&quot;,&quot;part&quot;:&quot;door_window&quot;,&quot;point&quot;:[0,0,-0.002],&quot;normal&quot;:[0,0,-1],&quot;size&quot;:[0.5352,0.28490000000000004]},{&quot;type&quot;:&quot;grasp&quot;,&quot;grip&quot;:&quot;raised&quot;,&quot;part&quot;:&quot;door_handle&quot;,&quot;point&quot;:[0,0,0]},{&quot;type&quot;:&quot;placeable&quot;,&quot;part&quot;:&quot;rack_1_wire_3&quot;,&quot;point&quot;:[0,0.003,0],&quot;normal&quot;:[0,1,0],&quot;size&quot;:[0.831,0.076]},{&quot;type&quot;:&quot;grasp&quot;,&quot;grip&quot;:&quot;raised&quot;,&quot;part&quot;:&quot;rack_1_front&quot;,&quot;point&quot;:[0,0,0]},{&quot;type&quot;:&quot;placeable&quot;,&quot;part&quot;:&quot;rack_2_wire_3&quot;,&quot;point&quot;:[0,0.003,0],&quot;normal&quot;:[0,1,0],&quot;size&quot;:[0.831,0.076]},{&quot;type&quot;:&quot;grasp&quot;,&quot;grip&quot;:&quot;raised&quot;,&quot;part&quot;:&quot;rack_2_front&quot;,&quot;point&quot;:[0,0,0]}],&quot;controls&quot;:[{&quot;name&quot;:&quot;mode_knob&quot;,&quot;type&quot;:&quot;knob&quot;,&quot;function&quot;:&quot;mode&quot;,&quot;icon&quot;:&quot;bake&quot;,&quot;label&quot;:&quot;MODE&quot;,&quot;joint&quot;:&quot;mode_knob_rotation&quot;,&quot;region&quot;:{&quot;part&quot;:&quot;mode_knob_cap&quot;,&quot;point&quot;:[0,0,0.006],&quot;normal&quot;:[0,0,1],&quot;size&quot;:[0.011,0.011]},&quot;state&quot;:{&quot;kind&quot;:&quot;detent&quot;,&quot;values&quot;:[&quot;off&quot;,&quot;bake&quot;,&quot;fan_bake&quot;,&quot;grill&quot;,&quot;defrost&quot;],&quot;positions&quot;:[0,1.1780972450961724,2.356194490192345,3.5342917352885173,4.71238898038469],&quot;unit&quot;:&quot;mode&quot;,&quot;icons&quot;:[&quot;off&quot;,&quot;bake&quot;,&quot;fan&quot;,&quot;grill&quot;,&quot;defrost&quot;]}},{&quot;name&quot;:&quot;temperature_knob&quot;,&quot;type&quot;:&quot;knob&quot;,&quot;function&quot;:&quot;temperature&quot;,&quot;icon&quot;:&quot;thermometer&quot;,&quot;label&quot;:&quot;TEMP&quot;,&quot;joint&quot;:&quot;temperature_knob_rotation&quot;,&quot;region&quot;:{&quot;part&quot;:&quot;temperature_knob_cap&quot;,&quot;point&quot;:[0,0,0.006],&quot;normal&quot;:[0,0,1],&quot;size&quot;:[0.011,0.011]},&quot;state&quot;:{&quot;kind&quot;:&quot;detent&quot;,&quot;values&quot;:[0,50,75,100,125,150,175,200,225,250],&quot;positions&quot;:[0,0.5235987755982988,1.0471975511965976,1.5707963267948966,2.0943951023931953,2.617993877991494,3.141592653589793,3.6651914291880923,4.1887902047863905,4.71238898038469],&quot;unit&quot;:&quot;degC&quot;}}],&quot;states&quot;:{&quot;door_open&quot;:{&quot;joint&quot;:&quot;door_hinge&quot;,&quot;op&quot;:&quot;&gt;&quot;,&quot;val&quot;:0.9},&quot;rack_out&quot;:{&quot;any&quot;:[{&quot;joint&quot;:&quot;rack_1_slide&quot;,&quot;op&quot;:&quot;&gt;&quot;,&quot;val&quot;:0.8},{&quot;joint&quot;:&quot;rack_2_slide&quot;,&quot;op&quot;:&quot;&gt;&quot;,&quot;val&quot;:0.8}]},&quot;heating&quot;:{&quot;all&quot;:[{&quot;not&quot;:{&quot;control&quot;:&quot;mode_knob&quot;,&quot;op&quot;:&quot;==&quot;,&quot;val&quot;:&quot;off&quot;}},{&quot;control&quot;:&quot;temperature_knob&quot;,&quot;op&quot;:&quot;&gt;&quot;,&quot;val&quot;:0}]}},&quot;tasks&quot;:[{&quot;id&quot;:&quot;oven/open_door_pull_rack&quot;,&quot;asset_id&quot;:&quot;appliances/oven&quot;,&quot;instruction&quot;:&quot;Open the oven door and pull a rack out.&quot;,&quot;applies_when&quot;:{},&quot;init&quot;:{},&quot;goal&quot;:{&quot;all&quot;:[{&quot;state&quot;:&quot;door_open&quot;},{&quot;state&quot;:&quot;rack_out&quot;}]},&quot;horizon_s&quot;:8}]}"/></custom>
+<asset>
+<mesh name="meshes/part-1.obj" file="meshes/part-1.obj" inertia="shell"/>
+<mesh name="meshes/part-2.obj" file="meshes/part-2.obj" inertia="shell"/>
+<mesh name="meshes/part-3.obj" file="meshes/part-3.obj" inertia="shell"/>
+<mesh name="meshes/part-4.obj" file="meshes/part-4.obj" inertia="shell"/>
+<mesh name="meshes/part-5.obj" file="meshes/part-5.obj" inertia="shell"/>
+<mesh name="meshes/part-6.obj" file="meshes/part-6.obj" inertia="shell"/>
+<mesh name="meshes/part-7.obj" file="meshes/part-7.obj" inertia="shell"/>
+<mesh name="meshes/part-8.obj" file="meshes/part-8.obj" inertia="shell"/>
+<mesh name="meshes/part-9.obj" file="meshes/part-9.obj" inertia="shell"/>
+<mesh name="meshes/part-10.obj" file="meshes/part-10.obj" inertia="shell"/>
+<mesh name="meshes/part-11.obj" file="meshes/part-11.obj" inertia="shell"/>
+<mesh name="meshes/part-12.obj" file="meshes/part-12.obj" inertia="shell"/>
+<mesh name="meshes/part-13.obj" file="meshes/part-13.obj" inertia="shell"/>
+<mesh name="meshes/part-14.obj" file="meshes/part-14.obj" inertia="shell"/>
+<mesh name="meshes/part-15.obj" file="meshes/part-15.obj" inertia="shell"/>
+<mesh name="meshes/part-16.obj" file="meshes/part-16.obj"/>
+<mesh name="meshes/part-17.obj" file="meshes/part-17.obj" inertia="shell"/>
+<mesh name="meshes/part-18.obj" file="meshes/part-18.obj"/>
+<mesh name="meshes/part-19.obj" file="meshes/part-19.obj" inertia="shell"/>
+</asset>
+<worldbody>
+<body name="oven">
+<inertial pos="0 0.028730064 0.392781993" mass="28.984109714" fullinertia="2.146700452 3.735218242 3.181834905 0 0 0.131483966"/>
+<geom name="case_left" type="box" size="0.006 0.296000004 0.275000006" pos="-0.44 0 0.3" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_left" type="box" size="0.006 0.296000004 0.275000006" pos="-0.44 0 0.3" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<geom name="case_right" type="box" size="0.006 0.296000004 0.275000006" pos="0.44 0 0.3" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_right" type="box" size="0.006 0.296000004 0.275000006" pos="0.44 0 0.3" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<geom name="cavity_floor" type="box" size="0.4339999855 0.006 0.275000006" pos="0 0 0.012" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_cavity_floor" type="box" size="0.4339999855 0.006 0.275000006" pos="0 0 0.012" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.042311411 0.051269458 0.063010018 1"/>
+<site name="place_cavity_floor" pos="0 0.19 0.018" quat="1 0 0 0" type="box" size="0.425 0.065 0.001" group="4"/>
+<geom name="case_back" type="box" size="0.4339999855 0.2849999965 0.006" pos="0 0.269 0.3" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_back" type="box" size="0.4339999855 0.2849999965 0.006" pos="0 0.269 0.3" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.042311411 0.051269458 0.063010018 1"/>
+<geom name="cavity_ceiling" type="box" size="0.4339999855 0.006 0.275000006" pos="0 0 0.528" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_cavity_ceiling" type="box" size="0.4339999855 0.006 0.275000006" pos="0 0 0.528" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.042311411 0.051269458 0.063010018 1"/>
+<geom name="case_top" type="box" size="0.4339999855 0.004 0.275000006" pos="0 0 0.594" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_case_top" type="box" size="0.4339999855 0.004 0.275000006" pos="0 0 0.594" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<geom name="runner_1_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.0526" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_1_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.0526" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_1_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.0526" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_1_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.0526" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_2_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.1541" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_2_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.1541" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_2_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.1541" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_2_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.1541" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_3_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.2556" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_3_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.2556" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_3_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.2556" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_3_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.2556" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_4_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.3571" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_4_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.3571" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_4_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.3571" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_4_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.3571" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_5_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.4586" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_5_left" type="box" size="0.0075 0.0025 0.230000004" pos="-0.426 0 0.4586" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="runner_5_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.4586" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_runner_5_right" type="box" size="0.0075 0.0025 0.230000004" pos="0.426 0 0.4586" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="electronics" type="box" size="0.2924999895 0.0198 0.1787499935" pos="0 0 0.564" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_electronics" type="box" size="0.2924999895 0.0198 0.1787499935" pos="0 0 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.033104767 0.039546235 0.048171824 1"/>
+<geom name="fascia" type="box" size="0.449999988 0.0359999985 0.007" pos="0 -0.283 0.564" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_fascia" type="box" size="0.449999988 0.0359999985 0.007" pos="0 -0.283 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.013702083 0.017641954 0.02121901 1"/>
+<geom name="visual_mode_knob_tick_0" type="mesh" mesh="meshes/part-1.obj" pos="-0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_mode_knob_tick_1" type="mesh" mesh="meshes/part-2.obj" pos="-0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_mode_knob_tick_2" type="mesh" mesh="meshes/part-3.obj" pos="-0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_mode_knob_tick_3" type="mesh" mesh="meshes/part-4.obj" pos="-0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_mode_knob_tick_4" type="mesh" mesh="meshes/part-5.obj" pos="-0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_0" type="mesh" mesh="meshes/part-6.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_1" type="mesh" mesh="meshes/part-7.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_2" type="mesh" mesh="meshes/part-8.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_3" type="mesh" mesh="meshes/part-9.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_4" type="mesh" mesh="meshes/part-10.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_5" type="mesh" mesh="meshes/part-11.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_6" type="mesh" mesh="meshes/part-12.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_7" type="mesh" mesh="meshes/part-13.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_8" type="mesh" mesh="meshes/part-14.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<geom name="visual_temperature_knob_tick_9" type="mesh" mesh="meshes/part-15.obj" pos="0.055 -0.2903 0.564" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="1 1 1 1"/>
+<body name="door" pos="0 -0.29 0.006" euler="0 0 0">
+<inertial pos="0 -0.001321182 0.265155145" mass="5.003903684" fullinertia="0.117978229 0.451666002 0.334519477 0 0 0.00146002"/>
+<joint name="door_hinge" type="hinge" axis="1 0 0" range="0 1.57" limited="true" damping="10.412811331" frictionloss="1.5619217" stiffness="8.290454881" springref="0" armature="0" solreflimit="0.02 1" solimplimit="0.9 0.95 0.001 0.5 2"/>
+<geom name="door_left" type="box" size="0.0891999975 0.2590000035 0.0089999995" pos="-0.3568 0 0.259" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_left" type="box" size="0.0891999975 0.2590000035 0.0089999995" pos="-0.3568 0 0.259" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<geom name="door_right" type="box" size="0.0891999975 0.2590000035 0.0089999995" pos="0.3568 0 0.259" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_right" type="box" size="0.0891999975 0.2590000035 0.0089999995" pos="0.3568 0 0.259" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<geom name="door_bottom" type="box" size="0.2676 0.0582749995 0.0089999995" pos="0 0 0.058275" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_bottom" type="box" size="0.2676 0.0582749995 0.0089999995" pos="0 0 0.058275" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<geom name="door_top" type="box" size="0.2676 0.0582749995 0.0089999995" pos="0 0 0.459725" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_top" type="box" size="0.2676 0.0582749995 0.0089999995" pos="0 0 0.459725" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<geom name="door_window" type="box" size="0.2676 0.142450005 0.002" pos="0 0 0.259" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_window" type="box" size="0.2676 0.142450005 0.002" pos="0 0 0.259" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.086500462 0.162029376 0.184474994 0.36"/>
+<site name="place_door_window" pos="0 0.002 0.259" quat="0.707106781 -0.707106781 0 0" type="box" size="0.2676 0.14245 0.001" group="4"/>
+<geom name="handle_post_left" type="box" size="0.0075 0.0075 0.0175" pos="-0.32112 -0.0265 0.486" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_handle_post_left" type="box" size="0.0075 0.0075 0.0175" pos="-0.32112 -0.0265 0.486" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.013702083 0.017641954 0.02121901 1"/>
+<geom name="handle_post_right" type="box" size="0.0075 0.0075 0.0175" pos="0.32112 -0.0265 0.486" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_handle_post_right" type="box" size="0.0075 0.0075 0.0175" pos="0.32112 -0.0265 0.486" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.013702083 0.017641954 0.02121901 1"/>
+<geom name="door_handle" type="box" size="0.343419999 0.0080000005 0.007" pos="0 -0.051 0.486" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_door_handle" type="box" size="0.343419999 0.0080000005 0.007" pos="0 -0.051 0.486" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.013702083 0.017641954 0.02121901 1"/>
+<site name="grasp_door_handle" pos="0 -0.051 0.486" type="sphere" size="0.001" group="4"/>
+</body>
+<body name="rack_1" pos="0 0 0.1605" euler="0 0 0">
+<inertial pos="0 -0.010420615 0" mass="2.002209052" fullinertia="0.044945482 0.144290252 0.189222275 0 0 0"/>
+<joint name="rack_1_slide" type="slide" axis="0 -1 0" range="0 0.23" limited="true" damping="1" frictionloss="0.1" stiffness="0" springref="0" armature="0"/>
+<geom name="rack_1_left" type="box" size="0.003 0.0035 0.230000004" pos="-0.4245 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_left" type="box" size="0.003 0.0035 0.230000004" pos="-0.4245 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_back" type="box" size="0.4214999975 0.0035 0.0035" pos="0 0.2265 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_back" type="box" size="0.4214999975 0.0035 0.0035" pos="0 0.2265 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_right" type="box" size="0.003 0.0035 0.230000004" pos="0.4245 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_right" type="box" size="0.003 0.0035 0.230000004" pos="0.4245 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_front" type="box" size="0.4214999975 0.0035 0.0035" pos="0 -0.2265 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_front" type="box" size="0.4214999975 0.0035 0.0035" pos="0 -0.2265 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<site name="grasp_rack_1_front" pos="0 -0.2265 0" type="sphere" size="0.001" group="4"/>
+<geom name="rack_1_wire_0" type="box" size="0.4214999975 0.003 0.003" pos="0 0.18 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_0" type="box" size="0.4214999975 0.003 0.003" pos="0 0.18 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_wire_1" type="box" size="0.4214999975 0.003 0.003" pos="0 0.11 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_1" type="box" size="0.4214999975 0.003 0.003" pos="0 0.11 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_wire_2" type="box" size="0.4214999975 0.003 0.003" pos="0 0.022 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_2" type="box" size="0.4214999975 0.003 0.003" pos="0 0.022 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_wire_3" type="box" size="0.4214999975 0.003 0.003" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_3" type="box" size="0.4214999975 0.003 0.003" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<site name="place_rack_1_wire_3" pos="0 0 0.003" quat="1 0 0 0" type="box" size="0.4155 0.038 0.001" group="4"/>
+<geom name="rack_1_wire_4" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.022 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_4" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.022 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_wire_5" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.085 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_5" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.085 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_wire_6" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.14 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_6" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.14 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_1_wire_7" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.19 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_1_wire_7" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.19 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+</body>
+<body name="rack_2" pos="0 0 0.465" euler="0 0 0">
+<inertial pos="0 -0.010420615 0" mass="2.002209052" fullinertia="0.044945482 0.144290252 0.189222275 0 0 0"/>
+<joint name="rack_2_slide" type="slide" axis="0 -1 0" range="0 0.23" limited="true" damping="1" frictionloss="0.1" stiffness="0" springref="0" armature="0"/>
+<geom name="rack_2_left" type="box" size="0.003 0.0035 0.230000004" pos="-0.4245 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_left" type="box" size="0.003 0.0035 0.230000004" pos="-0.4245 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_back" type="box" size="0.4214999975 0.0035 0.0035" pos="0 0.2265 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_back" type="box" size="0.4214999975 0.0035 0.0035" pos="0 0.2265 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_right" type="box" size="0.003 0.0035 0.230000004" pos="0.4245 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_right" type="box" size="0.003 0.0035 0.230000004" pos="0.4245 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_front" type="box" size="0.4214999975 0.0035 0.0035" pos="0 -0.2265 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_front" type="box" size="0.4214999975 0.0035 0.0035" pos="0 -0.2265 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<site name="grasp_rack_2_front" pos="0 -0.2265 0" type="sphere" size="0.001" group="4"/>
+<geom name="rack_2_wire_0" type="box" size="0.4214999975 0.003 0.003" pos="0 0.18 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_0" type="box" size="0.4214999975 0.003 0.003" pos="0 0.18 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_wire_1" type="box" size="0.4214999975 0.003 0.003" pos="0 0.11 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_1" type="box" size="0.4214999975 0.003 0.003" pos="0 0.11 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_wire_2" type="box" size="0.4214999975 0.003 0.003" pos="0 0.022 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_2" type="box" size="0.4214999975 0.003 0.003" pos="0 0.022 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_wire_3" type="box" size="0.4214999975 0.003 0.003" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_3" type="box" size="0.4214999975 0.003 0.003" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<site name="place_rack_2_wire_3" pos="0 0 0.003" quat="1 0 0 0" type="box" size="0.4155 0.038 0.001" group="4"/>
+<geom name="rack_2_wire_4" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.022 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_4" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.022 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_wire_5" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.085 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_5" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.085 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_wire_6" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.14 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_6" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.14 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+<geom name="rack_2_wire_7" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.19 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_rack_2_wire_7" type="box" size="0.4214999975 0.003 0.003" pos="0 -0.19 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.386429434 0.42326767 0.462077 1"/>
+</body>
+<body name="mode_knob" pos="-0.055 -0.299 0.564" euler="0 0 0">
+<inertial pos="0 -0.000008245 0.000012685" mass="0.003783972" fullinertia="2.04e-7 3.16e-7 2.03e-7 0 0 0"/>
+<joint name="mode_knob_rotation" type="hinge" axis="0 1 0" range="0 4.71238898" limited="true" damping="0.04" frictionloss="0.02" stiffness="0" springref="0" armature="0"/>
+<geom name="mode_knob_cap" type="mesh" mesh="meshes/part-16.obj" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_mode_knob_cap" type="mesh" mesh="meshes/part-16.obj" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<site name="control_mode_knob" pos="0 -0.006 0" quat="0.707106781 0.707106781 0 0" type="box" size="0.0055 0.0055 0.001" group="4"/>
+<geom name="visual_mode_knob_mark" type="mesh" mesh="meshes/part-17.obj" pos="0 -0.0063 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.005181517 0.00699541 0.009134059 1"/>
+<geom name="mode_knob_pointer" type="box" size="0.001 0.0015 0.0005" pos="0 -0.0065 0.01" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_mode_knob_pointer" type="box" size="0.001 0.0015 0.0005" pos="0 -0.0065 0.01" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.013702083 0.017641954 0.02121901 1"/>
+</body>
+<body name="temperature_knob" pos="0.055 -0.299 0.564" euler="0 0 0">
+<inertial pos="0 -0.000008245 0.000012685" mass="0.003783972" fullinertia="2.04e-7 3.16e-7 2.03e-7 0 0 0"/>
+<joint name="temperature_knob_rotation" type="hinge" axis="0 1 0" range="0 4.71238898" limited="true" damping="0.04" frictionloss="0.02" stiffness="0" springref="0" armature="0"/>
+<geom name="temperature_knob_cap" type="mesh" mesh="meshes/part-18.obj" pos="0 0 0" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_temperature_knob_cap" type="mesh" mesh="meshes/part-18.obj" pos="0 0 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.381326011 0.417885071 0.445201195 1"/>
+<site name="control_temperature_knob" pos="0 -0.006 0" quat="0.707106781 0.707106781 0 0" type="box" size="0.0055 0.0055 0.001" group="4"/>
+<geom name="visual_temperature_knob_mark" type="mesh" mesh="meshes/part-19.obj" pos="0 -0.0063 0" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.005181517 0.00699541 0.009134059 1"/>
+<geom name="temperature_knob_pointer" type="box" size="0.001 0.0015 0.0005" pos="0 -0.0065 0.01" euler="1.570796327 0 0" group="3"/>
+<geom name="visual_temperature_knob_pointer" type="box" size="0.001 0.0015 0.0005" pos="0 -0.0065 0.01" euler="1.570796327 0 0" group="2" contype="0" conaffinity="0" mass="0" rgba="0.013702083 0.017641954 0.02121901 1"/>
+</body>
+</body>
+</worldbody>
+<sensor>
+<jointpos name="mode_knob" joint="mode_knob_rotation"/>
+<jointpos name="temperature_knob" joint="temperature_knob_rotation"/>
+</sensor>
+</mujoco>

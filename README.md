@@ -1,6 +1,26 @@
 # Open Parametric Assets
 
+**A parametric generator and physics verifier for articulated and panel objects.
+It catches simulation-asset exploits before they reach training.**
+
+Every published variant (cabinets, drawers, microwaves, ovens) ships as MJCF and
+URDF with named joints, grasp points and control semantics. Each one has passed
+MuJoCo checks and a scripted oracle that solves its tasks.
+
+    python -m pip install mujoco==3.3.7
+    python examples/demo/demo.py
+
+![Oracle pressing START and opening an oven door](docs/media/demo.gif)
+
+- **Download:** [Hugging Face dataset](https://huggingface.co/datasets/rftlstudio/open-parametric-assets)
+- **Verify your own assets:** articulation linter (coming in the next release)
+- **Generate new variants:** Node.js generator, see [Build a dataset](#build-a-dataset)
+
+Run the commands from a repository checkout. Add `--task open_door_pull_rack --view` to watch the oven, or `--hf` to load models from the pinned Hugging Face release after publication. [Build and publish the verified release](docs/RELEASE.md).
+
 [Press START on two prebuilt microwaves with Python and MuJoCo](examples/quickstart/README.md). Each example includes the model, labeled views and its measured task report.
+
+## Generate your own variants (Node.js)
 
 [Export a self-contained MuJoCo model](docs/MJCF.md) with `npm run dataset -- --samples 3 --mjcf`.
 
@@ -14,7 +34,7 @@ Build a three.js object from parameters and inspect how to interact with its nam
 | [Built-in oven](assets/appliances/oven/README.md) | 0.1.0 | Spring-balanced bottom hinge, sliding wire racks, marked dials or touch strip |
 | [Microwave](assets/appliances/microwave/README.md) | 0.2.1 | Marked physical, touch and mixed panels with sensor checks |
 
-## Try the cabinet
+### Try the cabinet
 
 Clone this repository, install Node.js 24 or newer, and run `npm ci`. From the repository root, run this example with `node --input-type=module`:
 
@@ -33,7 +53,7 @@ console.log(handle.localToWorld(new Vector3(...grasp.point)).toArray());
 
 Add the returned group to a three.js scene or query it directly in Node. Run `npm test` for the regression suite and `npm run validate` to check every asset with defaults and 20 seeded samples. See the [asset specification](docs/ASSET_SPEC.md) and [contribution guide](CONTRIBUTING.md).
 
-## Build a dataset
+### Build a dataset
 
 Run `npm run dataset -- --samples 200 --out dist/dataset` on Node 24. Each asset contributes 200 validated records to `data.jsonl`, with binary glTF models in `glb/` and a dataset card in `README.md`. Each record includes its exact constructor call, seed, template-generated English prompt and train/test label. Use a fresh output folder for a self-contained snapshot. Rebuilding in place updates the manifest and retains older GLBs.
 
@@ -50,7 +70,7 @@ await writeFile('cabinet.glb', await exportGLB(root));
 
 The asset node stores the full root metadata in glTF `extras`. For texture-free binary export, the Node adapter supplies the exporter's missing `FileReader.readAsArrayBuffer` callback using native `Blob.arrayBuffer()`.
 
-## Render a dataset
+### Render a dataset
 
 After installing Node 24 and running `npm ci`, download the matching browser once with `npx playwright install --with-deps --only-shell chromium`. The render tests use the same browser. Then run:
 

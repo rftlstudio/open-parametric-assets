@@ -1,0 +1,291 @@
+{
+  "id": "692e29ceb4cf582c44dec8a8fbf075ccc5320ed4605407f7b9f1d118fae0ed07",
+  "seed": 3635476355,
+  "mujoco_version": "3.3.7",
+  "checks": [
+    {
+      "name": "load",
+      "passed": true,
+      "measurements": [
+        {
+          "bodies": 6,
+          "joints": 5
+        }
+      ]
+    },
+    {
+      "name": "passive",
+      "passed": true,
+      "measurements": [
+        {
+          "max_drift_fraction": 0.0001824476057953753,
+          "duration_s": 2.0000000000000013
+        }
+      ]
+    },
+    {
+      "name": "driven",
+      "passed": true,
+      "measurements": [
+        {
+          "joint": "door_hinge",
+          "achieved_fraction": 1.0004289338813404
+        },
+        {
+          "joint": "rack_1_slide",
+          "achieved_fraction": 0.9991028135010537
+        },
+        {
+          "joint": "rack_2_slide",
+          "achieved_fraction": 0.9991028135010537
+        },
+        {
+          "joint": "mode_knob_rotation",
+          "achieved_fraction": 0.9971530624497601
+        },
+        {
+          "joint": "temperature_knob_rotation",
+          "achieved_fraction": 1.0003959609091595
+        }
+      ]
+    },
+    {
+      "name": "door_behavior",
+      "passed": true,
+      "measurements": [
+        {
+          "joint": "door_hinge",
+          "start_rad": 0.0,
+          "final_rad": 0.00028644274109873927,
+          "final_speed_rad_s": 0.00014534150789345175
+        },
+        {
+          "joint": "door_hinge",
+          "start_rad": 1.57,
+          "final_rad": 1.5700000044903422,
+          "final_speed_rad_s": 4.2478506740183596e-14
+        },
+        {
+          "joint": "door_hinge",
+          "start_rad": 0.5235987755982988,
+          "final_rad": 0.681759969991829,
+          "final_speed_rad_s": 0.09892950203373414
+        }
+      ]
+    },
+    {
+      "name": "door_bounce",
+      "passed": true,
+      "measurements": [
+        {
+          "joint": "door_hinge",
+          "final_rad": 1.5684789728587483,
+          "final_speed_rad_s": 2.7943241492023237e-05
+        }
+      ]
+    },
+    {
+      "name": "drop",
+      "passed": true,
+      "measurements": [
+        {
+          "part": "cavity_floor",
+          "settled_s": 1.862,
+          "final_speed": 1.049504956662568e-12
+        },
+        {
+          "part": "door_window",
+          "settled_s": 1.866,
+          "final_speed": 6.109887291625401e-07
+        },
+        {
+          "part": "rack_1_wire_3",
+          "settled_s": 1.8760000000000001,
+          "final_speed": 5.460073814385123e-10
+        },
+        {
+          "part": "rack_2_wire_3",
+          "settled_s": 1.8760000000000001,
+          "final_speed": 5.460074187104465e-10
+        }
+      ]
+    },
+    {
+      "name": "carry",
+      "passed": true,
+      "measurements": [
+        {
+          "part": "rack_1_wire_3",
+          "achieved_fraction": 0.9987652493734865,
+          "final_slip_m": 2.3116895762829394e-07
+        },
+        {
+          "part": "rack_2_wire_3",
+          "achieved_fraction": 0.9987652493734865,
+          "final_slip_m": 2.3116895771650573e-07
+        }
+      ]
+    },
+    {
+      "name": "grasp",
+      "passed": true,
+      "measurements": [
+        {
+          "part": "door_handle",
+          "own_distance_m": -0.007
+        },
+        {
+          "part": "door_handle",
+          "nearest_other_m": 0.04200000049461089
+        },
+        {
+          "part": "rack_1_front",
+          "own_distance_m": -0.0035
+        },
+        {
+          "part": "rack_1_front",
+          "nearest_other_m": 0.0335
+        },
+        {
+          "part": "rack_2_front",
+          "own_distance_m": -0.0035
+        },
+        {
+          "part": "rack_2_front",
+          "nearest_other_m": 0.0335
+        }
+      ]
+    },
+    {
+      "name": "controls_reachable",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "mode_knob",
+          "surface_error_m": 4.5970991220634906e-08
+        },
+        {
+          "control": "mode_knob",
+          "nearest_other_m": 0.008500000000102561
+        },
+        {
+          "control": "temperature_knob",
+          "surface_error_m": 4.5970991220634906e-08
+        },
+        {
+          "control": "temperature_knob",
+          "nearest_other_m": 0.008500000000102561
+        }
+      ]
+    },
+    {
+      "name": "mode_knob",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "mode_knob",
+          "target": 0.0,
+          "position": -1.1873985298384114e-21
+        },
+        {
+          "control": "mode_knob",
+          "target": 1.1780972450961724,
+          "position": 1.1816980621577897
+        },
+        {
+          "control": "mode_knob",
+          "target": 2.356194490192345,
+          "position": 2.345092109636801
+        },
+        {
+          "control": "mode_knob",
+          "target": 3.5342917352885173,
+          "position": 3.5460877112143554
+        },
+        {
+          "control": "mode_knob",
+          "target": 4.71238898038469,
+          "position": 4.709453955603057
+        }
+      ]
+    },
+    {
+      "name": "temperature_knob",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "temperature_knob",
+          "target": 0.0,
+          "position": 1.0574192832598482e-21
+        },
+        {
+          "control": "temperature_knob",
+          "target": 0.5235987755982988,
+          "position": 0.5268034033603927
+        },
+        {
+          "control": "temperature_knob",
+          "target": 1.0471975511965976,
+          "position": 1.035328962251567
+        },
+        {
+          "control": "temperature_knob",
+          "target": 1.5707963267948966,
+          "position": 1.581410533879611
+        },
+        {
+          "control": "temperature_knob",
+          "target": 2.0943951023931953,
+          "position": 2.089939245511199
+        },
+        {
+          "control": "temperature_knob",
+          "target": 2.617993877991494,
+          "position": 2.6072553955775604
+        },
+        {
+          "control": "temperature_knob",
+          "target": 3.141592653589793,
+          "position": 3.153323569509126
+        },
+        {
+          "control": "temperature_knob",
+          "target": 3.6651914291880923,
+          "position": 3.661830398973268
+        },
+        {
+          "control": "temperature_knob",
+          "target": 4.1887902047863905,
+          "position": 4.17912247618735
+        },
+        {
+          "control": "temperature_knob",
+          "target": 4.71238898038469,
+          "position": 4.725170657708621
+        }
+      ]
+    }
+  ],
+  "oracle": [
+    {
+      "task": "oven/open_door_pull_rack",
+      "passed": true,
+      "time_s": 3.7979999999998033,
+      "snapshot": {
+        "joints": {
+          "door_hinge": 1.0000000028600906,
+          "rack_1_slide": 0.8006917385821345,
+          "rack_2_slide": 0.0,
+          "mode_knob_rotation": -4.9367740921603556e-18,
+          "temperature_knob_rotation": 8.196278865620449e-18
+        },
+        "controls": {
+          "mode_knob": "off",
+          "temperature_knob": 0
+        }
+      },
+      "max_penetration_m": 0.0
+    }
+  ],
+  "passed": true
+}

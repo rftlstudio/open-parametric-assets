@@ -1,0 +1,192 @@
+{
+  "id": "4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98",
+  "seed": 2321463991,
+  "mujoco_version": "3.3.7",
+  "checks": [
+    {
+      "name": "load",
+      "passed": true,
+      "measurements": [
+        {
+          "bodies": 6,
+          "joints": 5
+        }
+      ]
+    },
+    {
+      "name": "passive",
+      "passed": true,
+      "measurements": [
+        {
+          "max_drift_fraction": 0.0,
+          "duration_s": 2.0000000000000013
+        }
+      ]
+    },
+    {
+      "name": "driven",
+      "passed": true,
+      "measurements": [
+        {
+          "joint": "door_hinge",
+          "achieved_fraction": 0.999999999999626
+        },
+        {
+          "joint": "start_button_slide",
+          "achieved_fraction": 0.999999999030739
+        },
+        {
+          "joint": "stop_button_slide",
+          "achieved_fraction": 0.9999999996769128
+        },
+        {
+          "joint": "add_30s_button_slide",
+          "achieved_fraction": 1.0000000000000002
+        },
+        {
+          "joint": "door_release_button_slide",
+          "achieved_fraction": 1.0000000000000002
+        }
+      ]
+    },
+    {
+      "name": "drop",
+      "passed": true,
+      "measurements": [
+        {
+          "part": "cavity_floor",
+          "settled_s": 1.862,
+          "final_speed": 1.0495049706781592e-12
+        }
+      ]
+    },
+    {
+      "name": "grasp",
+      "passed": true,
+      "measurements": [
+        {
+          "part": "door_pull_edge",
+          "nearest_solid_m": 0.006000001000000026
+        }
+      ]
+    },
+    {
+      "name": "controls_reachable",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "start_button",
+          "surface_error_m": 4.336808689942018e-19
+        },
+        {
+          "control": "start_button",
+          "nearest_other_m": 0.003999999984001933
+        },
+        {
+          "control": "stop_button",
+          "surface_error_m": 4.336808689942018e-19
+        },
+        {
+          "control": "stop_button",
+          "nearest_other_m": 0.003999999994667316
+        },
+        {
+          "control": "add_30s_button",
+          "surface_error_m": 4.336808689942018e-19
+        },
+        {
+          "control": "add_30s_button",
+          "nearest_other_m": 0.004000000005332701
+        },
+        {
+          "control": "door_release_button",
+          "surface_error_m": 4.336808689942018e-19
+        },
+        {
+          "control": "door_release_button",
+          "nearest_other_m": 0.004000000015998085
+        }
+      ]
+    },
+    {
+      "name": "start_button",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "start_button",
+          "pressed_position_m": 0.0023796470482845117,
+          "threshold_m": 0.0018
+        },
+        {
+          "released_position_m": 9.157676366231756e-12
+        }
+      ]
+    },
+    {
+      "name": "stop_button",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "stop_button",
+          "pressed_position_m": 0.0023796470482845117,
+          "threshold_m": 0.0018
+        },
+        {
+          "released_position_m": 9.157676366231756e-12
+        }
+      ]
+    },
+    {
+      "name": "add_30s_button",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "add_30s_button",
+          "pressed_position_m": 0.0023796470482845117,
+          "threshold_m": 0.0018
+        },
+        {
+          "released_position_m": 9.157676366231756e-12
+        }
+      ]
+    },
+    {
+      "name": "door_release_button",
+      "passed": true,
+      "measurements": [
+        {
+          "control": "door_release_button",
+          "pressed_position_m": 0.0023796470482845117,
+          "threshold_m": 0.0018
+        },
+        {
+          "released_position_m": 9.157676366231756e-12
+        }
+      ]
+    }
+  ],
+  "oracle": [
+    {
+      "task": "microwave/press_start",
+      "passed": true,
+      "time_s": 0.05800000000000004,
+      "snapshot": {
+        "joints": {
+          "door_hinge": 0.0,
+          "start_button_slide": 0.6298979762840358,
+          "stop_button_slide": 0.0,
+          "add_30s_button_slide": 0.0,
+          "door_release_button_slide": 0.0
+        },
+        "controls": {
+          "start_button": true,
+          "stop_button": false,
+          "add_30s_button": false,
+          "door_release_button": false
+        }
+      },
+      "max_penetration_m": 0.0004513144640231298
+    }
+  ],
+  "passed": true
+}
