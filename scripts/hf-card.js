@@ -56,14 +56,14 @@ ${taskRows.join('\n')}
 
 ## Load and run
 
-From the [GitHub checkout](${repo}) with Python installed:
+From the [GitHub checkout](${repo}), install \`mujoco==3.3.7\` and load the physical START model from the pinned dataset:
 
-\`\`\`sh
-python -m pip install mujoco==3.3.7
-python examples/demo/demo.py
-python examples/demo/demo.py --hf
-python examples/demo/demo.py --hf --task open_door_pull_rack
-python examples/demo/demo.py --task open_door_pull_rack --view
+\`\`\`python
+import mujoco
+from examples.demo.demo import START, model_paths
+path, task = next(model_paths(START, online=True))
+model = mujoco.MjModel.from_xml_path(str(path))
+print(task, model.njnt)
 \`\`\`
 
 The JSONL manifest links each model to its parameters, joints, controls, tasks, renders and simulation reports. The checks exercise scripted interactions in MuJoCo.
