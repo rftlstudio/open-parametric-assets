@@ -30,10 +30,8 @@ def clip(path, task, seconds):
     cam = mj.MjvCamera()
     camera(cam, original)
     if task == "microwave/press_start":
-        start = next(c for c in hand.record["controls"] if c["function"] == "start")
-        cam.lookat[:] = hand.data.site("control_" + start["name"]).xpos
-        cam.distance = 0.22
-        cam.azimuth, cam.elevation = 114, -8
+        cam.distance = original.stat.extent * 0.85
+        cam.azimuth, cam.elevation = 96, -5
     else:
         cam.lookat[1] -= 0.15
         cam.distance = original.stat.extent * 1.25
