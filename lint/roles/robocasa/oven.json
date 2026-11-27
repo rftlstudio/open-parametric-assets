@@ -1,0 +1,14 @@
+{
+  "source": "robocasa@7bfc60c9d26c02506d4265cbe0e86b35e6e25d42/robocasa/models/assets/fixtures/ovens/Oven031/model.xml",
+  "joints": {
+    "door_joint": "door",
+    "knob_temp_joint": "knob",
+    "knob_time_joint": "knob",
+    "rack0_joint": "rack",
+    "rack1_joint": "rack"
+  },
+  "requires": {
+    "rack0_joint": [{"joint": "door_joint", "at": "upper"}],
+    "rack1_joint": [{"joint": "door_joint", "at": "upper"}]
+  }
+}

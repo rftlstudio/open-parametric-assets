@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+The record-free MJCF articulation linter reports joint, collision and control measurements with configurable thresholds. CI checks clean models and seven classes of injected faults across parameter corners. [Rules and reproduction instructions](docs/LINT.md).
+
 The dataset builder accepts `--mjcf` to export native MuJoCo models with springs, interaction sites, control sensors and embedded task metadata. CI runs both physics formats and compares their compiled models and measured motion. See [Native MuJoCo models](docs/MJCF.md).
 
 ## 0.3.0
