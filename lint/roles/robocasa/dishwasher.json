@@ -6,5 +6,9 @@
     "button_power_joint": "button",
     "rack0_joint": "rack",
     "rack1_joint": "rack"
+  },
+  "requires": {
+    "rack0_joint": [{"joint": "door_joint", "at": "upper"}],
+    "rack1_joint": [{"joint": "door_joint", "at": "upper"}]
   }
 }

@@ -11,6 +11,8 @@ import mujoco as mj
 from sim.lint.cli import lint_spec
 from sim.lint.faults import mutate
 from sim.lint.report import Limits
+from sim.lint.roles import resolve
+from sim.physics import prepare_motion
 
 FOREIGN = """<mujoco><worldbody><body name="leaf">
 <inertial mass=".01" pos="0 0 0" diaginertia=".001 .001 .001"/>
@@ -20,6 +22,54 @@ FOREIGN = """<mujoco><worldbody><body name="leaf">
 
 
 class RecordFreeTests(unittest.TestCase):
+    def test_a003_weighs_payload_on_massless_hinge_frame(self):
+        xml = """<mujoco><compiler fusestatic="false"/><worldbody>
+        <body name="frame"><joint name="hinge" range="0 90"/>
+        <body pos=".1 0 0"><geom type="box" size=".03 .02 .01" mass=".25"/></body>
+        </body></worldbody></mujoco>"""
+        spec = mj.MjSpec.from_string(xml)
+        model = spec.compile()
+        frame = model.body("frame").id
+        self.assertEqual(model.body_mass[frame], 0)
+        self.assertAlmostEqual(model.body_subtreemass[frame], 0.25)
+        self.assertEqual(lint_spec(spec, rules={"A003"}), [])
+        findings = lint_spec(spec, limits=Limits(min_mass=0.3), rules={"A003"})
+        self.assertEqual([f["severity"] for f in findings], ["warn"])
+        self.assertAlmostEqual(findings[0]["measured"]["subtree_mass_kg"], 0.25)
+        faulty = mutate(spec, "feather_door", "hinge")
+        findings = lint_spec(faulty, rules={"A003"})
+        self.assertEqual([f["element"] for f in findings], ["hinge"])
+        self.assertAlmostEqual(findings[0]["measured"]["subtree_mass_kg"], 0.00025)
+
+    def test_role_prerequisites_set_motion_targets_and_initial_positions(self):
+        xml = """<mujoco><compiler angle="radian"/><worldbody>
+        <body><joint name="door" range="0 1.5"/><geom size=".1"/></body>
+        <body><joint name="rack" type="slide" range="0 .2"/><geom size=".1"/></body>
+        <body><joint name="lock" type="slide" range="-.02 0"/><geom size=".1"/></body>
+        </worldbody></mujoco>"""
+        model = mj.MjSpec.from_string(xml).compile()
+        requires = {
+            "rack": [{"joint": "door", "at": "upper"}],
+            "door": [{"joint": "lock", "at": "lower"}],
+        }
+        joints, *_ = resolve(model, {"requires": requires}, Limits())
+        data, targets = prepare_motion(
+            model, joints, next(j for j in joints if j["name"] == "rack")
+        )
+        self.assertEqual(
+            dict(zip([j["name"] for j in joints], targets)),
+            {"door": 1.5, "rack": 0.0, "lock": -0.02},
+        )
+        self.assertEqual(data.joint("door").qpos[0], 1.5)
+        self.assertEqual(data.joint("lock").qpos[0], -0.02)
+        for bad in (
+            {"rack": [{"joint": "door", "at": "open"}]},
+            {"rack": [{"joint": "typo", "at": "upper"}]},
+            {**requires, "lock": [{"joint": "rack", "at": "lower"}]},
+        ):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                resolve(model, {"requires": bad}, Limits())
+
     def test_foreign_cli_json_and_exit(self):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "model.xml"

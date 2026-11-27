@@ -9,5 +9,8 @@
     "Knob001_joint": "knob",
     "Knob002_joint": "knob",
     "Shelf001_joint": "rack"
+  },
+  "requires": {
+    "Shelf001_joint": [{"joint": "Door001_joint", "at": "upper"}]
   }
 }

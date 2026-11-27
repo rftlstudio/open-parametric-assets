@@ -34,22 +34,31 @@ def controller(model, data, joints, targets, limits, released=()):
         data.qfrc_applied[v] = np.clip(force, -effort, effort)
 
 
-def prepare_motion(model, joints, target):
-    """Hold prerequisite joints at their declared stops, including indirect prerequisites."""
-    by_name = {j["name"]: j for j in joints}
+def motion_prerequisites(by_name, target):
+    """Resolve the stops to hold, including transitive requirements."""
     required = {}
+    visiting = set()
 
     def visit(joint):
+        visiting.add(joint["name"])
         for req in joint.get("requires", []):
             name, at = req["joint"], req["at"]
+            if name in visiting:
+                raise ValueError("cyclic motion prerequisite: " + name)
             if name not in required:
                 required[name] = at
                 visit(by_name[name])
-            else:
-                if required[name] != at:
-                    raise ValueError("conflicting motion prerequisites: " + name)
+            elif required[name] != at:
+                raise ValueError("conflicting motion prerequisites: " + name)
+        visiting.remove(joint["name"])
 
     visit(target)
+    return required
+
+
+def prepare_motion(model, joints, target):
+    """Initialize and hold prerequisite joints at their declared stops."""
+    required = motion_prerequisites({j["name"]: j for j in joints}, target)
     targets = [j["limits"][int(required.get(j["name"]) == "upper")] for j in joints]
     data = initial(model, joints)
     for joint, value in zip(joints, targets):

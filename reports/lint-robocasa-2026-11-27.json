@@ -1,44 +1,7 @@
 [
   {
     "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
-    "findings": [
-      {
-        "element": "fixture_leftdoorhinge",
-        "hint": "Verify the moving link's density, scale and inertia.",
-        "id": "A003",
-        "measured": {
-          "inertia": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "mass_kg": 0.0
-        },
-        "severity": "warn",
-        "threshold": {
-          "min_mass_kg": 0.001,
-          "triangle": "Imax <= I1 + I2"
-        }
-      },
-      {
-        "element": "fixture_rightdoorhinge",
-        "hint": "Verify the moving link's density, scale and inertia.",
-        "id": "A003",
-        "measured": {
-          "inertia": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "mass_kg": 0.0
-        },
-        "severity": "warn",
-        "threshold": {
-          "min_mass_kg": 0.001,
-          "triangle": "Imax <= I1 + I2"
-        }
-      }
-    ],
+    "findings": [],
     "fixture": "cabinet_double",
     "joints": 2,
     "loaded": true,
@@ -47,26 +10,7 @@
   },
   {
     "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
-    "findings": [
-      {
-        "element": "fixture_doorhinge",
-        "hint": "Verify the moving link's density, scale and inertia.",
-        "id": "A003",
-        "measured": {
-          "inertia": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "mass_kg": 0.0
-        },
-        "severity": "warn",
-        "threshold": {
-          "min_mass_kg": 0.001,
-          "triangle": "Imax <= I1 + I2"
-        }
-      }
-    ],
+    "findings": [],
     "fixture": "cabinet_single",
     "joints": 1,
     "loaded": true,
@@ -81,12 +25,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             1.0076652016035362e-08,
             1.007676668897541e-08,
             1.7406956177418943e-08
           ],
-          "mass_kg": 0.0005476539777995642
+          "subtree_mass_kg": 0.0005476539777995642
         },
         "severity": "warn",
         "threshold": {
@@ -99,12 +43,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             1.0076727560703474e-08,
             1.0076843845006149e-08,
             1.7407080310875465e-08
           ],
-          "mass_kg": 0.0005476561840452911
+          "subtree_mass_kg": 0.0005476561840452911
         },
         "severity": "warn",
         "threshold": {
@@ -114,6 +58,7 @@
       },
       {
         "element": "Button001_joint",
+        "held_stops": {},
         "hint": "Check effort, friction, joint limits and obstructions.",
         "id": "P002",
         "measured": {
@@ -126,6 +71,7 @@
       },
       {
         "element": "Button002_joint",
+        "held_stops": {},
         "hint": "Check effort, friction, joint limits and obstructions.",
         "id": "P002",
         "measured": {
@@ -192,6 +138,7 @@
       },
       {
         "element": "door_joint",
+        "held_stops": {},
         "hint": "Check effort, friction, joint limits and obstructions.",
         "id": "P002",
         "measured": {
@@ -204,27 +151,26 @@
       },
       {
         "element": "rack0_joint",
+        "held_stops": {
+          "door_joint": "upper"
+        },
         "hint": "Check effort, friction, joint limits and obstructions.",
         "id": "P002",
         "measured": {
           "effort": 150,
-          "fraction": 0.13931700477041195,
+          "fraction": 0.5527475462344008,
           "target": 0.33
         },
         "severity": "error",
         "threshold": 0.95
       },
       {
-        "element": "rack1_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.34932878058756084,
-          "target": 0.33
-        },
-        "severity": "error",
-        "threshold": 0.95
+        "element": "rack0_joint",
+        "hint": "Inspect limit damping and distinguish impact rebound from intentional return motion.",
+        "id": "P003",
+        "measured": 0.027944886652042422,
+        "severity": "warn",
+        "threshold": 0.006600000000000001
       },
       {
         "element": "button_lock_joint",
@@ -256,17 +202,12 @@
       },
       {
         "element": "rack0_joint",
+        "held_stops": {
+          "door_joint": "upper"
+        },
         "hint": "Check the swept collision shapes and required opening sequence.",
         "id": "P006",
-        "measured": 0.043450151024383064,
-        "severity": "error",
-        "threshold": 0.001
-      },
-      {
-        "element": "rack1_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.04331289479265992,
+        "measured": 0.04344489908047175,
         "severity": "error",
         "threshold": 0.001
       }
@@ -282,6 +223,7 @@
     "findings": [
       {
         "element": "fixture_slidejoint",
+        "held_stops": {},
         "hint": "Check effort, friction, joint limits and obstructions.",
         "id": "P002",
         "measured": {
@@ -294,6 +236,7 @@
       },
       {
         "element": "fixture_slidejoint",
+        "held_stops": {},
         "hint": "Check effort, friction, joint limits and obstructions.",
         "id": "P002",
         "measured": {
@@ -313,136 +256,7 @@
   },
   {
     "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
-    "findings": [
-      {
-        "element": "freezer_drawer0_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.02048267055966046,
-          "target": 0.0
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "freezer_drawer0_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.2894039346620258,
-          "target": 0.38
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "freezer_drawer1_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.012822213042021796,
-          "target": 0.0
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "freezer_drawer1_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.28480285181833487,
-          "target": 0.38
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "fridge_drawer0_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.40502142812022646,
-          "target": 0.38
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "fridge_drawer0_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.5228625531669182,
-          "target": 0.0
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "fridge_drawer1_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.0001409373692754103,
-          "target": 0.0
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "fridge_drawer1_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.4050215482979509,
-          "target": 0.38
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "freezer_drawer0_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.031096480963890828,
-        "severity": "error",
-        "threshold": 0.001
-      },
-      {
-        "element": "freezer_drawer1_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.030524436826579845,
-        "severity": "error",
-        "threshold": 0.001
-      },
-      {
-        "element": "fridge_drawer0_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.029860289684439753,
-        "severity": "error",
-        "threshold": 0.001
-      },
-      {
-        "element": "fridge_drawer1_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.032244567489012645,
-        "severity": "error",
-        "threshold": 0.001
-      }
-    ],
+    "findings": [],
     "fixture": "fridge",
     "joints": 6,
     "loaded": true,
@@ -472,72 +286,7 @@
   },
   {
     "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
-    "findings": [
-      {
-        "element": "rack0_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.007309866172657666,
-          "target": 0.0
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "rack0_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.11847408966662253,
-          "target": 0.27
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "rack1_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": -0.001239335855170833,
-          "target": 0.0
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "rack1_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.19026379299501697,
-          "target": 0.27
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "rack0_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.06326668511414271,
-        "severity": "error",
-        "threshold": 0.001
-      },
-      {
-        "element": "rack1_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.051236635087020886,
-        "severity": "error",
-        "threshold": 0.001
-      }
-    ],
+    "findings": [],
     "fixture": "oven",
     "joints": 5,
     "loaded": true,
@@ -555,28 +304,7 @@
   },
   {
     "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
-    "findings": [
-      {
-        "element": "Shelf001_joint",
-        "hint": "Check effort, friction, joint limits and obstructions.",
-        "id": "P002",
-        "measured": {
-          "effort": 150,
-          "fraction": 0.1481954329584721,
-          "target": 0.3
-        },
-        "severity": "error",
-        "threshold": 0.95
-      },
-      {
-        "element": "Shelf001_joint",
-        "hint": "Check the swept collision shapes and required opening sequence.",
-        "id": "P006",
-        "measured": 0.030414498881433067,
-        "severity": "error",
-        "threshold": 0.001
-      }
-    ],
+    "findings": [],
     "fixture": "stove",
     "joints": 8,
     "loaded": true,

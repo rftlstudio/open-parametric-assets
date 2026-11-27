@@ -7,10 +7,10 @@ The 10 JSON files identify the tested fixture, exact upstream revision and artic
 | SingleCabinet / HingeCabinet | One or two door hinges on procedurally attached cabinet panels. |
 | Drawer | The constructed drawer's translation joint. |
 | Microwave011 | Door hinge and turntable. This variant handles button contact in the fixture logic without a dedicated moving button joint. |
-| Dishwasher031 | Door, two racks, lock and power buttons. |
-| Refrigerator031 | Two doors and four inner drawers. |
-| Oven031 | Door, temperature and timer knobs, two racks. |
-| Stove001 | Burner and oven knobs, oven door and shelf. |
+| Dishwasher031 | Both rack sweeps hold the door at its upper stop, matching the door-opening step in `Dishwasher.slide_rack`. The lock and power buttons have their own joints. |
+| Refrigerator031 | Each pair of drawers uses its own compartment's door. The fridge and freezer door hinges both open to their upper stops. |
+| Oven031 | The two racks share the door that `Oven.open_door` drives to the top of its range. The temperature and timer knobs are independent. |
+| Stove001 | The Stove class models the burners and knobs. The selected XML also has an oven shelf sliding behind the drop-down door. The shelf sweep holds `Door001_joint` at its upper stop. |
 | Sink001 | Faucet flow and temperature controls, spout. |
 | CoffeeMachine036 | Two buttons and two lids. |
 

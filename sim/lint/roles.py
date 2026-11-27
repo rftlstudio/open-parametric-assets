@@ -3,6 +3,8 @@
 import json
 import mujoco as mj
 
+from sim.physics import motion_prerequisites
+
 
 def embedded(model):
     idx = mj.mj_name2id(model, mj.mjtObj.mjOBJ_TEXT, "opa_metadata")
@@ -55,7 +57,11 @@ def resolve(model, overrides, limits):
     for i in range(model.nsensor):
         if model.sensor_type[i] == mj.mjtSensor.mjSENS_TOUCH:
             roles["sensors"][model.sensor(i).name] = "touch"
-    if not isinstance(overrides, dict) or set(overrides) - {"source", *roles}:
+    if not isinstance(overrides, dict) or set(overrides) - {
+        "source",
+        "requires",
+        *roles,
+    }:
         raise ValueError("Invalid roles file keys")
     for key in roles:
         values = overrides.get(key, {})
@@ -63,6 +69,31 @@ def resolve(model, overrides, limits):
             raise ValueError(f"{key} roles must be a name-to-role object")
         roles[key].update(values)
     names = {j["name"] for j in joints}
+    prerequisites = overrides.get("requires", {})
+    if not isinstance(prerequisites, dict) or prerequisites.keys() - names:
+        raise ValueError(
+            "requires must map known articulation joints to lists of stops"
+        )
+    by_name = {j["name"]: j for j in joints}
+    for joint in joints:
+        name = joint["name"]
+        stops = prerequisites.get(name, joint["requires"])
+        if not isinstance(stops, list):
+            raise ValueError(f"Expected a list of motion prerequisites for {name}")
+        for stop in stops:
+            if (
+                not isinstance(stop, dict)
+                or set(stop) != {"joint", "at"}
+                or not isinstance(stop["joint"], str)
+                or stop["joint"] not in names
+                or stop["at"] not in ("upper", "lower")
+                or not model.joint(stop["joint"]).limited[0]
+            ):
+                raise ValueError(f"Invalid motion prerequisite for {name}: {stop!r}")
+        joint["requires"] = stops
+    for joint in joints:
+        if joint["requires"]:
+            motion_prerequisites(by_name, joint)
     if not (roles["joints"].keys() | roles["handles"].keys()) <= names:
         raise ValueError("Role references an unknown articulation joint")
     for joint, sites in roles["handles"].items():

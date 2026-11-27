@@ -105,15 +105,17 @@ def static(spec, model, data, joints, roles, limits):
                 ">0 damping or frictionloss",
                 "Check the intended passive resistance.",
             )
-        mass = model.body_mass[body]
+        mass = model.body_subtreemass[body]
         inertia = sorted(model.body_inertia[body])
-        if mass < limits.min_mass or inertia[2] > inertia[0] + inertia[1] + 1e-14:
-            invalid = inertia[2] > inertia[0] + inertia[1] + 1e-14
+        invalid = (
+            model.body_mass[body] > 0 and inertia[2] > inertia[0] + inertia[1] + 1e-14
+        )
+        if mass < limits.min_mass or invalid:
             yield finding(
                 "A003",
                 "error" if invalid else "warn",
                 name,
-                {"mass_kg": mass, "inertia": inertia},
+                {"subtree_mass_kg": mass, "body_inertia": inertia},
                 {"min_mass_kg": limits.min_mass, "triangle": "Imax <= I1 + I2"},
                 "Verify the moving link's density, scale and inertia.",
             )

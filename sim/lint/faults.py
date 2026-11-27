@@ -50,11 +50,20 @@ def mutate(clean, fault, target):
         elif fault == "free_swing":
             joint.damping, joint.frictionloss = 0, 0
         elif fault == "feather_door":
-            body = joint.parent
-            ratio = min(0.001, 0.0005 / body.mass)
-            body.mass *= ratio
-            body.fullinertia[:] *= ratio
-            body.inertia[:] *= ratio
+            model = clean.compile()
+            joint_body = model.joint(target).bodyid[0]
+            ratio = min(0.001, 0.0005 / model.body_subtreemass[joint_body])
+            pending = [joint.parent]
+            while pending:
+                body = pending.pop()
+                body.mass *= ratio
+                body.fullinertia[:] *= ratio
+                body.inertia[:] *= ratio
+                # Bodies without an explicit inertial derive it from their geoms.
+                for geom in body.geoms:
+                    geom.mass *= ratio
+                    geom.density *= ratio
+                pending.extend(body.bodies)
         else:
             raise ValueError("Unknown fault " + fault)
     return spec

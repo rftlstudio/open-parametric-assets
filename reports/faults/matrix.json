@@ -52,12 +52,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {
@@ -70,12 +70,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {
@@ -88,12 +88,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {
@@ -106,12 +106,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {
@@ -220,12 +220,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {
@@ -238,12 +238,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {
@@ -256,12 +256,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {
@@ -274,12 +274,12 @@
         "hint": "Verify the moving link's density, scale and inertia.",
         "id": "A003",
         "measured": {
-          "inertia": [
+          "body_inertia": [
             2.7e-08,
             1.98e-07,
             2.25e-07
           ],
-          "mass_kg": 0.00066
+          "subtree_mass_kg": 0.00066
         },
         "severity": "warn",
         "threshold": {

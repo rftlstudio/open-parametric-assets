@@ -10,7 +10,9 @@ import mujoco as mj
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from sim.lint.cli import lint_spec  # noqa: E402 (direct script entry point)
-from sim.lint.report import dump, table  # noqa: E402
+from sim.lint.report import Limits, dump, table  # noqa: E402
+from sim.lint.roles import resolve  # noqa: E402
+from sim.physics import motion_prerequisites  # noqa: E402
 
 
 def main():
@@ -53,7 +55,15 @@ def main():
         try:
             spec = mj.MjSpec.from_file(str(path.resolve()))
             model = spec.compile()
-            row.update(loaded=True, joints=model.njnt, findings=lint_spec(spec, roles))
+            findings = lint_spec(spec, roles)
+            joints, *_ = resolve(model, roles, Limits())
+            by_name = {j["name"]: j for j in joints}
+            for finding in findings:
+                if finding["id"] in ("P002", "P006"):
+                    finding["held_stops"] = motion_prerequisites(
+                        by_name, by_name[finding["element"]]
+                    )
+            row.update(loaded=True, joints=model.njnt, findings=findings)
         except (OSError, ValueError, KeyError) as error:
             row.update(
                 loaded=False,
@@ -74,7 +84,8 @@ def main():
         "## Scope and interpretation",
         "",
         "These observations describe the tested fixture and probe. The standalone scene omits the robot, gripper, placement and high-level state logic. "
-        "Continuous joints, low resistance and contact-driven buttons may be intentional. A rack tested behind a closed door may need a task-level opening sequence. "
+        "Continuous joints, low resistance and contact-driven buttons may be intentional. "
+        "For enclosed slides, the controller holds the associated door at its declared open stop in both sweep directions. "
         "The sample covers individual variants of ten fixtures and does not characterize the full collection.",
         "",
         "For each rule, the [threshold table](../docs/LINT.md) gives its units, rationale and configuration. "
@@ -96,6 +107,23 @@ def main():
                 if r["findings"]
                 else "No findings for this fixture under the tested conditions."
             )
+            for finding in r["findings"]:
+                if "held_stops" in finding:
+                    held = ", ".join(
+                        f"`{name}` at {at}"
+                        for name, at in finding["held_stops"].items()
+                    )
+                    target = (
+                        f" to {finding['measured']['target']:g}"
+                        if finding["id"] == "P002"
+                        else ""
+                    )
+                    lines.extend(
+                        [
+                            "",
+                            f"- {finding['id']} `{finding['element']}`{target} — prerequisite stops held: {held or 'none'}.",
+                        ]
+                    )
         else:
             lines.append("Load attempt: " + r["error"])
     args.out.with_suffix(".md").write_text("\n".join(lines) + "\n", encoding="utf-8")
