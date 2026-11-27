@@ -4,7 +4,8 @@ type: software
 title: Open Parametric Assets
 authors:
   - name: rftlstudio
-version: "0.3.0"
+version: "0.5.0"
+date-released: 2026-11-28
 # Generated datasets and renders are licensed separately under CC-BY-4.0.
 license: Apache-2.0
 repository-code: "https://github.com/rftlstudio/open-parametric-assets"
