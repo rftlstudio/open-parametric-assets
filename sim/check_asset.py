@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 import mujoco as mj
 import numpy as np
 
+from physics import (POSITION_GAIN, controller, drift_samples, initial, nonparent_contacts, prepare_motion,
+                     press_button, press_touch, ramp_target, release_button)
 from sim_report import measure, run_check, save_report
 
 
@@ -48,45 +50,9 @@ def load(path):
     return spec
 
 
-def initial(model, joints, upper=False):
-    data = mj.MjData(model)
-    for joint in joints:
-        jid = model.joint(joint["name"]).id
-        data.qpos[model.jnt_qposadr[jid]] = joint["limits"][int(upper)]
-    mj.mj_forward(model, data)
-    return data
-
-
-POSITION_GAIN = 400.0
-
-
-def controller(model, data, joints, targets, limits, released=()):
-    data.qfrc_applied[:] = 0
-    inertia = np.zeros((model.nv, model.nv))
-    mj.mj_fullM(model, inertia, data.qM)
-    for joint, target in zip(joints, targets):
-        if joint["name"] in released:
-            continue
-        jid = model.joint(joint["name"]).id
-        q, v = model.jnt_qposadr[jid], model.jnt_dofadr[jid]
-        # Critically damped position servo, capped by the URDF effort limit.
-        gain = POSITION_GAIN
-        damping = 2 * np.sqrt(gain * inertia[v, v])
-        force = gain * (target - data.qpos[q]) - damping * data.qvel[v]
-        force += model.jnt_stiffness[jid] * (data.qpos[q] - model.qpos_spring[q])
-        effort = limits[joint["name"]]["effort"]
-        data.qfrc_applied[v] = np.clip(force, -effort, effort)
-
-
 def check_contacts(model, data, moving):
-    parent = model.body_parentid[moving]
-    for contact in data.contact:
-        a, b = model.geom_bodyid[contact.geom]
-        if moving not in (a, b):
-            continue
-        other = b if a == moving else a
-        require(other in (moving, parent) or contact.dist >= -0.001,
-                f"contact penetration {-contact.dist:.6f} m between "
+    for depth, other in nonparent_contacts(model, data, moving):
+        require(depth <= 0.001, f"contact penetration {depth:.6f} m between "
                 f"{model.body(moving).name} and {model.body(other).name}")
 
 
@@ -136,17 +102,10 @@ def button_check(model, record, control, limits):
     spring = next(j["dynamics"]["spring"] for j in joints if j["name"] == control["joint"])
     force = min(limits[control["joint"]]["effort"],
                 1.25 * spring["stiffness"] * (travel - spring["restPosition"]) + 0.05)
-    for _ in range(round(0.5 / model.opt.timestep)):
-        controller(model, data, joints, targets, limits, released=[control["joint"]])
-        data.qfrc_applied[v] = force
-        mj.mj_step(model, data)
-        if data.qpos[q] >= pressed:
-            break
+    press_button(model, data, joints, targets, limits, control["joint"], q, v, pressed, force)
     measure(control=control["name"], pressed_position_m=float(data.qpos[q]), threshold_m=float(pressed))
     require(data.qpos[q] >= pressed, control["name"] + ": button failed to press")
-    for _ in range(round(0.5 / model.opt.timestep)):
-        controller(model, data, joints, targets, limits, released=[control["joint"]])
-        mj.mj_step(model, data)
+    release_button(model, data, joints, targets, limits, control["joint"])
     measure(released_position_m=float(data.qpos[q]))
     require(abs(data.qpos[q]) < 0.1 * travel, control["name"] + ": button failed to return within 0.5 s")
     print(f"PASS button {control['name']}, pressed and returned to {data.qpos[q]:.6f} m")
@@ -260,12 +219,8 @@ def touch_check(path, xml, record):
     q = model.jnt_qposadr[model.joint("touch_probe_free").id]
     for i, control in enumerate(controls):
         data = initial(model, record["joints"])
-        data.qpos[q:q+3] = centers[i] + normals[i]*(radius+0.0001)
-        mj.mj_forward(model, data)
         force = control["state"]["minForceN"]
-        data.xfrc_applied[model.body("touch_probe").id,:3] = -normals[i]*1.25*force
-        for _ in range(100):
-            mj.mj_step(model, data)
+        for _ in press_touch(model, data, model.body("touch_probe").id, q, centers[i], normals[i], radius, force):
             for j, other in enumerate(controls):
                 sensor = other["name"]
                 require(np.linalg.norm(data.site("control_"+sensor if xml.tag == "mujoco" else sensor).xpos-centers[j]) < 1e-12, sensor + ": touch region drift")
@@ -280,8 +235,7 @@ def touch_check(path, xml, record):
 def passive(model, joints):
     data = initial(model, joints)
     max_drift = 0.0
-    for _ in range(round(2 / model.opt.timestep)):
-        mj.mj_step(model, data)
+    for _ in drift_samples(model, data, 2):
         for joint in joints:
             jid = model.joint(joint["name"]).id
             lo, hi = joint["limits"]
@@ -290,27 +244,6 @@ def passive(model, joints):
             require(drift <= 0.02, f"{joint['name']}: passive drift {drift:.2%} exceeds 2%")
     measure(max_drift_fraction=float(max_drift), duration_s=float(data.time))
     print(f"PASS passive, 2 s, maximum drift {max_drift:.3%}")
-
-
-def prepare_motion(model, joints, target):
-    """Hold prerequisite joints at their declared stops, including indirect prerequisites."""
-    by_name = {j["name"]: j for j in joints}
-    required = {}
-    def visit(joint):
-        for req in joint.get("requires", []):
-            name, at = req["joint"], req["at"]
-            if name not in required:
-                required[name] = at
-                visit(by_name[name])
-            else:
-                require(required[name] == at, "conflicting motion prerequisites: "+name)
-    visit(target)
-    targets = [j["limits"][int(required.get(j["name"]) == "upper")] for j in joints]
-    data = initial(model,joints)
-    for joint, value in zip(joints,targets):
-        data.joint(joint["name"]).qpos[0] = value
-    mj.mj_forward(model,data)
-    return data, targets
 
 
 def driven(model, joints, limits):
@@ -322,7 +255,7 @@ def driven(model, joints, limits):
             for joint, fixed in zip(joints, rest):
                 lo, hi = joint["limits"]
                 speed = limits[joint["name"]]["velocity"]
-                targets.append(min(hi, lo + speed * data.time) if joint is target_joint else fixed)
+                targets.append(ramp_target(lo, hi, speed, data.time) if joint is target_joint else fixed)
             controller(model, data, joints, targets, limits)
             mj.mj_step(model, data)
             check_contacts(model, data, moving)

@@ -1,0 +1,10 @@
+{
+  "source": "robocasa@7bfc60c9d26c02506d4265cbe0e86b35e6e25d42/robocasa/models/assets/fixtures/dishwashers/Dishwasher031/model.xml",
+  "joints": {
+    "door_joint": "door",
+    "button_lock_joint": "button",
+    "button_power_joint": "button",
+    "rack0_joint": "rack",
+    "rack1_joint": "rack"
+  }
+}

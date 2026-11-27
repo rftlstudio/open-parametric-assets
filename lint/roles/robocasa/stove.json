@@ -1,0 +1,13 @@
+{
+  "source": "robocasa@7bfc60c9d26c02506d4265cbe0e86b35e6e25d42/robocasa/models/assets/fixtures/stoves/Stove001/model.xml",
+  "joints": {
+    "knob_front_left_joint": "knob",
+    "knob_front_right_joint": "knob",
+    "knob_rear_left_joint": "knob",
+    "knob_rear_right_joint": "knob",
+    "Door001_joint": "door",
+    "Knob001_joint": "knob",
+    "Knob002_joint": "knob",
+    "Shelf001_joint": "rack"
+  }
+}

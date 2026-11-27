@@ -1,0 +1,1535 @@
+[
+  {
+    "asset": "appliances/microwave",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "dead_sensor": {
+        "fired": [
+          "A007",
+          "P005"
+        ],
+        "status": "caught",
+        "target": "control_digit_1_touch"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "door_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "087b0e680fa78a9d3cac44dc53b6e1dcc3cc92e528bfbacea88d51a6d7f8ddb4"
+  },
+  {
+    "asset": "appliances/microwave",
+    "clean": [
+      {
+        "element": "add_30s_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "door_release_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "start_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "stop_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "door_handle"
+      },
+      "sticky_button": {
+        "fired": [
+          "A006",
+          "P004"
+        ],
+        "status": "caught",
+        "target": "start_button_slide"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "1d278822d9854ecc5de69911ae1d79ac495830bfebcd06afba01d77143f57bea"
+  },
+  {
+    "asset": "appliances/microwave",
+    "clean": [
+      {
+        "element": "grasp_door_pull_edge",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.005999998999999992,
+        "severity": "warn",
+        "threshold": 0.005
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "dead_sensor": {
+        "fired": [
+          "A007",
+          "P005"
+        ],
+        "status": "caught",
+        "target": "control_start_touch"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "status": "n/a"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "22b8b95caf362333e7bd016b4b5a655ca1d1d1d37a53b66a64424384684c730a"
+  },
+  {
+    "asset": "appliances/microwave",
+    "clean": [
+      {
+        "element": "add_30s_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "door_release_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "start_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "stop_button_slide",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            2.7e-08,
+            1.98e-07,
+            2.25e-07
+          ],
+          "mass_kg": 0.00066
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "grasp_door_pull_edge",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.006000001000000026,
+        "severity": "warn",
+        "threshold": 0.005
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "status": "n/a"
+      },
+      "sticky_button": {
+        "fired": [
+          "A006",
+          "P004"
+        ],
+        "status": "caught",
+        "target": "start_button_slide"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "4f99271930fe3f2eb1b0284db63c6067a135dfabe2256e52bf091feb9e2adb98"
+  },
+  {
+    "asset": "appliances/microwave",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "dead_sensor": {
+        "fired": [
+          "A007",
+          "P005"
+        ],
+        "status": "caught",
+        "target": "control_start_touch"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "door_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "6aaf7fb50b794c3f690ea3356f579a87900a87fe92115215628682f0b929ab67"
+  },
+  {
+    "asset": "appliances/microwave",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "dead_sensor": {
+        "fired": [
+          "A007",
+          "P005"
+        ],
+        "status": "caught",
+        "target": "control_digit_1_touch"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "door_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "885e4ce40eea1bd5543bca7f50075f4bb2eabd0a4fa63248ee31ecb1a31a0e0a"
+  },
+  {
+    "asset": "appliances/oven",
+    "clean": [
+      {
+        "element": "grasp_pull_lip",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.006000000000000007,
+        "severity": "warn",
+        "threshold": 0.005
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      },
+      "dead_sensor": {
+        "fired": [
+          "A007",
+          "P005"
+        ],
+        "status": "caught",
+        "target": "control_off_key"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "fired": [
+          "A002",
+          "P001"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "rack_1_front"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      }
+    },
+    "id": "1af240c34fee5c034c33f49c4a006920ad8065b399663669b01b5bc19bb70c5d"
+  },
+  {
+    "asset": "appliances/oven",
+    "clean": [
+      {
+        "element": "grasp_pull_lip",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.006000000000000007,
+        "severity": "warn",
+        "threshold": 0.005
+      },
+      {
+        "element": "mode_knob_rotation",
+        "hint": "Check reflected inertia and integration stability.",
+        "id": "A008",
+        "measured": 3.1600060887600826e-07,
+        "severity": "info",
+        "threshold": 1e-06
+      },
+      {
+        "element": "temperature_knob_rotation",
+        "hint": "Check reflected inertia and integration stability.",
+        "id": "A008",
+        "measured": 3.1600060887600826e-07,
+        "severity": "info",
+        "threshold": 1e-06
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "fired": [
+          "A002",
+          "P001"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "rack_1_front"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      }
+    },
+    "id": "1bb84f0491f8e525256ed94f0f97d917874398706b5193eca2a3255630046630"
+  },
+  {
+    "asset": "appliances/oven",
+    "clean": [
+      {
+        "element": "grasp_pull_lip",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.006000000000000007,
+        "severity": "warn",
+        "threshold": 0.005
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      },
+      "dead_sensor": {
+        "fired": [
+          "A007",
+          "P005"
+        ],
+        "status": "caught",
+        "target": "control_off_key"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "fired": [
+          "A002",
+          "P001"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "rack_1_front"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      }
+    },
+    "id": "3fa82be59c36905dad8282b67c0205ef24c247609a43ca95f42a9deb9f76f2b4"
+  },
+  {
+    "asset": "appliances/oven",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      },
+      "dead_sensor": {
+        "fired": [
+          "A007",
+          "P005"
+        ],
+        "status": "caught",
+        "target": "control_off_key"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "fired": [
+          "A002",
+          "P001"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "door_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      }
+    },
+    "id": "5f39fc2c6082a20e475fb563f56e85a30c0bfc512e8fe1a05ea61df779449fea"
+  },
+  {
+    "asset": "appliances/oven",
+    "clean": [
+      {
+        "element": "mode_knob_rotation",
+        "hint": "Check reflected inertia and integration stability.",
+        "id": "A008",
+        "measured": 3.160006088759985e-07,
+        "severity": "info",
+        "threshold": 1e-06
+      },
+      {
+        "element": "temperature_knob_rotation",
+        "hint": "Check reflected inertia and integration stability.",
+        "id": "A008",
+        "measured": 3.160006088759985e-07,
+        "severity": "info",
+        "threshold": 1e-06
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "fired": [
+          "A002",
+          "P001"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "door_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      }
+    },
+    "id": "692e29ceb4cf582c44dec8a8fbf075ccc5320ed4605407f7b9f1d118fae0ed07"
+  },
+  {
+    "asset": "appliances/oven",
+    "clean": [
+      {
+        "element": "mode_knob_rotation",
+        "hint": "Check reflected inertia and integration stability.",
+        "id": "A008",
+        "measured": 3.1600060887600593e-07,
+        "severity": "info",
+        "threshold": 1e-06
+      },
+      {
+        "element": "temperature_knob_rotation",
+        "hint": "Check reflected inertia and integration stability.",
+        "id": "A008",
+        "measured": 3.1600060887600593e-07,
+        "severity": "info",
+        "threshold": 1e-06
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "free_swing": {
+        "fired": [
+          "A002",
+          "P001"
+        ],
+        "status": "caught",
+        "target": "door_hinge"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "door_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "rack_1_slide"
+      }
+    },
+    "id": "fe876a4314e0796935dfb1bd7df9960f5c2f62a508b1c978e3aca8605b35728a"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "367aa082bc9bbc69f1b8acda612b14fea4af28c246979be248d1f95972c8f0fb"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "49955d7134696a822e8559520f893a36c54324beeda65ae6e67373ca45b2b72c"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "8f05bcaed402bcf973a74bfd072f9d52292baea3676e44392a691ba4b9cad3df"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "aa526f9c6f4a8a14680ee7c64396217be3a2891b5b1a54c397673a1a889dd2ea"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "d2aea1a5ebc0af00e1287a2650562f1e9814d0369180a4adf7238be21c4f35f6"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "dbf04b4845f7687f996b03fbb9beab3b539743e7dd54e15618506a90fecc0cf1"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "e7f79a45e4d7029933b8d3ef7ee17ea835653ce9bab3405a281e8cdbae1de517"
+  },
+  {
+    "asset": "furniture/cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "fired": [
+          "A003"
+        ],
+        "status": "caught",
+        "target": "hinge_left"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "handle_left"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "status": "n/a"
+      }
+    },
+    "id": "eca43de3e2e4e2bf92fe3f9e1ea8b79b951d3d909ddfbd8a8fa59668646a6175"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "drawer_1_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "18bef08e3ffba7732006fb74a54b7b8e3acd1f031cd49f7afa9add36ca6423b5"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "drawer_1_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "3b8439a556ea3dc487f2a21b57c0e68c69ca1697e5e3f113248a09a42c779372"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [
+      {
+        "element": "grasp_drawer_1_handle",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.00900000000000001,
+        "severity": "warn",
+        "threshold": 0.005
+      },
+      {
+        "element": "grasp_drawer_2_handle",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.00900000000000001,
+        "severity": "warn",
+        "threshold": 0.005
+      },
+      {
+        "element": "grasp_drawer_3_handle",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.00900000000000001,
+        "severity": "warn",
+        "threshold": 0.005
+      },
+      {
+        "element": "grasp_drawer_4_handle",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.00900000000000001,
+        "severity": "warn",
+        "threshold": 0.005
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "status": "n/a"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "4c0c5d08633da770ab575ce4e664dad6502e82705e40b70cfa0a4028aacaf1d4"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [
+      {
+        "element": "grasp_drawer_1_handle",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.00900000000000001,
+        "severity": "warn",
+        "threshold": 0.005
+      },
+      {
+        "element": "grasp_drawer_2_handle",
+        "hint": "Check site placement and the collision surface on its rigid link.",
+        "id": "A005",
+        "measured": 0.00900000000000001,
+        "severity": "warn",
+        "threshold": 0.005
+      }
+    ],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "status": "n/a"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "8527ffb29683fdc26f0ac3fcc020902495b2e6101a41a1997f5acab8b72e5257"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "drawer_1_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "8bc6bd0f0535179d94253882380604dd1681bccd202832f25ea95949ae0ffce4"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "drawer_1_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "8d3f54a5aa8123babe35b7eb973aa830a99bb9e259993fbf2b4b270fd4053ea4"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "drawer_1_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "c844fa9b06d71a088c894d371e31e3631de945b89ad4df124d203a6a12da567f"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "drawer_1_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "e46684b9ea8ebfa350dac5586e9e094e1a09dc4508b37cd29adf94fcdc15e943"
+  },
+  {
+    "asset": "furniture/drawer_cabinet",
+    "clean": [],
+    "faults": {
+      "contact_bounce": {
+        "fired": [
+          "P003"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      },
+      "dead_sensor": {
+        "status": "n/a"
+      },
+      "feather_door": {
+        "status": "n/a"
+      },
+      "free_swing": {
+        "status": "n/a"
+      },
+      "ghost_handle": {
+        "fired": [
+          "A005"
+        ],
+        "status": "caught",
+        "target": "drawer_1_handle"
+      },
+      "sticky_button": {
+        "status": "n/a"
+      },
+      "stuck_drawer": {
+        "fired": [
+          "P002"
+        ],
+        "status": "caught",
+        "target": "slide_1"
+      }
+    },
+    "id": "f5c1302ffb4da7c5b62be0f41ae62cdec89cb3f94a793dd62dee8abc5392769f"
+  }
+]

@@ -33,6 +33,13 @@ jobs:
       - run: python -m pip install -r sim/requirements.txt
       - run: python -m unittest discover -s sim -p "test_*.py"
       - run: npm run dataset -- --samples 3 --corners --renders --urdf --mjcf
+      - name: Lint clean MJCFs and detect injected faults including parameter corners
+        run: python -m sim.lint.faults --dataset dist/dataset --out dist/lint-faults --workers 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: articulation-detection-matrix
+          path: dist/lint-faults/
       - name: Validate Croissant metadata
         run: |
           python -m pip install mlcroissant==1.1.1

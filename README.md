@@ -13,10 +13,20 @@ MuJoCo checks and a scripted oracle that solves its tasks.
 ![Oracle pressing START and opening an oven door](docs/media/demo.gif)
 
 - **Download:** [Hugging Face dataset](https://huggingface.co/datasets/rftlstudio/open-parametric-assets)
-- **Verify your own assets:** articulation linter (coming in the next release)
+- **Check an articulated MJCF:** [articulation linter and thresholds](docs/LINT.md)
 - **Generate new variants:** Node.js generator, see [Build a dataset](#build-a-dataset)
 
 Run the commands from a repository checkout. Add `--task open_door_pull_rack --view` to watch the oven, or `--hf` to load models from the pinned Hugging Face release after publication. [Build and publish the verified release](docs/RELEASE.md).
+
+To inspect joint motion, collisions and controls on a standalone model:
+
+```sh
+python -m pip install mujoco==3.3.7
+python -m sim.lint path/to/model.xml
+python -m sim.lint path/to/model.xml --roles roles.json --json findings.json
+```
+
+See the [v0.4.0 clean models and injected faults](reports/lint-opa-2026-11-27.md) and [standalone RoboCasa fixture observations](reports/lint-robocasa-2026-11-27.md) for measured results.
 
 [Press START on two prebuilt microwaves with Python and MuJoCo](examples/quickstart/README.md). Each example includes the model, labeled views and its measured task report.
 

@@ -1,0 +1,586 @@
+[
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "fixture_leftdoorhinge",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mass_kg": 0.0
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "fixture_rightdoorhinge",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mass_kg": 0.0
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      }
+    ],
+    "fixture": "cabinet_double",
+    "joints": 2,
+    "loaded": true,
+    "method": "assembled",
+    "source": "robocasa/models/assets/fixtures/cabinets/cabinet_hinge.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "fixture_doorhinge",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mass_kg": 0.0
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      }
+    ],
+    "fixture": "cabinet_single",
+    "joints": 1,
+    "loaded": true,
+    "method": "assembled",
+    "source": "robocasa/models/assets/fixtures/cabinets/cabinet_single.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "Button001_joint",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            1.0076652016035362e-08,
+            1.007676668897541e-08,
+            1.7406956177418943e-08
+          ],
+          "mass_kg": 0.0005476539777995642
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "Button002_joint",
+        "hint": "Verify the moving link's density, scale and inertia.",
+        "id": "A003",
+        "measured": {
+          "inertia": [
+            1.0076727560703474e-08,
+            1.0076843845006149e-08,
+            1.7407080310875465e-08
+          ],
+          "mass_kg": 0.0005476561840452911
+        },
+        "severity": "warn",
+        "threshold": {
+          "min_mass_kg": 0.001,
+          "triangle": "Imax <= I1 + I2"
+        }
+      },
+      {
+        "element": "Button001_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.5043471648671398,
+          "target": 0.002
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "Button002_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.9373297655456206,
+          "target": 0.002
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "Button001_joint",
+        "hint": "Check the available pressing force and restoring spring against friction.",
+        "id": "P004",
+        "measured": {
+          "pressed": 0.32212038231421547,
+          "released": 0.2868296062324087
+        },
+        "severity": "error",
+        "threshold": {
+          "max_rest": 0.1,
+          "min_press": 0.6
+        }
+      },
+      {
+        "element": "Button002_joint",
+        "hint": "Check the available pressing force and restoring spring against friction.",
+        "id": "P004",
+        "measured": {
+          "pressed": 0.6029079228602418,
+          "released": 0.6229578154225516
+        },
+        "severity": "error",
+        "threshold": {
+          "max_rest": 0.1,
+          "min_press": 0.6
+        }
+      }
+    ],
+    "fixture": "coffee_machine",
+    "joints": 4,
+    "loaded": true,
+    "method": "standalone",
+    "source": "robocasa/models/assets/fixtures/coffee_machines/CoffeeMachine036/model.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "button_lock_joint",
+        "hint": "Check gravity balance, rest position and passive resistance.",
+        "id": "P001",
+        "measured": 3.3262300215287244,
+        "severity": "warn",
+        "threshold": 0.02
+      },
+      {
+        "element": "button_power_joint",
+        "hint": "Check gravity balance, rest position and passive resistance.",
+        "id": "P001",
+        "measured": 3.326233013709477,
+        "severity": "warn",
+        "threshold": 0.02
+      },
+      {
+        "element": "door_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.0023408836637436705,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "rack0_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.13931700477041195,
+          "target": 0.33
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "rack1_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.34932878058756084,
+          "target": 0.33
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "button_lock_joint",
+        "hint": "Check the available pressing force and restoring spring against friction.",
+        "id": "P004",
+        "measured": {
+          "pressed": 0.6049890569986729,
+          "released": 3.326289764264651
+        },
+        "severity": "error",
+        "threshold": {
+          "max_rest": 0.1,
+          "min_press": 0.6
+        }
+      },
+      {
+        "element": "button_power_joint",
+        "hint": "Check the available pressing force and restoring spring against friction.",
+        "id": "P004",
+        "measured": {
+          "pressed": 0.6049894698798555,
+          "released": 3.326292756495148
+        },
+        "severity": "error",
+        "threshold": {
+          "max_rest": 0.1,
+          "min_press": 0.6
+        }
+      },
+      {
+        "element": "rack0_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.043450151024383064,
+        "severity": "error",
+        "threshold": 0.001
+      },
+      {
+        "element": "rack1_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.04331289479265992,
+        "severity": "error",
+        "threshold": 0.001
+      }
+    ],
+    "fixture": "dishwasher",
+    "joints": 5,
+    "loaded": true,
+    "method": "standalone",
+    "source": "robocasa/models/assets/fixtures/dishwashers/Dishwasher031/model.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "fixture_slidejoint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.9082788195746178,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "fixture_slidejoint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.9082788195746181,
+          "target": -0.55
+        },
+        "severity": "error",
+        "threshold": 0.95
+      }
+    ],
+    "fixture": "drawer",
+    "joints": 1,
+    "loaded": true,
+    "method": "assembled",
+    "source": "robocasa/models/assets/fixtures/cabinets/drawer.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "freezer_drawer0_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.02048267055966046,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "freezer_drawer0_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.2894039346620258,
+          "target": 0.38
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "freezer_drawer1_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.012822213042021796,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "freezer_drawer1_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.28480285181833487,
+          "target": 0.38
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "fridge_drawer0_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.40502142812022646,
+          "target": 0.38
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "fridge_drawer0_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.5228625531669182,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "fridge_drawer1_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.0001409373692754103,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "fridge_drawer1_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.4050215482979509,
+          "target": 0.38
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "freezer_drawer0_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.031096480963890828,
+        "severity": "error",
+        "threshold": 0.001
+      },
+      {
+        "element": "freezer_drawer1_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.030524436826579845,
+        "severity": "error",
+        "threshold": 0.001
+      },
+      {
+        "element": "fridge_drawer0_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.029860289684439753,
+        "severity": "error",
+        "threshold": 0.001
+      },
+      {
+        "element": "fridge_drawer1_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.032244567489012645,
+        "severity": "error",
+        "threshold": 0.001
+      }
+    ],
+    "fixture": "fridge",
+    "joints": 6,
+    "loaded": true,
+    "method": "standalone",
+    "source": "robocasa/models/assets/fixtures/fridges/Refrigerator031/model.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "Disc001_joint",
+        "hint": "Declare the intended end stops or document continuous rotation.",
+        "id": "A001",
+        "measured": [
+          0.0,
+          360.0
+        ],
+        "severity": "error",
+        "threshold": "finite positive range and limited"
+      }
+    ],
+    "fixture": "microwave",
+    "joints": 2,
+    "loaded": true,
+    "method": "standalone",
+    "source": "robocasa/models/assets/fixtures/microwaves/Microwave011/model.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "rack0_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.007309866172657666,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "rack0_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.11847408966662253,
+          "target": 0.27
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "rack1_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": -0.001239335855170833,
+          "target": 0.0
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "rack1_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.19026379299501697,
+          "target": 0.27
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "rack0_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.06326668511414271,
+        "severity": "error",
+        "threshold": 0.001
+      },
+      {
+        "element": "rack1_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.051236635087020886,
+        "severity": "error",
+        "threshold": 0.001
+      }
+    ],
+    "fixture": "oven",
+    "joints": 5,
+    "loaded": true,
+    "method": "standalone",
+    "source": "robocasa/models/assets/fixtures/ovens/Oven031/model.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [],
+    "fixture": "sink",
+    "joints": 3,
+    "loaded": true,
+    "method": "standalone",
+    "source": "robocasa/models/assets/fixtures/sinks/Sink001/model.xml"
+  },
+  {
+    "commit": "7bfc60c9d26c02506d4265cbe0e86b35e6e25d42",
+    "findings": [
+      {
+        "element": "Shelf001_joint",
+        "hint": "Check effort, friction, joint limits and obstructions.",
+        "id": "P002",
+        "measured": {
+          "effort": 150,
+          "fraction": 0.1481954329584721,
+          "target": 0.3
+        },
+        "severity": "error",
+        "threshold": 0.95
+      },
+      {
+        "element": "Shelf001_joint",
+        "hint": "Check the swept collision shapes and required opening sequence.",
+        "id": "P006",
+        "measured": 0.030414498881433067,
+        "severity": "error",
+        "threshold": 0.001
+      }
+    ],
+    "fixture": "stove",
+    "joints": 8,
+    "loaded": true,
+    "method": "standalone",
+    "source": "robocasa/models/assets/fixtures/stoves/Stove001/model.xml"
+  }
+]

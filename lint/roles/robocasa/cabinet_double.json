@@ -1,0 +1,7 @@
+{
+  "source": "robocasa@7bfc60c9d26c02506d4265cbe0e86b35e6e25d42/robocasa/models/assets/fixtures/cabinets/cabinet_hinge.xml",
+  "joints": {
+    "fixture_leftdoorhinge": "door",
+    "fixture_rightdoorhinge": "door"
+  }
+}
