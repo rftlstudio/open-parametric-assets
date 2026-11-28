@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.5.0
 
 The record-free MJCF articulation linter reports joint, collision and control measurements with configurable thresholds. CI checks clean models and seven classes of injected faults across parameter corners. [Rules and reproduction instructions](docs/LINT.md).
+
+On the 217 models in the published v0.4.0 dataset, the linter reported zero clean errors and detected all 803 applicable injected faults. The 29-record CI sample detected all 104 applicable faults. [OPA lint report](reports/lint-opa-2026-11-27.md) · [CI fault matrix](reports/faults/matrix.md) · [Hugging Face dataset v0.4.0](https://huggingface.co/datasets/rftlstudio/open-parametric-assets/tree/v0.4.0).
+
+The external evaluation covers 10 standalone RoboCasa fixtures. Each remaining reachability or penetration finding records which prerequisite joints the controller held during the sweep. [RoboCasa lint report](reports/lint-robocasa-2026-11-27.md).
 
 The dataset builder accepts `--mjcf` to export native MuJoCo models with springs, interaction sites, control sensors and embedded task metadata. CI runs both physics formats and compares their compiled models and measured motion. See [Native MuJoCo models](docs/MJCF.md).
 
