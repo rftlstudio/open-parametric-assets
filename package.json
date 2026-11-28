@@ -1,7 +1,7 @@
 {
   "name": "open-parametric-assets",
   "version": "0.5.0",
-  "description": "Deterministic three.js assets with machine-checkable specifications",
+  "description": "Parametric generator and physics verifier for articulated objects. MJCF/URDF cabinets, drawers, microwaves and ovens with oracle-solved tasks, plus a linter that catches sim-asset faults before training.",
   "type": "module",
   "license": "Apache-2.0",
   "exports": {
